@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>DTK Alliance Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Exo+2:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<!-- Firebase -->
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, doc, setDoc, getDoc, collection, getDocs, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDF_6uP5JkRzG3uxWHPmbABwOxfvkFcj8E",
+    authDomain: "dtk-tracker.firebaseapp.com",
+    projectId: "dtk-tracker",
+    storageBucket: "dtk-tracker.firebasestorage.app",
+    messagingSenderId: "241220534002",
+    appId: "1:241220534002:web:9dc0b95e3e4c8ffd80da6b",
+    measurementId: "G-X3H6DB39J1"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  window.__db = db;
+  window.__firestore = { doc, setDoc, getDoc, collection, getDocs, onSnapshot, deleteDoc };
+  window.dispatchEvent(new Event('firebase-ready'));
+</script>
+
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #111418;
+    --surface2: #181c24;
+    --border: #1e2530;
+    --gold: #c9a84c;
+    --gold2: #e8c96a;
+    --teal: #2dd4bf;
+    --teal2: #14b8a6;
+    --red: #ef4444;
+    --green: #22c55e;
+    --text: #e8eaf0;
+    --text2: #8a92a6;
+    --text3: #4a5268;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Exo 2', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at 20% 0%, rgba(201,168,76,0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 100%, rgba(45,212,191,0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  #app { position: relative; z-index: 1; }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, #0d1017 0%, #141922 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .header-left { display: flex; align-items: center; gap: 10px; }
+
+  .logo {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700; font-size: 16px;
+    color: #0a0c10;
+  }
+
+  .header-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--gold2);
+    letter-spacing: 1px;
+  }
+
+  .header-sub {
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .lang-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: 'Exo 2', sans-serif;
+    letter-spacing: 1px;
+  }
+
+  .lang-btn:active { background: var(--border); }
+
+  /* NAV */
+  .nav {
+    display: flex;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav::-webkit-scrollbar { display: none; }
+
+  .nav-btn {
+    flex: 1;
+    min-width: 80px;
+    padding: 12px 8px;
+    background: none;
+    border: none;
+    color: var(--text3);
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-btn.active {
+    color: var(--gold2);
+    border-bottom-color: var(--gold2);
+  }
+
+  /* PAGES */
+  .page { display: none; padding: 16px; }
+  .page.active { display: block; }
+
+  /* SECTION HEADER */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--gold2);
+    letter-spacing: 1px;
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+
+  .card-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  /* BUTTONS */
+  .btn {
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    color: #0a0c10;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: opacity 0.2s;
+  }
+  .btn:active { opacity: 0.8; }
+
+  .btn-sm {
+    padding: 6px 12px;
+    font-size: 11px;
+    border-radius: 6px;
+  }
+
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+  }
+
+  .btn-teal {
+    background: linear-gradient(135deg, var(--teal2), var(--teal));
+    color: #0a0c10;
+  }
+
+  .btn-danger {
+    background: var(--red);
+    color: white;
+  }
+
+  .btn-ghost {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-family: 'Exo 2', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  /* INPUT */
+  .input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-family: 'Exo 2', sans-serif;
+    font-size: 14px;
+    margin-bottom: 10px;
+    outline: none;
+  }
+  .input:focus { border-color: var(--gold); }
+  .input::placeholder { color: var(--text3); }
+
+  select.input {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a92a6' fill='none' stroke-width='2'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+  }
+
+  /* EVENT LIST */
+  .event-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .event-item:active { border-color: var(--gold); }
+
+  .event-tag {
+    background: rgba(201,168,76,0.15);
+    color: var(--gold2);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+  }
+
+  /* MEMBER GRID */
+  .member-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .member-card {
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+
+  .member-card.yes {
+    border-color: var(--green);
+    background: rgba(34,197,94,0.08);
+  }
+
+  .member-card.no {
+    border-color: var(--red);
+    background: rgba(239,68,68,0.08);
+  }
+
+  .member-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 6px;
+    word-break: break-word;
+  }
+
+  .member-status {
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  /* PARTICIPATION TOGGLE ROW */
+  .member-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .member-row:last-child { border-bottom: none; }
+
+  .toggle-group {
+    display: flex;
+    gap: 6px;
+  }
+
+  .toggle-btn {
+    width: 36px; height: 28px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text3);
+    font-size: 14px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .toggle-btn.selected-yes {
+    background: rgba(34,197,94,0.2);
+    border-color: var(--green);
+    color: var(--green);
+  }
+
+  .toggle-btn.selected-no {
+    background: rgba(239,68,68,0.2);
+    border-color: var(--red);
+    color: var(--red);
+  }
+
+  /* STATS */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .stat-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 28px;
+    color: var(--gold2);
+  }
+
+  .stat-label {
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  /* POWER ENTRY */
+  .power-member-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    gap: 8px;
+  }
+  .power-member-row:last-child { border-bottom: none; }
+
+  .power-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .power-value {
+    font-size: 12px;
+    color: var(--teal);
+    font-weight: 500;
+    min-width: 55px;
+    text-align: right;
+  }
+
+  .power-input {
+    width: 90px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 8px;
+    border-radius: 6px;
+    font-family: 'Exo 2', sans-serif;
+    font-size: 12px;
+    outline: none;
+    text-align: center;
+  }
+  .power-input:focus { border-color: var(--teal); }
+
+  /* REPORT */
+  .report-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 12px;
+    white-space: pre-wrap;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text2);
+    font-family: 'Exo 2', sans-serif;
+  }
+
+  /* BADGE */
+  .badge {
+    display: inline-block;
+    background: rgba(201,168,76,0.15);
+    color: var(--gold);
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-left: 6px;
+  }
+
+  .badge-teal {
+    background: rgba(45,212,191,0.15);
+    color: var(--teal);
+  }
+
+  /* LOADING */
+  .loading {
+    text-align: center;
+    color: var(--text3);
+    padding: 40px;
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
+
+  /* TOAST */
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--surface2);
+    border: 1px solid var(--gold);
+    color: var(--gold2);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 1px;
+    z-index: 9999;
+    transition: transform 0.3s;
+    white-space: nowrap;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 200;
+    align-items: flex-end;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    padding: 20px 16px 32px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+
+  .modal-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--gold2);
+    margin-bottom: 16px;
+    letter-spacing: 1px;
+  }
+
+  /* SEARCH */
+  .search-bar {
+    position: relative;
+    margin-bottom: 14px;
+  }
+  .search-bar .input { margin-bottom: 0; padding-left: 36px; }
+  .search-bar::before {
+    content: '🔍';
+    position: absolute;
+    left: 10px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px;
+    z-index: 1;
+  }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 16px 0;
+  }
+
+  .label {
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .flex { display: flex; gap: 8px; }
+  .flex-1 { flex: 1; }
+  .mt-8 { margin-top: 8px; }
+  .mt-16 { margin-top: 16px; }
+  .mb-8 { margin-bottom: 8px; }
+
+  /* PROGRESS BAR */
+  .progress-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 6px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold2));
+    border-radius: 2px;
+    transition: width 0.3s;
+  }
+
+  /* RANK BADGE */
+  .rank-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-right: 4px;
+  }
+  .r5 { background: rgba(201,168,76,0.3); color: var(--gold2); }
+  .r4 { background: rgba(45,212,191,0.2); color: var(--teal); }
+  .r3 { background: rgba(139,92,246,0.2); color: #a78bfa; }
+
+  .empty-state {
+    text-align: center;
+    color: var(--text3);
+    padding: 30px 20px;
+    font-size: 13px;
+  }
+
+  .member-count {
+    font-size: 12px;
+    color: var(--text3);
+    margin-bottom: 12px;
+  }
+</style>
+
+</head>
+<body>
+<div id="app">
+
+  <!-- HEADER -->
+
+  <div class="header">
+    <div class="header-left">
+      <div class="logo">DTK</div>
+      <div>
+        <div class="header-title" data-i18n="title">DTK TRACKER</div>
+        <div class="header-sub" data-i18n="subtitle">K1246 Alliance</div>
+      </div>
+    </div>
+    <button class="lang-btn" onclick="cycleLang()" id="langBtn">EN</button>
+  </div>
+
+  <!-- NAV -->
+
+  <div class="nav">
+    <button class="nav-btn active" onclick="showPage('events')" data-i18n="nav_events">EVENTS</button>
+    <button class="nav-btn" onclick="showPage('power')" data-i18n="nav_power">POWER</button>
+    <button class="nav-btn" onclick="showPage('reports')" data-i18n="nav_reports">REPORTS</button>
+    <button class="nav-btn" onclick="showPage('members')" data-i18n="nav_members">MEMBERS</button>
+  </div>
+
+  <!-- EVENTS PAGE -->
+
+  <div class="page active" id="page-events">
+    <div class="section-header">
+      <div class="section-title" data-i18n="events_title">EVENTS</div>
+      <button class="btn btn-sm" onclick="openAddEventModal()" data-i18n="add_event">+ ADD</button>
+    </div>
+
+```
+<div class="stats-grid">
+  <div class="stat-box">
+    <div class="stat-num" id="stat-total-events">—</div>
+    <div class="stat-label" data-i18n="total_events">Total Events</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-num" id="stat-this-week">—</div>
+    <div class="stat-label" data-i18n="this_week">This Week</div>
+  </div>
+</div>
+
+<div id="events-list"><div class="loading" data-i18n="loading">LOADING...</div></div>
+```
+
+  </div>
+
+  <!-- EVENT DETAIL PAGE -->
+
+  <div class="page" id="page-event-detail">
+    <div class="section-header">
+      <button class="btn-ghost" onclick="showPage('events')">← <span data-i18n="back">Back</span></button>
+      <button class="btn btn-sm btn-danger" onclick="deleteCurrentEvent()" data-i18n="delete">DELETE</button>
+    </div>
+
+```
+<div class="card" style="margin-bottom:16px">
+  <div class="section-title" id="detail-event-name">—</div>
+  <div style="color:var(--text3);font-size:12px;margin-top:4px" id="detail-event-date">—</div>
+  <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+    <span id="detail-participated" style="color:var(--green);font-size:13px"></span>
+    <span id="detail-absent" style="color:var(--red);font-size:13px"></span>
+    <span id="detail-pending" style="color:var(--text3);font-size:13px"></span>
+  </div>
+  <div class="progress-bar mt-8">
+    <div class="progress-fill" id="detail-progress" style="width:0%"></div>
+  </div>
+</div>
+
+<div class="search-bar">
+  <input class="input" id="detail-search" type="text" placeholder="Search member..." oninput="filterDetailMembers()" data-i18n-placeholder="search_member">
+</div>
+
+<div style="display:flex;gap:8px;margin-bottom:12px">
+  <button class="btn btn-sm flex-1" onclick="markAll('yes')" data-i18n="mark_all_yes">✓ ALL YES</button>
+  <button class="btn btn-sm btn-outline flex-1" onclick="markAll('no')" data-i18n="mark_all_no">✗ ALL NO</button>
+  <button class="btn btn-sm btn-ghost flex-1" onclick="clearAll()" data-i18n="clear_all">CLEAR</button>
+</div>
+
+<div id="detail-members-list"></div>
+```
+
+  </div>
+
+  <!-- POWER PAGE -->
+
+  <div class="page" id="page-power">
+    <div class="section-header">
+      <div class="section-title" data-i18n="power_title">POWER</div>
+      <button class="btn btn-sm btn-teal" onclick="savePowerSnapshot()" data-i18n="save_snapshot">SAVE</button>
+    </div>
+
+```
+<div class="card mb-8">
+  <div class="label" data-i18n="week_label">WEEK</div>
+  <input class="input" id="power-week-label" type="text" placeholder="e.g. Week 12 - Mar 29" style="margin-bottom:0">
+</div>
+
+<div class="search-bar">
+  <input class="input" id="power-search" type="text" placeholder="Search member..." oninput="filterPowerMembers()" data-i18n-placeholder="search_member">
+</div>
+
+<div id="power-members-list"><div class="loading" data-i18n="loading">LOADING...</div></div>
+```
+
+  </div>
+
+  <!-- REPORTS PAGE -->
+
+  <div class="page" id="page-reports">
+    <div class="section-title mb-8" data-i18n="reports_title">REPORTS</div>
+    <div class="divider"></div>
+
+```
+<div class="label mt-16" data-i18n="event_report_label">EVENT PARTICIPATION REPORT</div>
+<div class="flex mb-8">
+  <select class="input flex-1" id="report-period" style="margin-bottom:0">
+    <option value="week" data-i18n="opt_week">This Week</option>
+    <option value="month" data-i18n="opt_month">This Month</option>
+    <option value="all" data-i18n="opt_all">All Time</option>
+  </select>
+  <button class="btn btn-sm" onclick="generateEventReport()" data-i18n="generate">GENERATE</button>
+</div>
+
+<div id="event-report-output" class="report-box" style="display:none"></div>
+
+<div class="divider"></div>
+
+<div class="label" data-i18n="power_report_label">POWER GROWTH REPORT</div>
+<div class="flex mb-8">
+  <select class="input flex-1" id="power-report-member" style="margin-bottom:0">
+    <option value="all" data-i18n="opt_all_members">All Members</option>
+  </select>
+  <button class="btn btn-sm btn-teal" onclick="generatePowerReport()" data-i18n="generate">GENERATE</button>
+</div>
+
+<div id="power-report-output" class="report-box" style="display:none"></div>
+
+<div class="divider"></div>
+<div class="label" data-i18n="top_label">TOP PARTICIPATORS (MONTHLY)</div>
+<div id="top-participators" class="card mt-8">
+  <div class="empty-state" data-i18n="generate_first">Generate an event report first</div>
+</div>
+```
+
+  </div>
+
+  <!-- MEMBERS PAGE -->
+
+  <div class="page" id="page-members">
+    <div class="section-header">
+      <div class="section-title" data-i18n="members_title">MEMBERS</div>
+      <button class="btn btn-sm" onclick="openAddMemberModal()" data-i18n="add_member">+ ADD</button>
+    </div>
+
+```
+<div class="search-bar">
+  <input class="input" id="member-search" type="text" placeholder="Search..." oninput="filterMembers()" data-i18n-placeholder="search">
+</div>
+
+<div class="member-count" id="member-count-label"></div>
+<div id="members-list"><div class="loading" data-i18n="loading">LOADING...</div></div>
+```
+
+  </div>
+
+</div>
+
+<!-- ADD EVENT MODAL -->
+
+<div class="modal-overlay" id="modal-add-event">
+  <div class="modal">
+    <div class="modal-title" data-i18n="add_event_title">NEW EVENT</div>
+    <div class="label" data-i18n="event_name_label">EVENT NAME</div>
+    <select class="input" id="new-event-type">
+      <option>Swordland Shadow</option>
+      <option>Tri-Alliance Clash</option>
+      <option>Alliance Mobilization</option>
+      <option>Castle Battle</option>
+      <option>KvK</option>
+      <option>Feast</option>
+      <option>Fishing</option>
+      <option>Windward Voyage</option>
+      <option data-i18n="custom_option">Custom...</option>
+    </select>
+    <input class="input" id="new-event-custom" type="text" placeholder="Custom event name" style="display:none" data-i18n-placeholder="custom_event_placeholder">
+    <div class="label" data-i18n="event_date_label">DATE</div>
+    <input class="input" id="new-event-date" type="date">
+    <div class="flex mt-8">
+      <button class="btn flex-1" onclick="addEvent()" data-i18n="create">CREATE</button>
+      <button class="btn-ghost flex-1" onclick="closeModal('modal-add-event')" data-i18n="cancel">CANCEL</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD MEMBER MODAL -->
+
+<div class="modal-overlay" id="modal-add-member">
+  <div class="modal">
+    <div class="modal-title" data-i18n="add_member_title">ADD MEMBER</div>
+    <div class="label" data-i18n="member_name_label">IN-GAME NAME</div>
+    <input class="input" id="new-member-name" type="text" placeholder="Member name" data-i18n-placeholder="member_name_placeholder">
+    <div class="label" data-i18n="rank_label">RANK</div>
+    <select class="input" id="new-member-rank">
+      <option value="R5">R5</option>
+      <option value="R4">R4</option>
+      <option value="R3" selected>R3</option>
+      <option value="R2">R2</option>
+      <option value="R1">R1</option>
+    </select>
+    <div class="flex mt-8">
+      <button class="btn flex-1" onclick="addMember()" data-i18n="add">ADD</button>
+      <button class="btn-ghost flex-1" onclick="closeModal('modal-add-member')" data-i18n="cancel">CANCEL</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ============================================================
+// I18N
+// ============================================================
+const LANGS = ['EN', 'FR', 'ES'];
+let langIdx = 0;
+const T = {
+  EN: {
+    title: 'DTK TRACKER', subtitle: 'K1246 Alliance',
+    nav_events: 'EVENTS', nav_power: 'POWER', nav_reports: 'REPORTS', nav_members: 'MEMBERS',
+    events_title: 'EVENTS', add_event: '+ ADD', total_events: 'Total Events', this_week: 'This Week',
+    loading: 'LOADING...', back: 'Back', delete: 'DELETE',
+    mark_all_yes: '✓ ALL YES', mark_all_no: '✗ ALL NO', clear_all: 'CLEAR',
+    power_title: 'POWER', save_snapshot: 'SAVE', week_label: 'WEEK',
+    reports_title: 'REPORTS', event_report_label: 'EVENT PARTICIPATION REPORT',
+    opt_week: 'This Week', opt_month: 'This Month', opt_all: 'All Time',
+    generate: 'GENERATE', power_report_label: 'POWER GROWTH REPORT',
+    opt_all_members: 'All Members', top_label: 'TOP PARTICIPATORS (MONTHLY)',
+    generate_first: 'Generate a report first', members_title: 'MEMBERS', add_member: '+ ADD',
+    add_event_title: 'NEW EVENT', event_name_label: 'EVENT NAME', custom_option: 'Custom...',
+    event_date_label: 'DATE', create: 'CREATE', cancel: 'CANCEL',
+    add_member_title: 'ADD MEMBER', member_name_label: 'IN-GAME NAME',
+    member_name_placeholder: 'Member name', rank_label: 'RANK', add: 'ADD',
+    search_member: 'Search member...', search: 'Search...',
+    participated: 'participated', absent: 'absent', pending: 'pending',
+    custom_event_placeholder: 'Custom event name',
+    saved: 'SAVED ✓', deleted: 'DELETED', added: 'ADDED ✓',
+    no_events: 'No events yet. Tap + to add one.',
+    no_members: 'No members yet.',
+    participation_rate: 'Participation Rate',
+    never_participated: 'Never Participated',
+    low_participation: 'Low Participation (<50%)',
+    top_3: '🏆 Top 3 This Month',
+    report_generated: 'Report Generated',
+  },
+  FR: {
+    title: 'DTK TRACKER', subtitle: 'Alliance K1246',
+    nav_events: 'ÉVÉNEMENTS', nav_power: 'PUISSANCE', nav_reports: 'RAPPORTS', nav_members: 'MEMBRES',
+    events_title: 'ÉVÉNEMENTS', add_event: '+ AJOUTER', total_events: 'Total Événements', this_week: 'Cette Semaine',
+    loading: 'CHARGEMENT...', back: 'Retour', delete: 'SUPPRIMER',
+    mark_all_yes: '✓ TOUS OUI', mark_all_no: '✗ TOUS NON', clear_all: 'EFFACER',
+    power_title: 'PUISSANCE', save_snapshot: 'SAUVER', week_label: 'SEMAINE',
+    reports_title: 'RAPPORTS', event_report_label: 'RAPPORT DE PARTICIPATION',
+    opt_week: 'Cette Semaine', opt_month: 'Ce Mois', opt_all: 'Tout',
+    generate: 'GÉNÉRER', power_report_label: 'RAPPORT DE PUISSANCE',
+    opt_all_members: 'Tous les Membres', top_label: 'TOP PARTICIPANTS (MENSUEL)',
+    generate_first: 'Générer un rapport d\'abord', members_title: 'MEMBRES', add_member: '+ AJOUTER',
+    add_event_title: 'NOUVEL ÉVÉNEMENT', event_name_label: 'NOM ÉVÉNEMENT', custom_option: 'Personnalisé...',
+    event_date_label: 'DATE', create: 'CRÉER', cancel: 'ANNULER',
+    add_member_title: 'AJOUTER MEMBRE', member_name_label: 'NOM EN JEU',
+    member_name_placeholder: 'Nom du membre', rank_label: 'RANG', add: 'AJOUTER',
+    search_member: 'Rechercher...', search: 'Rechercher...',
+    participated: 'participé', absent: 'absent', pending: 'en attente',
+    custom_event_placeholder: 'Nom d\'événement personnalisé',
+    saved: 'SAUVEGARDÉ ✓', deleted: 'SUPPRIMÉ', added: 'AJOUTÉ ✓',
+    no_events: 'Aucun événement. Tapez + pour en ajouter.',
+    no_members: 'Aucun membre.',
+    participation_rate: 'Taux de Participation',
+    never_participated: 'Jamais Participé',
+    low_participation: 'Faible Participation (<50%)',
+    top_3: '🏆 Top 3 Ce Mois',
+    report_generated: 'Rapport Généré',
+  },
+  ES: {
+    title: 'DTK TRACKER', subtitle: 'Alianza K1246',
+    nav_events: 'EVENTOS', nav_power: 'PODER', nav_reports: 'INFORMES', nav_members: 'MIEMBROS',
+    events_title: 'EVENTOS', add_event: '+ AÑADIR', total_events: 'Total Eventos', this_week: 'Esta Semana',
+    loading: 'CARGANDO...', back: 'Volver', delete: 'ELIMINAR',
+    mark_all_yes: '✓ TODOS SÍ', mark_all_no: '✗ TODOS NO', clear_all: 'LIMPIAR',
+    power_title: 'PODER', save_snapshot: 'GUARDAR', week_label: 'SEMANA',
+    reports_title: 'INFORMES', event_report_label: 'INFORME DE PARTICIPACIÓN',
+    opt_week: 'Esta Semana', opt_month: 'Este Mes', opt_all: 'Todo',
+    generate: 'GENERAR', power_report_label: 'INFORME DE PODER',
+    opt_all_members: 'Todos los Miembros', top_label: 'TOP PARTICIPANTES (MENSUAL)',
+    generate_first: 'Genera un informe primero', members_title: 'MIEMBROS', add_member: '+ AÑADIR',
+    add_event_title: 'NUEVO EVENTO', event_name_label: 'NOMBRE EVENTO', custom_option: 'Personalizado...',
+    event_date_label: 'FECHA', create: 'CREAR', cancel: 'CANCELAR',
+    add_member_title: 'AÑADIR MIEMBRO', member_name_label: 'NOMBRE EN JUEGO',
+    member_name_placeholder: 'Nombre del miembro', rank_label: 'RANGO', add: 'AÑADIR',
+    search_member: 'Buscar miembro...', search: 'Buscar...',
+    participated: 'participó', absent: 'ausente', pending: 'pendiente',
+    custom_event_placeholder: 'Nombre de evento personalizado',
+    saved: 'GUARDADO ✓', deleted: 'ELIMINADO', added: 'AÑADIDO ✓',
+    no_events: 'Sin eventos. Toca + para añadir.',
+    no_members: 'Sin miembros.',
+    participation_rate: 'Tasa de Participación',
+    never_participated: 'Nunca Participó',
+    low_participation: 'Baja Participación (<50%)',
+    top_3: '🏆 Top 3 Este Mes',
+    report_generated: 'Informe Generado',
+  }
+};
+
+function t(key) { return T[LANGS[langIdx]][key] || T['EN'][key] || key; }
+
+function cycleLang() {
+  langIdx = (langIdx + 1) % LANGS.length;
+  document.getElementById('langBtn').textContent = LANGS[langIdx];
+  applyTranslations();
+}
+
+function applyTranslations() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    el.textContent = t(key);
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    el.placeholder = t(key);
+  });
+}
+
+// ============================================================
+// STATE
+// ============================================================
+let db = null;
+let fs = null;
+let members = [];
+let events = [];
+let currentEventId = null;
+let currentEventParticipation = {};
+let powerEntries = {};
+
+// ============================================================
+// INITIAL MEMBERS
+// ============================================================
+const INITIAL_MEMBERS = [
+  // R5
+  { name: 'Lord Ace', rank: 'R5' },
+  // R4
+  { name: 'kesu1337', rank: 'R4' },
+  { name: 'Samette', rank: 'R4' },
+  { name: 'Book', rank: 'R4' },
+  { name: 'SLYDreadPaw', rank: 'R4' },
+  { name: 'Carol', rank: 'R4' },
+  { name: 'Tater', rank: 'R4' },
+  { name: 'Yuenzi', rank: 'R4' },
+  { name: 'Passenger', rank: 'R4' },
+  { name: 'djedje', rank: 'R4' },
+  { name: 'Vee', rank: 'R4' },
+  { name: 'Linkaac', rank: 'R4' },
+  { name: 'Cam', rank: 'R4' },
+  // R3
+  { name: 'ODY', rank: 'R3' },
+  { name: 'Messi', rank: 'R3' },
+  { name: 'Thalès', rank: 'R3' },
+  { name: 'Ray', rank: 'R3' },
+  { name: 'Astra', rank: 'R3' },
+  { name: 'DarcSyde', rank: 'R3' },
+  { name: 'Norseman75', rank: 'R3' },
+  { name: 'Sakaru360', rank: 'R3' },
+  { name: 'Buutenossi', rank: 'R3' },
+  { name: 'Ycfman', rank: 'R3' },
+  { name: 'Philib', rank: 'R3' },
+  { name: 'Jake from state', rank: 'R3' },
+  { name: 'papaoutai', rank: 'R3' },
+  { name: 'Lord Kenn', rank: 'R3' },
+  { name: 'LadyWarrior', rank: 'R3' },
+  { name: 'Dave', rank: 'R3' },
+  { name: 'GoshiG', rank: 'R3' },
+  { name: 'D†rkBlight', rank: 'R3' },
+  { name: 'Arthas', rank: 'R3' },
+  { name: 'Mosya', rank: 'R3' },
+  { name: 'Darth Helmchen', rank: 'R3' },
+  { name: 'Korben Dallas', rank: 'R3' },
+  { name: 'Roma', rank: 'R3' },
+  { name: 'Letsgodonuts', rank: 'R3' },
+  { name: 'Paul', rank: 'R3' },
+  { name: 'Korotaku', rank: 'R3' },
+  { name: 'Schaba', rank: 'R3' },
+  { name: 'Maiwu', rank: 'R3' },
+  { name: 'Clessin', rank: 'R3' },
+  { name: 'RDMIFL', rank: 'R3' },
+  { name: 'Brad', rank: 'R3' },
+  { name: 'Vivi Utiyama', rank: 'R3' },
+  { name: 'Cindyloowho', rank: 'R3' },
+  { name: 'Kelmie', rank: 'R3' },
+  { name: 'SexyJesus', rank: 'R3' },
+  { name: 'Cbass', rank: 'R3' },
+  { name: 'Firewolf6050', rank: 'R3' },
+  { name: 'TheProtectorMax', rank: 'R3' },
+  { name: 'MaThew', rank: 'R3' },
+  { name: 'MidnightHart', rank: 'R3' },
+  { name: 'Phoceus', rank: 'R3' },
+  { name: 'daioharo', rank: 'R3' },
+  { name: 'Adi', rank: 'R3' },
+  { name: 'My Lord', rank: 'R3' },
+  { name: 'Sbamp', rank: 'R3' },
+  { name: 'qwuack', rank: 'R3' },
+  { name: 'Dangercat', rank: 'R3' },
+  { name: 'Papa Ezy', rank: 'R3' },
+  { name: 'XAV | GEN85', rank: 'R3' },
+  { name: 'Maudietta', rank: 'R3' },
+  { name: 'Tenogil', rank: 'R3' },
+  { name: 'Rahif', rank: 'R3' },
+  { name: 'Edison', rank: 'R3' },
+  { name: 'BlkHwk131', rank: 'R3' },
+  { name: 'Lord of hell', rank: 'R3' },
+  { name: 'Hasonn', rank: 'R3' },
+  { name: 'Catsu Curry', rank: 'R3' },
+  { name: 'JacekJKP', rank: 'R3' },
+  { name: 'EddyH', rank: 'R3' },
+  { name: 'seb', rank: 'R3' },
+  { name: 'ViRu BoLtE', rank: 'R3' },
+  { name: 'ElisNM', rank: 'R3' },
+  { name: 'mazellem', rank: 'R3' },
+  { name: 'Xemi', rank: 'R3' },
+  { name: 'Hamza16', rank: 'R3' },
+  { name: 'Elif', rank: 'R3' },
+  { name: 'Albator29', rank: 'R3' },
+  { name: 'Roddog', rank: 'R3' },
+  { name: 'Sludge Lord', rank: 'R3' },
+  { name: 'RCH8', rank: 'R3' },
+  { name: 'Maximus', rank: 'R3' },
+  { name: 'Dracaufeu', rank: 'R3' },
+  { name: 'King Willy', rank: 'R3' },
+  { name: 'Zaza', rank: 'R3' },
+  { name: 'XaTaR', rank: 'R3' },
+  { name: 'Tim_3110', rank: 'R3' },
+  { name: 'Alex_Dr', rank: 'R3' },
+  { name: 'Stan', rank: 'R3' },
+  { name: 'Anomie21', rank: 'R3' },
+  // R2
+  { name: 'GarTuLyl', rank: 'R2' },
+  // R1
+  { name: 'Oskie', rank: 'R1' },
+];
+
+// ============================================================
+// INITIAL EVENTS
+// ============================================================
+const INITIAL_EVENTS = [
+  { name: 'Swordland Shadow', type: 'SWORDLAND' },
+  { name: 'Tri-Alliance Clash', type: 'TRI-ALLIANCE' },
+  { name: 'Alliance Mobilization', type: 'MOBILIZATION' },
+  { name: 'Castle Battle', type: 'CASTLE' },
+  { name: 'KvK', type: 'KVK' },
+  { name: 'Feast', type: 'FEAST' },
+  { name: 'Fishing', type: 'FISHING' },
+  { name: 'Windward Voyage', type: 'WINDWARD' },
+];
+
+// ============================================================
+// FIREBASE INIT
+// ============================================================
+window.addEventListener('firebase-ready', async () => {
+  db = window.__db;
+  fs = window.__firestore;
+
+  await initMembers();
+  await loadEvents();
+  loadPowerPage();
+  populatePowerReportSelect();
+});
+
+async function initMembers() {
+  try {
+    // Seed all members using stable fixed IDs — safe to re-run, won't duplicate
+    for (const m of INITIAL_MEMBERS) {
+      const id = 'mbr_' + m.name.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+      await fs.setDoc(fs.doc(db, 'members', id), { name: m.name, rank: m.rank, addedAt: Date.now() }, { merge: true });
+    }
+
+    // Seed default event types using stable fixed IDs — only creates if not already there
+    const today = new Date().toISOString().split('T')[0];
+    for (const ev of INITIAL_EVENTS) {
+      const id = 'ev_default_' + ev.name.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+      const existing = await fs.getDoc(fs.doc(db, 'events', id));
+      if (!existing.exists()) {
+        await fs.setDoc(fs.doc(db, 'events', id), {
+          name: ev.name,
+          type: ev.type,
+          date: today,
+          participation: {},
+          createdAt: Date.now()
+        });
+      }
+    }
+
+    await loadMembers();
+    await loadEvents();
+  } catch(e) { console.error(e); showToast('Firebase error: check config'); }
+}
+
+async function loadMembers() {
+  try {
+    const snap = await fs.getDocs(fs.collection(db, 'members'));
+    members = [];
+    snap.forEach(d => members.push({ id: d.id, ...d.data() }));
+    members.sort((a,b) => {
+      const ro = ['R5','R4','R3','R2','R1'];
+      return ro.indexOf(a.rank) - ro.indexOf(b.rank) || a.name.localeCompare(b.name);
+    });
+    renderMembersList();
+    loadPowerPage();
+    populatePowerReportSelect();
+  } catch(e) { console.error(e); }
+}
+
+// ============================================================
+// MEMBERS PAGE
+// ============================================================
+function renderMembersList(filter='') {
+  const el = document.getElementById('members-list');
+  const countEl = document.getElementById('member-count-label');
+  const filtered = members.filter(m => m.name.toLowerCase().includes(filter.toLowerCase()));
+  countEl.textContent = `${filtered.length} members`;
+
+  if (!filtered.length) {
+    el.innerHTML = `<div class="empty-state">${t('no_members')}</div>`;
+    return;
+  }
+
+  let html = '';
+  filtered.forEach(m => {
+    const rc = m.rank === 'R5' ? 'r5' : m.rank === 'R4' ? 'r4' : m.rank === 'R3' ? 'r3' : '';
+    html += `<div class="member-row">
+      <div>
+        <span class="rank-badge ${rc}">${m.rank}</span>
+        <span style="font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14px">${m.name}</span>
+      </div>
+      <button class="btn-ghost" style="padding:4px 10px;font-size:11px;color:var(--red);border-color:rgba(239,68,68,0.3)" onclick="deleteMember('${m.id}','${m.name.replace(/'/g,"\\'")}')">✕</button>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+function filterMembers() {
+  const q = document.getElementById('member-search').value;
+  renderMembersList(q);
+}
+
+function openAddMemberModal() {
+  document.getElementById('new-member-name').value = '';
+  document.getElementById('modal-add-member').classList.add('open');
+}
+
+async function addMember() {
+  const name = document.getElementById('new-member-name').value.trim();
+  const rank = document.getElementById('new-member-rank').value;
+  if (!name) return;
+  const id = name.replace(/[^a-zA-Z0-9]/g, '_') + '_' + Date.now();
+  await fs.setDoc(fs.doc(db, 'members', id), { name, rank, addedAt: Date.now() });
+  closeModal('modal-add-member');
+  await loadMembers();
+  showToast(t('added'));
+}
+
+async function deleteMember(id, name) {
+  if (!confirm(`Remove ${name}?`)) return;
+  await fs.deleteDoc(fs.doc(db, 'members', id));
+  await loadMembers();
+  showToast(t('deleted'));
+}
+
+// ============================================================
+// EVENTS PAGE
+// ============================================================
+async function loadEvents() {
+  try {
+    const snap = await fs.getDocs(fs.collection(db, 'events'));
+    events = [];
+    snap.forEach(d => events.push({ id: d.id, ...d.data() }));
+    events.sort((a,b) => b.date.localeCompare(a.date));
+    renderEventsList();
+  } catch(e) { console.error(e); }
+}
+
+function renderEventsList() {
+  const el = document.getElementById('events-list');
+  const now = new Date();
+  const weekAgo = new Date(now - 7*24*60*60*1000).toISOString().split('T')[0];
+
+  document.getElementById('stat-total-events').textContent = events.length;
+  document.getElementById('stat-this-week').textContent = events.filter(e => e.date >= weekAgo).length;
+
+  if (!events.length) {
+    el.innerHTML = `<div class="empty-state">${t('no_events')}</div>`;
+    return;
+  }
+
+  let html = '';
+  events.forEach(ev => {
+    const p = ev.participation || {};
+    const yes = Object.values(p).filter(v=>v==='yes').length;
+    const total = members.length || 1;
+    const pct = Math.round(yes/total*100);
+    html += `<div class="event-item" onclick="openEventDetail('${ev.id}')">
+      <div style="flex:1;min-width:0">
+        <div class="card-title">${ev.name}</div>
+        <div style="color:var(--text3);font-size:11px;margin-top:2px">${formatDate(ev.date)}</div>
+        <div class="progress-bar" style="margin-top:8px;width:80%">
+          <div class="progress-fill" style="width:${pct}%"></div>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-top:3px">${yes}/${total} • ${pct}%</div>
+      </div>
+      <span class="event-tag">${ev.type || 'EVENT'}</span>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+function openAddEventModal() {
+  document.getElementById('new-event-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('new-event-custom').style.display = 'none';
+  document.getElementById('modal-add-event').classList.add('open');
+}
+
+document.getElementById('new-event-type').addEventListener('change', function() {
+  const custom = document.getElementById('new-event-custom');
+  custom.style.display = this.value === 'Custom...' || this.value === 'Personnalisé...' || this.value === 'Personalizado...' ? 'block' : 'none';
+});
+
+async function addEvent() {
+  let name = document.getElementById('new-event-type').value;
+  const custom = document.getElementById('new-event-custom').value.trim();
+  if (name.includes('Custom') || name.includes('Personnalisé') || name.includes('Personalizado')) {
+    if (!custom) return;
+    name = custom;
+  }
+  const date = document.getElementById('new-event-date').value || new Date().toISOString().split('T')[0];
+  const id = 'ev_' + Date.now();
+  await fs.setDoc(fs.doc(db, 'events', id), { name, date, type: name.toUpperCase().substring(0,10), participation: {}, createdAt: Date.now() });
+  closeModal('modal-add-event');
+  await loadEvents();
+  showToast(t('added'));
+}
+
+async function openEventDetail(eventId) {
+  currentEventId = eventId;
+  const ev = events.find(e => e.id === eventId);
+  if (!ev) return;
+
+  currentEventParticipation = { ...(ev.participation || {}) };
+
+  document.getElementById('detail-event-name').textContent = ev.name;
+  document.getElementById('detail-event-date').textContent = formatDate(ev.date);
+  document.getElementById('detail-search').value = '';
+
+  showPage('event-detail');
+  renderDetailMembers();
+}
+
+function renderDetailMembers(filter='') {
+  const ev = events.find(e => e.id === currentEventId);
+  if (!ev) return;
+
+  const filtered = members.filter(m => m.name.toLowerCase().includes(filter.toLowerCase()));
+  const yes = Object.values(currentEventParticipation).filter(v=>v==='yes').length;
+  const no = Object.values(currentEventParticipation).filter(v=>v==='no').length;
+  const pending = members.length - yes - no;
+
+  document.getElementById('detail-participated').textContent = `✓ ${yes} ${t('participated')}`;
+  document.getElementById('detail-absent').textContent = `✗ ${no} ${t('absent')}`;
+  document.getElementById('detail-pending').textContent = `? ${pending} ${t('pending')}`;
+  const pct = members.length ? Math.round(yes/members.length*100) : 0;
+  document.getElementById('detail-progress').style.width = pct + '%';
+
+  let html = '';
+  filtered.forEach(m => {
+    const status = currentEventParticipation[m.id] || 'pending';
+    const yClass = status === 'yes' ? 'selected-yes' : '';
+    const nClass = status === 'no' ? 'selected-no' : '';
+    html += `<div class="member-row">
+      <div style="flex:1;min-width:0">
+        <span style="font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14px;word-break:break-word">${m.name}</span>
+      </div>
+      <div class="toggle-group">
+        <button class="toggle-btn ${yClass}" onclick="setParticipation('${m.id}','yes','${m.name.replace(/'/g,"\\'")}')">✓</button>
+        <button class="toggle-btn ${nClass}" onclick="setParticipation('${m.id}','no','${m.name.replace(/'/g,"\\'")}')">✗</button>
+      </div>
+    </div>`;
+  });
+  document.getElementById('detail-members-list').innerHTML = html || `<div class="empty-state">${t('no_members')}</div>`;
+}
+
+function filterDetailMembers() {
+  const q = document.getElementById('detail-search').value;
+  renderDetailMembers(q);
+}
+
+async function setParticipation(memberId, status, memberName) {
+  if (currentEventParticipation[memberId] === status) {
+    delete currentEventParticipation[memberId];
+  } else {
+    currentEventParticipation[memberId] = status;
+  }
+  renderDetailMembers(document.getElementById('detail-search').value);
+  // Auto-save
+  await fs.setDoc(fs.doc(db, 'events', currentEventId), { participation: currentEventParticipation }, { merge: true });
+  // Update local cache
+  const idx = events.findIndex(e => e.id === currentEventId);
+  if (idx >= 0) events[idx].participation = { ...currentEventParticipation };
+}
+
+async function markAll(status) {
+  members.forEach(m => { currentEventParticipation[m.id] = status; });
+  renderDetailMembers(document.getElementById('detail-search').value);
+  await fs.setDoc(fs.doc(db, 'events', currentEventId), { participation: currentEventParticipation }, { merge: true });
+  const idx = events.findIndex(e => e.id === currentEventId);
+  if (idx >= 0) events[idx].participation = { ...currentEventParticipation };
+}
+
+async function clearAll() {
+  currentEventParticipation = {};
+  renderDetailMembers(document.getElementById('detail-search').value);
+  await fs.setDoc(fs.doc(db, 'events', currentEventId), { participation: {} }, { merge: true });
+  const idx = events.findIndex(e => e.id === currentEventId);
+  if (idx >= 0) events[idx].participation = {};
+}
+
+async function deleteCurrentEvent() {
+  if (!confirm('Delete this event?')) return;
+  await fs.deleteDoc(fs.doc(db, 'events', currentEventId));
+  await loadEvents();
+  showPage('events');
+  showToast(t('deleted'));
+}
+
+// ============================================================
+// POWER PAGE
+// ============================================================
+function loadPowerPage(filter='') {
+  const el = document.getElementById('power-members-list');
+  if (!members.length) {
+    el.innerHTML = `<div class="loading">${t('loading')}</div>`;
+    return;
+  }
+  const filtered = members.filter(m => m.name.toLowerCase().includes(filter.toLowerCase()));
+  let html = '';
+  filtered.forEach(m => {
+    const val = powerEntries[m.id] || '';
+    html += `<div class="power-member-row">
+      <div class="power-name">${m.name}</div>
+      <input class="power-input" type="text" placeholder="e.g. 98.9M" value="${val}" 
+        oninput="powerEntries['${m.id}']=this.value" 
+        data-member="${m.id}">
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+function filterPowerMembers() {
+  const q = document.getElementById('power-search').value;
+  loadPowerPage(q);
+}
+
+async function savePowerSnapshot() {
+  const weekLabel = document.getElementById('power-week-label').value.trim() || 
+    'Week ' + new Date().toISOString().split('T')[0];
+  
+  // Collect values from DOM
+  document.querySelectorAll('.power-input[data-member]').forEach(inp => {
+    if (inp.value.trim()) powerEntries[inp.getAttribute('data-member')] = inp.value.trim();
+  });
+
+  const snapshot = { weekLabel, entries: { ...powerEntries }, savedAt: Date.now() };
+  await fs.setDoc(fs.doc(db, 'power', 'snapshot_' + Date.now()), snapshot);
+  showToast(t('saved'));
+}
+
+function populatePowerReportSelect() {
+  const sel = document.getElementById('power-report-member');
+  sel.innerHTML = `<option value="all">${t('opt_all_members')}</option>`;
+  members.forEach(m => {
+    sel.innerHTML += `<option value="${m.id}">${m.name}</option>`;
+  });
+}
+
+// ============================================================
+// REPORTS
+// ============================================================
+async function generateEventReport() {
+  const period = document.getElementById('report-period').value;
+  const now = new Date();
+  let since = null;
+
+  if (period === 'week') {
+    since = new Date(now - 7*24*60*60*1000).toISOString().split('T')[0];
+  } else if (period === 'month') {
+    since = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+  }
+
+  const filtered = since ? events.filter(e => e.date >= since) : events;
+
+  if (!filtered.length) {
+    document.getElementById('event-report-output').style.display = 'block';
+    document.getElementById('event-report-output').textContent = 'No events in this period.';
+    return;
+  }
+
+  // Build participation counts per member
+  const counts = {};
+  members.forEach(m => { counts[m.id] = { name: m.name, yes: 0, no: 0, total: 0 }; });
+
+  filtered.forEach(ev => {
+    const p = ev.participation || {};
+    members.forEach(m => {
+      if (p[m.id]) {
+        counts[m.id].total++;
+        if (p[m.id] === 'yes') counts[m.id].yes++;
+        else if (p[m.id] === 'no') counts[m.id].no++;
+      }
+    });
+  });
+
+  const totalEvents = filtered.length;
+  const neverParticipated = members.filter(m => counts[m.id].yes === 0);
+  const lowParticipation = members.filter(m => {
+    const c = counts[m.id];
+    return c.total > 0 && (c.yes / c.total) < 0.5;
+  });
+
+  const sorted = [...members].sort((a,b) => counts[b.id].yes - counts[a.id].yes);
+  const top3 = sorted.slice(0,3).filter(m => counts[m.id].yes > 0);
+
+  let report = `📊 ${t('event_report_label')}\n`;
+  report += `Period: ${period === 'week' ? t('opt_week') : period === 'month' ? t('opt_month') : t('opt_all')}\n`;
+  report += `Events tracked: ${totalEvents}\n\n`;
+
+  report += `🚫 ${t('never_participated')} (${neverParticipated.length}):\n`;
+  if (neverParticipated.length) {
+    neverParticipated.forEach(m => { report += `  • ${m.name}\n`; });
+  } else { report += `  None\n`; }
+
+  report += `\n⚠️ ${t('low_participation')} (${lowParticipation.length}):\n`;
+  if (lowParticipation.length) {
+    lowParticipation.forEach(m => {
+      const c = counts[m.id];
+      const pct = c.total ? Math.round(c.yes/c.total*100) : 0;
+      report += `  • ${m.name}: ${c.yes}/${c.total} (${pct}%)\n`;
+    });
+  } else { report += `  None\n`; }
+
+  report += `\n${t('top_3')}:\n`;
+  top3.forEach((m, i) => {
+    const medals = ['🥇','🥈','🥉'];
+    const c = counts[m.id];
+    const pct = c.total ? Math.round(c.yes/c.total*100) : 0;
+    report += `  ${medals[i]} ${m.name}: ${c.yes} events (${pct}%)\n`;
+  });
+
+  report += `\n📋 Full ${t('participation_rate')}:\n`;
+  sorted.forEach(m => {
+    const c = counts[m.id];
+    const pct = c.total ? Math.round(c.yes/c.total*100) : 0;
+    report += `  ${m.name}: ${c.yes}/${totalEvents} (${pct}%)\n`;
+  });
+
+  const out = document.getElementById('event-report-output');
+  out.style.display = 'block';
+  out.textContent = report;
+
+  // Top participators widget
+  let topHtml = `<div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;color:var(--gold2);margin-bottom:10px">${t('top_3')}</div>`;
+  if (top3.length) {
+    top3.forEach((m, i) => {
+      const medals = ['🥇','🥈','🥉'];
+      const c = counts[m.id];
+      const pct = c.total ? Math.round(c.yes/c.total*100) : 0;
+      topHtml += `<div class="member-row">
+        <div>${medals[i]} <span style="font-family:'Rajdhani',sans-serif;font-weight:600">${m.name}</span></div>
+        <div style="color:var(--teal);font-family:'Rajdhani',sans-serif;font-weight:700">${c.yes} <span style="font-size:11px;color:var(--text3)">events</span></div>
+      </div>`;
+    });
+  } else {
+    topHtml += `<div class="empty-state">${t('generate_first')}</div>`;
+  }
+  document.getElementById('top-participators').innerHTML = topHtml;
+
+  showToast(t('report_generated'));
+}
+
+async function generatePowerReport() {
+  const snap = await fs.getDocs(fs.collection(db, 'power'));
+  const snapshots = [];
+  snap.forEach(d => snapshots.push({ id: d.id, ...d.data() }));
+  snapshots.sort((a,b) => a.savedAt - b.savedAt);
+
+  if (snapshots.length < 1) {
+    document.getElementById('power-report-output').style.display = 'block';
+    document.getElementById('power-report-output').textContent = 'No power snapshots saved yet.';
+    return;
+  }
+
+  const memberId = document.getElementById('power-report-member').value;
+  let report = `⚡ ${t('power_report_label')}\n`;
+  report += `Snapshots: ${snapshots.length}\n\n`;
+
+  const targetMembers = memberId === 'all' ? members : members.filter(m => m.id === memberId);
+
+  targetMembers.forEach(m => {
+    const history = snapshots
+      .filter(s => s.entries && s.entries[m.id])
+      .map(s => ({ week: s.weekLabel, value: s.entries[m.id] }));
+
+    if (history.length > 0) {
+      report += `👤 ${m.name}:\n`;
+      history.forEach(h => { report += `  ${h.week}: ${h.value}\n`; });
+      report += '\n';
+    }
+  });
+
+  const out = document.getElementById('power-report-output');
+  out.style.display = 'block';
+  out.textContent = report;
+  showToast(t('report_generated'));
+}
+
+// ============================================================
+// NAV
+// ============================================================
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+  document.getElementById('page-' + name).classList.add('active');
+
+  const navMap = { events: 0, power: 1, reports: 2, members: 3 };
+  const navBtns = document.querySelectorAll('.nav-btn');
+  if (navMap[name] !== undefined) navBtns[navMap[name]].classList.add('active');
+
+  if (name === 'events') loadEvents();
+  if (name === 'power') loadPowerPage();
+  if (name === 'members') renderMembersList();
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function formatDate(str) {
+  if (!str) return '';
+  const d = new Date(str + 'T12:00:00');
+  return d.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+// Close modals on overlay tap
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+  });
+});
+
+// Set today's date default
+document.getElementById('new-event-date').value = new Date().toISOString().split('T')[0];
+</script>
+
+</body>
+</html>
