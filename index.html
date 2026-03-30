@@ -7,11 +7,9 @@
 <title>DTK Alliance Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Exo+2:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-<!-- Firebase -->
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, doc, setDoc, getDoc, collection, getDocs, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, doc, setDoc, getDoc, collection, getDocs, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDF_6uP5JkRzG3uxWHPmbABwOxfvkFcj8E",
@@ -26,810 +24,380 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   window.__db = db;
-  window.__firestore = { doc, setDoc, getDoc, collection, getDocs, onSnapshot, deleteDoc };
+  window.__fs = { doc, setDoc, getDoc, collection, getDocs, deleteDoc, query, orderBy };
   window.dispatchEvent(new Event('firebase-ready'));
 </script>
 
 <style>
-  :root {
-    --bg: #0a0c10;
-    --surface: #111418;
-    --surface2: #181c24;
-    --border: #1e2530;
-    --gold: #c9a84c;
-    --gold2: #e8c96a;
-    --teal: #2dd4bf;
-    --teal2: #14b8a6;
-    --red: #ef4444;
-    --green: #22c55e;
-    --text: #e8eaf0;
-    --text2: #8a92a6;
-    --text3: #4a5268;
-  }
+:root {
+  --bg: #0a0c10;
+  --surface: #111418;
+  --surface2: #181c24;
+  --border: #1e2530;
+  --gold: #c9a84c;
+  --gold2: #e8c96a;
+  --teal: #2dd4bf;
+  --teal2: #14b8a6;
+  --red: #ef4444;
+  --green: #22c55e;
+  --orange: #f97316;
+  --text: #e8eaf0;
+  --text2: #8a92a6;
+  --text3: #4a5268;
+  --eu: #60a5fa;
+  --us: #f87171;
+}
+[data-theme="light"] {
+  --bg: #f0f2f5;
+  --surface: #ffffff;
+  --surface2: #f5f7fa;
+  --border: #dde1ea;
+  --text: #1a1d26;
+  --text2: #5a6180;
+  --text3: #9aa0b8;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { background:var(--bg); color:var(--text); font-family:'Exo 2',sans-serif; font-size:14px; min-height:100vh; transition:background 0.3s,color 0.3s; }
+body::before { content:''; position:fixed; inset:0; background:radial-gradient(ellipse at 20% 0%,rgba(201,168,76,0.05) 0%,transparent 50%),radial-gradient(ellipse at 80% 100%,rgba(45,212,191,0.04) 0%,transparent 50%); pointer-events:none; z-index:0; }
+[data-theme="light"] body::before { display:none; }
+#app { position:relative; z-index:1; }
+
+.header { background:var(--surface); border-bottom:1px solid var(--border); padding:12px 16px; position:sticky; top:0; z-index:100; display:flex; align-items:center; justify-content:space-between; }
+.header-left { display:flex; align-items:center; gap:10px; }
+.logo { width:34px; height:34px; background:linear-gradient(135deg,var(--gold),var(--gold2)); border-radius:8px; display:flex; align-items:center; justify-content:center; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:15px; color:#0a0c10; flex-shrink:0; }
+.header-title { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:18px; color:var(--gold2); letter-spacing:1px; }
+.header-sub { font-size:10px; color:var(--text3); letter-spacing:2px; text-transform:uppercase; }
+.header-right { display:flex; gap:6px; align-items:center; }
+.icon-btn { background:var(--surface2); border:1px solid var(--border); color:var(--text2); padding:5px 9px; border-radius:6px; font-size:12px; cursor:pointer; font-family:'Exo 2',sans-serif; }
+
+.nav { display:flex; background:var(--surface); border-bottom:1px solid var(--border); overflow-x:auto; scrollbar-width:none; }
+.nav::-webkit-scrollbar { display:none; }
+.nav-btn { flex:1; min-width:70px; padding:11px 6px; background:none; border:none; color:var(--text3); font-family:'Rajdhani',sans-serif; font-weight:600; font-size:11px; letter-spacing:1px; text-transform:uppercase; cursor:pointer; border-bottom:2px solid transparent; transition:all 0.2s; white-space:nowrap; }
+.nav-btn.active { color:var(--gold2); border-bottom-color:var(--gold2); }
+
+.page { display:none; padding:14px; }
+.page.active { display:block; }
+
+.section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.section-title { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:17px; color:var(--gold2); letter-spacing:1px; }
+
+.card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:13px; margin-bottom:10px; }
+
+.btn { background:linear-gradient(135deg,var(--gold),var(--gold2)); color:#0a0c10; border:none; padding:9px 16px; border-radius:8px; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:12px; letter-spacing:1px; cursor:pointer; text-transform:uppercase; transition:opacity 0.2s; }
+.btn:active { opacity:0.8; }
+.btn-sm { padding:5px 11px; font-size:11px; border-radius:6px; }
+.btn-outline { background:transparent; border:1px solid var(--gold); color:var(--gold); }
+.btn-teal { background:linear-gradient(135deg,var(--teal2),var(--teal)); color:#0a0c10; }
+.btn-red { background:var(--red); color:white; }
+.btn-ghost { background:var(--surface2); border:1px solid var(--border); color:var(--text2); padding:7px 13px; border-radius:8px; font-family:'Exo 2',sans-serif; font-size:13px; cursor:pointer; }
+
+.input { width:100%; background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:9px 11px; border-radius:8px; font-family:'Exo 2',sans-serif; font-size:14px; margin-bottom:9px; outline:none; }
+.input:focus { border-color:var(--gold); }
+.input::placeholder { color:var(--text3); }
+select.input { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a92a6' fill='none' stroke-width='2'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 11px center; padding-right:30px; }
+
+.event-item { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:13px; margin-bottom:9px; cursor:pointer; transition:border-color 0.2s; display:flex; align-items:center; justify-content:space-between; }
+.event-item:active { border-color:var(--gold); }
+.event-tag { background:rgba(201,168,76,0.15); color:var(--gold2); font-size:10px; letter-spacing:1px; text-transform:uppercase; padding:3px 7px; border-radius:4px; font-family:'Rajdhani',sans-serif; font-weight:600; flex-shrink:0; }
+.event-tag.eu { background:rgba(96,165,250,0.15); color:var(--eu); }
+.event-tag.us { background:rgba(248,113,113,0.15); color:var(--us); }
+
+.member-row { display:flex; align-items:center; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border); gap:8px; }
+.member-row:last-child { border-bottom:none; }
+
+.toggle-group { display:flex; gap:5px; }
+.toggle-btn { width:34px; height:27px; border-radius:6px; border:1px solid var(--border); background:var(--surface2); color:var(--text3); font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; }
+.toggle-btn.yes { background:rgba(34,197,94,0.2); border-color:var(--green); color:var(--green); }
+.toggle-btn.no { background:rgba(239,68,68,0.2); border-color:var(--red); color:var(--red); }
+
+.stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-bottom:14px; }
+.stat-box { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:13px; text-align:center; }
+.stat-num { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:26px; color:var(--gold2); }
+.stat-label { font-size:10px; color:var(--text3); letter-spacing:1px; text-transform:uppercase; margin-top:2px; }
+
+.power-row { display:flex; align-items:center; padding:9px 0; border-bottom:1px solid var(--border); gap:8px; }
+.power-row:last-child { border-bottom:none; }
+.power-rank { font-size:10px; padding:2px 5px; border-radius:3px; font-family:'Rajdhani',sans-serif; font-weight:700; letter-spacing:1px; flex-shrink:0; }
+.r5c { background:rgba(201,168,76,0.3); color:var(--gold2); }
+.r4c { background:rgba(45,212,191,0.2); color:var(--teal); }
+.r3c { background:rgba(139,92,246,0.2); color:#a78bfa; }
+.r2c { background:rgba(251,146,60,0.2); color:#fb923c; }
+.r1c { background:rgba(148,163,184,0.2); color:#94a3b8; }
+.power-name { font-family:'Rajdhani',sans-serif; font-weight:600; font-size:14px; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.power-val { font-size:13px; color:var(--teal); font-weight:600; min-width:55px; text-align:right; flex-shrink:0; }
+.power-trend { font-size:13px; width:20px; text-align:center; flex-shrink:0; }
+.power-stale { font-size:10px; color:var(--orange); margin-left:4px; }
+.power-input-sm { width:82px; background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:5px 7px; border-radius:6px; font-family:'Exo 2',sans-serif; font-size:12px; outline:none; text-align:center; flex-shrink:0; }
+.power-input-sm:focus { border-color:var(--teal); }
+
+.tz-badge { font-size:9px; padding:1px 5px; border-radius:3px; font-family:'Rajdhani',sans-serif; font-weight:700; letter-spacing:1px; margin-left:4px; flex-shrink:0; }
+.tz-eu { background:rgba(96,165,250,0.2); color:var(--eu); }
+.tz-us { background:rgba(248,113,113,0.2); color:var(--us); }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+.inactive-badge { font-size:9px; padding:1px 5px; border-radius:3px; background:rgba(239,68,68,0.15); color:var(--red); font-family:'Rajdhani',sans-serif; font-weight:700; margin-left:4px; }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Exo 2', sans-serif;
-    font-size: 14px;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+.progress-bar { height:3px; background:var(--border); border-radius:2px; overflow:hidden; margin-top:5px; }
+.progress-fill { height:100%; background:linear-gradient(90deg,var(--gold),var(--gold2)); border-radius:2px; transition:width 0.3s; }
 
-  /* Background texture */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: radial-gradient(ellipse at 20% 0%, rgba(201,168,76,0.06) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 100%, rgba(45,212,191,0.05) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: 0;
-  }
+.report-box { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:13px; margin-bottom:11px; white-space:pre-wrap; font-size:12px; line-height:1.7; color:var(--text2); font-family:'Exo 2',sans-serif; }
 
-  #app { position: relative; z-index: 1; }
+.search-bar { position:relative; margin-bottom:12px; }
+.search-bar .input { margin-bottom:0; padding-left:34px; }
+.search-bar::before { content:'🔍'; position:absolute; left:10px; top:50%; transform:translateY(-50%); font-size:12px; z-index:1; }
 
-  /* HEADER */
-  .header {
-    background: linear-gradient(135deg, #0d1017 0%, #141922 100%);
-    border-bottom: 1px solid var(--border);
-    padding: 16px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:200; align-items:flex-end; }
+.modal-overlay.open { display:flex; }
+.modal { background:var(--surface); border:1px solid var(--border); border-top-left-radius:16px; border-top-right-radius:16px; padding:18px 15px 30px; width:100%; max-height:88vh; overflow-y:auto; }
+.modal-title { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:17px; color:var(--gold2); margin-bottom:14px; letter-spacing:1px; }
 
-  .header-left { display: flex; align-items: center; gap: 10px; }
+.label { font-size:10px; color:var(--text3); letter-spacing:1px; text-transform:uppercase; margin-bottom:5px; }
+.flex { display:flex; gap:7px; }
+.flex-1 { flex:1; }
+.mt-8 { margin-top:8px; }
+.mt-12 { margin-top:12px; }
+.mb-8 { margin-bottom:8px; }
+.mb-12 { margin-bottom:12px; }
+.divider { height:1px; background:var(--border); margin:14px 0; }
 
-  .logo {
-    width: 36px; height: 36px;
-    background: linear-gradient(135deg, var(--gold), var(--gold2));
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 700; font-size: 16px;
-    color: #0a0c10;
-  }
+.audit-entry { font-size:11px; color:var(--text3); padding:5px 0; border-bottom:1px solid var(--border); }
+.audit-entry:last-child { border-bottom:none; }
 
-  .header-title {
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 700;
-    font-size: 20px;
-    color: var(--gold2);
-    letter-spacing: 1px;
-  }
+#toast { position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(100px); background:var(--surface2); border:1px solid var(--gold); color:var(--gold2); padding:9px 18px; border-radius:8px; font-family:'Rajdhani',sans-serif; font-weight:600; font-size:13px; letter-spacing:1px; z-index:9999; transition:transform 0.3s; white-space:nowrap; }
+#toast.show { transform:translateX(-50%) translateY(0); }
 
-  .header-sub {
-    font-size: 10px;
-    color: var(--text3);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
+.empty-state { text-align:center; color:var(--text3); padding:28px 18px; font-size:13px; }
+.member-count { font-size:11px; color:var(--text3); margin-bottom:10px; }
 
-  .lang-btn {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--text2);
-    padding: 6px 10px;
-    border-radius: 6px;
-    font-size: 11px;
-    cursor: pointer;
-    font-family: 'Exo 2', sans-serif;
-    letter-spacing: 1px;
-  }
+.bear-header { display:flex; gap:8px; margin-bottom:12px; }
+.bear-tab-btn { flex:1; padding:9px; border-radius:8px; border:1px solid var(--border); background:var(--surface2); color:var(--text2); font-family:'Rajdhani',sans-serif; font-weight:700; font-size:13px; cursor:pointer; letter-spacing:1px; transition:all 0.2s; }
+.bear-tab-btn.active-eu { background:rgba(96,165,250,0.15); border-color:var(--eu); color:var(--eu); }
+.bear-tab-btn.active-us { background:rgba(248,113,113,0.15); border-color:var(--us); color:var(--us); }
 
-  .lang-btn:active { background: var(--border); }
-
-  /* NAV */
-  .nav {
-    display: flex;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .nav::-webkit-scrollbar { display: none; }
-
-  .nav-btn {
-    flex: 1;
-    min-width: 80px;
-    padding: 12px 8px;
-    background: none;
-    border: none;
-    color: var(--text3);
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 600;
-    font-size: 12px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-
-  .nav-btn.active {
-    color: var(--gold2);
-    border-bottom-color: var(--gold2);
-  }
-
-  /* PAGES */
-  .page { display: none; padding: 16px; }
-  .page.active { display: block; }
-
-  /* SECTION HEADER */
-  .section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
-  }
-
-  .section-title {
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 700;
-    font-size: 18px;
-    color: var(--gold2);
-    letter-spacing: 1px;
-  }
-
-  /* CARDS */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px;
-    margin-bottom: 12px;
-  }
-
-  .card-title {
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 600;
-    font-size: 15px;
-    color: var(--text);
-    margin-bottom: 4px;
-  }
-
-  /* BUTTONS */
-  .btn {
-    background: linear-gradient(135deg, var(--gold), var(--gold2));
-    color: #0a0c10;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 8px;
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 700;
-    font-size: 13px;
-    letter-spacing: 1px;
-    cursor: pointer;
-    text-transform: uppercase;
-    transition: opacity 0.2s;
-  }
-  .btn:active { opacity: 0.8; }
-
-  .btn-sm {
-    padding: 6px 12px;
-    font-size: 11px;
-    border-radius: 6px;
-  }
-
-  .btn-outline {
-    background: transparent;
-    border: 1px solid var(--gold);
-    color: var(--gold);
-  }
-
-  .btn-teal {
-    background: linear-gradient(135deg, var(--teal2), var(--teal));
-    color: #0a0c10;
-  }
-
-  .btn-danger {
-    background: var(--red);
-    color: white;
-  }
-
-  .btn-ghost {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--text2);
-    padding: 8px 14px;
-    border-radius: 8px;
-    font-family: 'Exo 2', sans-serif;
-    font-size: 13px;
-    cursor: pointer;
-  }
-
-  /* INPUT */
-  .input {
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 10px 12px;
-    border-radius: 8px;
-    font-family: 'Exo 2', sans-serif;
-    font-size: 14px;
-    margin-bottom: 10px;
-    outline: none;
-  }
-  .input:focus { border-color: var(--gold); }
-  .input::placeholder { color: var(--text3); }
-
-  select.input {
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a92a6' fill='none' stroke-width='2'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    padding-right: 32px;
-  }
-
-  /* EVENT LIST */
-  .event-item {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px;
-    margin-bottom: 10px;
-    cursor: pointer;
-    transition: border-color 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .event-item:active { border-color: var(--gold); }
-
-  .event-tag {
-    background: rgba(201,168,76,0.15);
-    color: var(--gold2);
-    font-size: 10px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    padding: 3px 8px;
-    border-radius: 4px;
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 600;
-  }
-
-  /* MEMBER GRID */
-  .member-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  .member-card {
-    background: var(--surface2);
-    border: 2px solid var(--border);
-    border-radius: 10px;
-    padding: 10px;
-    cursor: pointer;
-    transition: all 0.15s;
-    text-align: center;
-  }
-
-  .member-card.yes {
-    border-color: var(--green);
-    background: rgba(34,197,94,0.08);
-  }
-
-  .member-card.no {
-    border-color: var(--red);
-    background: rgba(239,68,68,0.08);
-  }
-
-  .member-name {
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 600;
-    font-size: 13px;
-    margin-bottom: 6px;
-    word-break: break-word;
-  }
-
-  .member-status {
-    font-size: 18px;
-    line-height: 1;
-  }
-
-  /* PARTICIPATION TOGGLE ROW */
-  .member-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .member-row:last-child { border-bottom: none; }
-
-  .toggle-group {
-    display: flex;
-    gap: 6px;
-  }
-
-  .toggle-btn {
-    width: 36px; height: 28px;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    background: var(--surface2);
-    color: var(--text3);
-    font-size: 14px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.15s;
-  }
-
-  .toggle-btn.selected-yes {
-    background: rgba(34,197,94,0.2);
-    border-color: var(--green);
-    color: var(--green);
-  }
-
-  .toggle-btn.selected-no {
-    background: rgba(239,68,68,0.2);
-    border-color: var(--red);
-    color: var(--red);
-  }
-
-  /* STATS */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 16px;
-  }
-
-  .stat-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px;
-    text-align: center;
-  }
-
-  .stat-num {
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 700;
-    font-size: 28px;
-    color: var(--gold2);
-  }
-
-  .stat-label {
-    font-size: 10px;
-    color: var(--text3);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    margin-top: 2px;
-  }
-
-  /* POWER ENTRY */
-  .power-member-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-    gap: 8px;
-  }
-  .power-member-row:last-child { border-bottom: none; }
-
-  .power-name {
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 600;
-    font-size: 14px;
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .power-value {
-    font-size: 12px;
-    color: var(--teal);
-    font-weight: 500;
-    min-width: 55px;
-    text-align: right;
-  }
-
-  .power-input {
-    width: 90px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 6px 8px;
-    border-radius: 6px;
-    font-family: 'Exo 2', sans-serif;
-    font-size: 12px;
-    outline: none;
-    text-align: center;
-  }
-  .power-input:focus { border-color: var(--teal); }
-
-  /* REPORT */
-  .report-box {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px;
-    margin-bottom: 12px;
-    white-space: pre-wrap;
-    font-size: 13px;
-    line-height: 1.7;
-    color: var(--text2);
-    font-family: 'Exo 2', sans-serif;
-  }
-
-  /* BADGE */
-  .badge {
-    display: inline-block;
-    background: rgba(201,168,76,0.15);
-    color: var(--gold);
-    font-size: 10px;
-    padding: 2px 7px;
-    border-radius: 4px;
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    margin-left: 6px;
-  }
-
-  .badge-teal {
-    background: rgba(45,212,191,0.15);
-    color: var(--teal);
-  }
-
-  /* LOADING */
-  .loading {
-    text-align: center;
-    color: var(--text3);
-    padding: 40px;
-    font-size: 13px;
-    letter-spacing: 1px;
-  }
-
-  /* TOAST */
-  #toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%) translateY(100px);
-    background: var(--surface2);
-    border: 1px solid var(--gold);
-    color: var(--gold2);
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 600;
-    font-size: 13px;
-    letter-spacing: 1px;
-    z-index: 9999;
-    transition: transform 0.3s;
-    white-space: nowrap;
-  }
-  #toast.show { transform: translateX(-50%) translateY(0); }
-
-  /* MODAL */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.8);
-    z-index: 200;
-    align-items: flex-end;
-  }
-  .modal-overlay.open { display: flex; }
-
-  .modal {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-top-left-radius: 16px;
-    border-top-right-radius: 16px;
-    padding: 20px 16px 32px;
-    width: 100%;
-    max-height: 85vh;
-    overflow-y: auto;
-  }
-
-  .modal-title {
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 700;
-    font-size: 18px;
-    color: var(--gold2);
-    margin-bottom: 16px;
-    letter-spacing: 1px;
-  }
-
-  /* SEARCH */
-  .search-bar {
-    position: relative;
-    margin-bottom: 14px;
-  }
-  .search-bar .input { margin-bottom: 0; padding-left: 36px; }
-  .search-bar::before {
-    content: '🔍';
-    position: absolute;
-    left: 10px; top: 50%;
-    transform: translateY(-50%);
-    font-size: 13px;
-    z-index: 1;
-  }
-
-  /* DIVIDER */
-  .divider {
-    height: 1px;
-    background: var(--border);
-    margin: 16px 0;
-  }
-
-  .label {
-    font-size: 11px;
-    color: var(--text3);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-  }
-
-  .flex { display: flex; gap: 8px; }
-  .flex-1 { flex: 1; }
-  .mt-8 { margin-top: 8px; }
-  .mt-16 { margin-top: 16px; }
-  .mb-8 { margin-bottom: 8px; }
-
-  /* PROGRESS BAR */
-  .progress-bar {
-    height: 4px;
-    background: var(--border);
-    border-radius: 2px;
-    overflow: hidden;
-    margin-top: 6px;
-  }
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--gold), var(--gold2));
-    border-radius: 2px;
-    transition: width 0.3s;
-  }
-
-  /* RANK BADGE */
-  .rank-badge {
-    font-size: 10px;
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 700;
-    letter-spacing: 1px;
-    margin-right: 4px;
-  }
-  .r5 { background: rgba(201,168,76,0.3); color: var(--gold2); }
-  .r4 { background: rgba(45,212,191,0.2); color: var(--teal); }
-  .r3 { background: rgba(139,92,246,0.2); color: #a78bfa; }
-
-  .empty-state {
-    text-align: center;
-    color: var(--text3);
-    padding: 30px 20px;
-    font-size: 13px;
-  }
-
-  .member-count {
-    font-size: 12px;
-    color: var(--text3);
-    margin-bottom: 12px;
-  }
+.member-edit-row { display:flex; align-items:center; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border); gap:6px; }
+.member-edit-row:last-child { border-bottom:none; }
 </style>
 
 </head>
-<body>
+<body data-theme="dark">
 <div id="app">
 
-  <!-- HEADER -->
-
-  <div class="header">
-    <div class="header-left">
-      <div class="logo">DTK</div>
-      <div>
-        <div class="header-title" data-i18n="title">DTK TRACKER</div>
-        <div class="header-sub" data-i18n="subtitle">K1246 Alliance</div>
-      </div>
+<div class="header">
+  <div class="header-left">
+    <div class="logo">DTK</div>
+    <div>
+      <div class="header-title">DTK TRACKER</div>
+      <div class="header-sub">K1246 ALLIANCE</div>
     </div>
-    <button class="lang-btn" onclick="cycleLang()" id="langBtn">EN</button>
   </div>
-
-  <!-- NAV -->
-
-  <div class="nav">
-    <button class="nav-btn active" onclick="showPage('events')" data-i18n="nav_events">EVENTS</button>
-    <button class="nav-btn" onclick="showPage('power')" data-i18n="nav_power">POWER</button>
-    <button class="nav-btn" onclick="showPage('reports')" data-i18n="nav_reports">REPORTS</button>
-    <button class="nav-btn" onclick="showPage('members')" data-i18n="nav_members">MEMBERS</button>
+  <div class="header-right">
+    <button class="icon-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+    <button class="icon-btn" onclick="cycleLang()" id="langBtn">EN</button>
   </div>
+</div>
 
-  <!-- EVENTS PAGE -->
+<div class="nav">
+  <button class="nav-btn active" onclick="showPage('events')" id="nav-events">EVENTS</button>
+  <button class="nav-btn" onclick="showPage('bear')" id="nav-bear">BEAR</button>
+  <button class="nav-btn" onclick="showPage('power')" id="nav-power">POWER</button>
+  <button class="nav-btn" onclick="showPage('reports')" id="nav-reports">REPORTS</button>
+  <button class="nav-btn" onclick="showPage('members')" id="nav-members">MEMBERS</button>
+</div>
 
-  <div class="page active" id="page-events">
-    <div class="section-header">
-      <div class="section-title" data-i18n="events_title">EVENTS</div>
-      <button class="btn btn-sm" onclick="openAddEventModal()" data-i18n="add_event">+ ADD</button>
+<!-- EVENTS PAGE -->
+
+<div class="page active" id="page-events">
+  <div class="section-header">
+    <div class="section-title" id="lbl-events">EVENTS</div>
+    <button class="btn btn-sm" onclick="openAddEventModal()">+ ADD</button>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-box"><div class="stat-num" id="stat-total">—</div><div class="stat-label" id="lbl-total-events">Total Events</div></div>
+    <div class="stat-box"><div class="stat-num" id="stat-week">—</div><div class="stat-label" id="lbl-this-week">This Week</div></div>
+  </div>
+  <div id="events-list"><div class="empty-state" id="lbl-loading">LOADING...</div></div>
+</div>
+
+<!-- EVENT DETAIL PAGE -->
+
+<div class="page" id="page-event-detail">
+  <div class="section-header">
+    <button class="btn-ghost" onclick="backToEvents()">← <span id="lbl-back">Back</span></button>
+    <button class="btn btn-sm btn-red" onclick="deleteCurrentEvent()" id="lbl-delete">DELETE</button>
+  </div>
+  <div class="card mb-12">
+    <div class="section-title" id="detail-name">—</div>
+    <div style="color:var(--text3);font-size:11px;margin-top:3px" id="detail-date">—</div>
+    <div style="margin-top:8px;display:flex;gap:10px;flex-wrap:wrap">
+      <span id="detail-yes" style="color:var(--green);font-size:12px"></span>
+      <span id="detail-no" style="color:var(--red);font-size:12px"></span>
+      <span id="detail-pending" style="color:var(--text3);font-size:12px"></span>
     </div>
-
-```
-<div class="stats-grid">
-  <div class="stat-box">
-    <div class="stat-num" id="stat-total-events">—</div>
-    <div class="stat-label" data-i18n="total_events">Total Events</div>
+    <div class="progress-bar"><div class="progress-fill" id="detail-prog" style="width:0%"></div></div>
   </div>
-  <div class="stat-box">
-    <div class="stat-num" id="stat-this-week">—</div>
-    <div class="stat-label" data-i18n="this_week">This Week</div>
+  <div class="search-bar"><input class="input" id="detail-search" type="text" placeholder="Search member..." oninput="filterDetail()"></div>
+  <div class="flex mb-12">
+    <button class="btn btn-sm flex-1" onclick="markAll('yes')" id="lbl-all-yes">✓ ALL YES</button>
+    <button class="btn btn-sm btn-outline flex-1" onclick="markAll('no')" id="lbl-all-no">✗ ALL NO</button>
+    <button class="btn-ghost btn-sm flex-1" onclick="clearAll()" id="lbl-clear">CLEAR</button>
   </div>
+  <div id="detail-list"></div>
 </div>
 
-<div id="events-list"><div class="loading" data-i18n="loading">LOADING...</div></div>
-```
+<!-- BEAR PAGE -->
 
+<div class="page" id="page-bear">
+  <div class="section-header">
+    <div class="section-title" id="lbl-bear">BEAR EVENT</div>
+    <button class="btn btn-sm" onclick="openAddBearModal()">+ ADD</button>
   </div>
+  <div class="bear-header">
+    <button class="bear-tab-btn active-eu" id="bear-eu-btn" onclick="setBearFilter('EU')">🇪🇺 EU</button>
+    <button class="bear-tab-btn" id="bear-us-btn" onclick="setBearFilter('US')">🇺🇸 US</button>
+    <button class="bear-tab-btn" id="bear-all-btn" onclick="setBearFilter('ALL')" style="flex:0.6;font-size:11px">ALL</button>
+  </div>
+  <div id="bear-list"><div class="empty-state" id="lbl-loading2">LOADING...</div></div>
+</div>
 
-  <!-- EVENT DETAIL PAGE -->
+<!-- BEAR DETAIL PAGE -->
 
-  <div class="page" id="page-event-detail">
-    <div class="section-header">
-      <button class="btn-ghost" onclick="showPage('events')">← <span data-i18n="back">Back</span></button>
-      <button class="btn btn-sm btn-danger" onclick="deleteCurrentEvent()" data-i18n="delete">DELETE</button>
+<div class="page" id="page-bear-detail">
+  <div class="section-header">
+    <button class="btn-ghost" onclick="showPage('bear')">← <span id="lbl-back2">Back</span></button>
+    <button class="btn btn-sm btn-red" onclick="deleteCurrentBear()" id="lbl-delete2">DELETE</button>
+  </div>
+  <div class="card mb-12">
+    <div class="section-title" id="bear-detail-name">—</div>
+    <div style="color:var(--text3);font-size:11px;margin-top:3px" id="bear-detail-date">—</div>
+    <div style="margin-top:8px;display:flex;gap:10px">
+      <span id="bear-detail-yes" style="color:var(--green);font-size:12px"></span>
+      <span id="bear-detail-no" style="color:var(--red);font-size:12px"></span>
     </div>
-
-```
-<div class="card" style="margin-bottom:16px">
-  <div class="section-title" id="detail-event-name">—</div>
-  <div style="color:var(--text3);font-size:12px;margin-top:4px" id="detail-event-date">—</div>
-  <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-    <span id="detail-participated" style="color:var(--green);font-size:13px"></span>
-    <span id="detail-absent" style="color:var(--red);font-size:13px"></span>
-    <span id="detail-pending" style="color:var(--text3);font-size:13px"></span>
+    <div class="progress-bar"><div class="progress-fill" id="bear-detail-prog" style="width:0%"></div></div>
   </div>
-  <div class="progress-bar mt-8">
-    <div class="progress-fill" id="detail-progress" style="width:0%"></div>
+  <div class="search-bar"><input class="input" id="bear-search" type="text" placeholder="Search member..." oninput="filterBearDetail()"></div>
+  <div class="flex mb-12">
+    <button class="btn btn-sm flex-1" onclick="markBearAll('yes')">✓ ALL YES</button>
+    <button class="btn btn-sm btn-outline flex-1" onclick="markBearAll('no')">✗ ALL NO</button>
+    <button class="btn-ghost btn-sm flex-1" onclick="clearBearAll()">CLEAR</button>
   </div>
+  <div id="bear-detail-list"></div>
 </div>
 
-<div class="search-bar">
-  <input class="input" id="detail-search" type="text" placeholder="Search member..." oninput="filterDetailMembers()" data-i18n-placeholder="search_member">
-</div>
+<!-- POWER PAGE -->
 
-<div style="display:flex;gap:8px;margin-bottom:12px">
-  <button class="btn btn-sm flex-1" onclick="markAll('yes')" data-i18n="mark_all_yes">✓ ALL YES</button>
-  <button class="btn btn-sm btn-outline flex-1" onclick="markAll('no')" data-i18n="mark_all_no">✗ ALL NO</button>
-  <button class="btn btn-sm btn-ghost flex-1" onclick="clearAll()" data-i18n="clear_all">CLEAR</button>
-</div>
-
-<div id="detail-members-list"></div>
-```
-
+<div class="page" id="page-power">
+  <div class="section-header">
+    <div class="section-title" id="lbl-power">POWER</div>
+    <button class="btn btn-sm btn-teal" onclick="savePowerSnapshot()" id="lbl-save">SAVE</button>
   </div>
-
-  <!-- POWER PAGE -->
-
-  <div class="page" id="page-power">
-    <div class="section-header">
-      <div class="section-title" data-i18n="power_title">POWER</div>
-      <button class="btn btn-sm btn-teal" onclick="savePowerSnapshot()" data-i18n="save_snapshot">SAVE</button>
-    </div>
-
-```
-<div class="card mb-8">
-  <div class="label" data-i18n="week_label">WEEK</div>
-  <input class="input" id="power-week-label" type="text" placeholder="e.g. Week 12 - Mar 29" style="margin-bottom:0">
-</div>
-
-<div class="search-bar">
-  <input class="input" id="power-search" type="text" placeholder="Search member..." oninput="filterPowerMembers()" data-i18n-placeholder="search_member">
-</div>
-
-<div id="power-members-list"><div class="loading" data-i18n="loading">LOADING...</div></div>
-```
-
+  <div class="card mb-12">
+    <div class="label" id="lbl-week">WEEK LABEL</div>
+    <input class="input" id="power-week" type="text" placeholder="e.g. Week 1 - Apr 1" style="margin-bottom:0">
   </div>
-
-  <!-- REPORTS PAGE -->
-
-  <div class="page" id="page-reports">
-    <div class="section-title mb-8" data-i18n="reports_title">REPORTS</div>
-    <div class="divider"></div>
-
-```
-<div class="label mt-16" data-i18n="event_report_label">EVENT PARTICIPATION REPORT</div>
-<div class="flex mb-8">
-  <select class="input flex-1" id="report-period" style="margin-bottom:0">
-    <option value="week" data-i18n="opt_week">This Week</option>
-    <option value="month" data-i18n="opt_month">This Month</option>
-    <option value="all" data-i18n="opt_all">All Time</option>
-  </select>
-  <button class="btn btn-sm" onclick="generateEventReport()" data-i18n="generate">GENERATE</button>
+  <div class="search-bar"><input class="input" id="power-search" type="text" placeholder="Search..." oninput="filterPower()"></div>
+  <div id="power-list"><div class="empty-state">LOADING...</div></div>
 </div>
 
-<div id="event-report-output" class="report-box" style="display:none"></div>
+<!-- REPORTS PAGE -->
 
-<div class="divider"></div>
-
-<div class="label" data-i18n="power_report_label">POWER GROWTH REPORT</div>
-<div class="flex mb-8">
-  <select class="input flex-1" id="power-report-member" style="margin-bottom:0">
-    <option value="all" data-i18n="opt_all_members">All Members</option>
-  </select>
-  <button class="btn btn-sm btn-teal" onclick="generatePowerReport()" data-i18n="generate">GENERATE</button>
-</div>
-
-<div id="power-report-output" class="report-box" style="display:none"></div>
-
-<div class="divider"></div>
-<div class="label" data-i18n="top_label">TOP PARTICIPATORS (MONTHLY)</div>
-<div id="top-participators" class="card mt-8">
-  <div class="empty-state" data-i18n="generate_first">Generate an event report first</div>
-</div>
-```
-
+<div class="page" id="page-reports">
+  <div class="section-title mb-12" id="lbl-reports">REPORTS</div>
+  <div class="label" id="lbl-event-report">EVENT PARTICIPATION REPORT</div>
+  <div class="flex mb-12 mt-8">
+    <select class="input flex-1" id="report-period" style="margin-bottom:0">
+      <option value="week" id="opt-week">This Week</option>
+      <option value="month" id="opt-month">This Month</option>
+      <option value="all" id="opt-all">All Time</option>
+    </select>
+    <button class="btn btn-sm" onclick="generateEventReport()" id="lbl-generate">GENERATE</button>
   </div>
-
-  <!-- MEMBERS PAGE -->
-
-  <div class="page" id="page-members">
-    <div class="section-header">
-      <div class="section-title" data-i18n="members_title">MEMBERS</div>
-      <button class="btn btn-sm" onclick="openAddMemberModal()" data-i18n="add_member">+ ADD</button>
-    </div>
-
-```
-<div class="search-bar">
-  <input class="input" id="member-search" type="text" placeholder="Search..." oninput="filterMembers()" data-i18n-placeholder="search">
-</div>
-
-<div class="member-count" id="member-count-label"></div>
-<div id="members-list"><div class="loading" data-i18n="loading">LOADING...</div></div>
-```
-
+  <div id="event-report-out" class="report-box" style="display:none"></div>
+  <button class="btn btn-sm btn-outline mb-12" id="copy-report-btn" style="display:none;width:100%" onclick="copyReport()" id="lbl-copy">📋 COPY FOR DISCORD</button>
+  <div class="divider"></div>
+  <div class="label" id="lbl-power-report">POWER REPORT</div>
+  <div class="flex mt-8 mb-12">
+    <select class="input flex-1" id="power-report-member" style="margin-bottom:0">
+      <option value="all" id="opt-all-members">All Members</option>
+    </select>
+    <button class="btn btn-sm btn-teal" onclick="generatePowerReport()" id="lbl-generate2">GENERATE</button>
   </div>
-
+  <div id="power-report-out" class="report-box" style="display:none"></div>
+  <div class="divider"></div>
+  <div class="label" id="lbl-top">TOP PARTICIPATORS</div>
+  <div class="card mt-8" id="top-box"><div class="empty-state" id="lbl-gen-first">Generate a report first</div></div>
 </div>
 
-<!-- ADD EVENT MODAL -->
+<!-- MEMBERS PAGE -->
+
+<div class="page" id="page-members">
+  <div class="section-header">
+    <div class="section-title" id="lbl-members">MEMBERS</div>
+    <button class="btn btn-sm" onclick="openAddMemberModal()">+ ADD</button>
+  </div>
+  <div class="search-bar"><input class="input" id="member-search" type="text" placeholder="Search..." oninput="filterMembers()"></div>
+  <div class="flex mb-12" style="gap:6px">
+    <button class="icon-btn flex-1" onclick="setMemberFilter('ALL')" id="mf-all" style="color:var(--gold2);border-color:var(--gold)">ALL</button>
+    <button class="icon-btn flex-1" onclick="setMemberFilter('EU')" id="mf-eu">🇪🇺 EU</button>
+    <button class="icon-btn flex-1" onclick="setMemberFilter('US')" id="mf-us">🇺🇸 US</button>
+    <button class="icon-btn flex-1" onclick="setMemberFilter('INACTIVE')" id="mf-inactive">INACTIVE</button>
+  </div>
+  <div class="member-count" id="member-count"></div>
+  <div id="members-list"><div class="empty-state">LOADING...</div></div>
+</div>
+
+</div><!-- /app -->
+
+<!-- MODALS -->
 
 <div class="modal-overlay" id="modal-add-event">
   <div class="modal">
-    <div class="modal-title" data-i18n="add_event_title">NEW EVENT</div>
-    <div class="label" data-i18n="event_name_label">EVENT NAME</div>
-    <select class="input" id="new-event-type">
-      <option>Swordland Shadow</option>
-      <option>Tri-Alliance Clash</option>
-      <option>Alliance Mobilization</option>
-      <option>Castle Battle</option>
-      <option>KvK</option>
-      <option>Feast</option>
-      <option>Fishing</option>
-      <option>Windward Voyage</option>
-      <option data-i18n="custom_option">Custom...</option>
+    <div class="modal-title" id="lbl-new-event">NEW EVENT</div>
+    <div class="label">EVENT TYPE</div>
+    <select class="input" id="new-event-type" onchange="toggleCustomEvent()">
+      <option value="Swordland Shadow">Swordland Shadow</option>
+      <option value="Tri-Alliance Clash">Tri-Alliance Clash</option>
+      <option value="Alliance Mobilization">Alliance Mobilization</option>
+      <option value="Castle Battle">Castle Battle</option>
+      <option value="KvK">KvK</option>
+      <option value="Feast">Feast</option>
+      <option value="Fishing">Fishing</option>
+      <option value="Windward Voyage">Windward Voyage</option>
+      <option value="custom">Custom...</option>
     </select>
-    <input class="input" id="new-event-custom" type="text" placeholder="Custom event name" style="display:none" data-i18n-placeholder="custom_event_placeholder">
-    <div class="label" data-i18n="event_date_label">DATE</div>
+    <input class="input" id="new-event-custom" type="text" placeholder="Custom event name" style="display:none">
+    <div class="label">DATE</div>
     <input class="input" id="new-event-date" type="date">
     <div class="flex mt-8">
-      <button class="btn flex-1" onclick="addEvent()" data-i18n="create">CREATE</button>
-      <button class="btn-ghost flex-1" onclick="closeModal('modal-add-event')" data-i18n="cancel">CANCEL</button>
+      <button class="btn flex-1" onclick="addEvent()">CREATE</button>
+      <button class="btn-ghost flex-1" onclick="closeModal('modal-add-event')">CANCEL</button>
     </div>
   </div>
 </div>
 
-<!-- ADD MEMBER MODAL -->
+<div class="modal-overlay" id="modal-add-bear">
+  <div class="modal">
+    <div class="modal-title">NEW BEAR EVENT</div>
+    <div class="label">REGION</div>
+    <div class="flex mb-12">
+      <button class="bear-tab-btn active-eu flex-1" id="bear-modal-eu" onclick="selectBearRegion('EU')">🇪🇺 EU</button>
+      <button class="bear-tab-btn flex-1" id="bear-modal-us" onclick="selectBearRegion('US')">🇺🇸 US</button>
+    </div>
+    <input type="hidden" id="new-bear-region" value="EU">
+    <div class="label">DATE</div>
+    <input class="input" id="new-bear-date" type="date">
+    <div class="flex mt-8">
+      <button class="btn flex-1" onclick="addBearEvent()">CREATE</button>
+      <button class="btn-ghost flex-1" onclick="closeModal('modal-add-bear')">CANCEL</button>
+    </div>
+  </div>
+</div>
 
 <div class="modal-overlay" id="modal-add-member">
   <div class="modal">
-    <div class="modal-title" data-i18n="add_member_title">ADD MEMBER</div>
-    <div class="label" data-i18n="member_name_label">IN-GAME NAME</div>
-    <input class="input" id="new-member-name" type="text" placeholder="Member name" data-i18n-placeholder="member_name_placeholder">
-    <div class="label" data-i18n="rank_label">RANK</div>
+    <div class="modal-title" id="lbl-add-member">ADD MEMBER</div>
+    <div class="label">IN-GAME NAME</div>
+    <input class="input" id="new-member-name" type="text" placeholder="Member name">
+    <div class="label">RANK</div>
     <select class="input" id="new-member-rank">
       <option value="R5">R5</option>
       <option value="R4">R4</option>
@@ -837,10 +405,54 @@
       <option value="R2">R2</option>
       <option value="R1">R1</option>
     </select>
-    <div class="flex mt-8">
-      <button class="btn flex-1" onclick="addMember()" data-i18n="add">ADD</button>
-      <button class="btn-ghost flex-1" onclick="closeModal('modal-add-member')" data-i18n="cancel">CANCEL</button>
+    <div class="label">TIMEZONE</div>
+    <div class="flex mb-12">
+      <button class="bear-tab-btn active-eu flex-1" id="nm-eu" onclick="selectNewTZ('EU')">🇪🇺 EU</button>
+      <button class="bear-tab-btn flex-1" id="nm-us" onclick="selectNewTZ('US')">🇺🇸 US</button>
+      <button class="icon-btn flex-1" id="nm-none" onclick="selectNewTZ('')" style="color:var(--text2)">NONE</button>
     </div>
+    <input type="hidden" id="new-member-tz" value="EU">
+    <div class="flex mt-8">
+      <button class="btn flex-1" onclick="addMember()">ADD</button>
+      <button class="btn-ghost flex-1" onclick="closeModal('modal-add-member')">CANCEL</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-edit-member">
+  <div class="modal">
+    <div class="modal-title">EDIT MEMBER</div>
+    <input type="hidden" id="edit-member-id">
+    <div class="label">IN-GAME NAME</div>
+    <input class="input" id="edit-member-name" type="text">
+    <div class="label">RANK</div>
+    <select class="input" id="edit-member-rank">
+      <option value="R5">R5</option>
+      <option value="R4">R4</option>
+      <option value="R3">R3</option>
+      <option value="R2">R2</option>
+      <option value="R1">R1</option>
+    </select>
+    <div class="label">TIMEZONE</div>
+    <div class="flex mb-12">
+      <button class="bear-tab-btn flex-1" id="em-eu" onclick="selectEditTZ('EU')">🇪🇺 EU</button>
+      <button class="bear-tab-btn flex-1" id="em-us" onclick="selectEditTZ('US')">🇺🇸 US</button>
+      <button class="icon-btn flex-1" id="em-none" onclick="selectEditTZ('')" style="color:var(--text2)">NONE</button>
+    </div>
+    <input type="hidden" id="edit-member-tz" value="">
+    <div class="label">NOTES</div>
+    <input class="input" id="edit-member-notes" type="text" placeholder="Council notes...">
+    <div class="label">STATUS</div>
+    <div class="flex mb-12">
+      <button class="bear-tab-btn flex-1" id="em-active" onclick="selectEditStatus('active')" style="color:var(--green);border-color:var(--green);background:rgba(34,197,94,0.1)">ACTIVE</button>
+      <button class="bear-tab-btn flex-1" id="em-inactive" onclick="selectEditStatus('inactive')">INACTIVE</button>
+    </div>
+    <input type="hidden" id="edit-member-status" value="active">
+    <div class="flex mt-8">
+      <button class="btn flex-1" onclick="saveMemberEdit()">SAVE</button>
+      <button class="btn-ghost flex-1" onclick="closeModal('modal-edit-member')">CANCEL</button>
+    </div>
+    <button class="btn btn-sm btn-red mt-12" style="width:100%" onclick="deleteMemberFromEdit()">REMOVE MEMBER</button>
   </div>
 </div>
 
@@ -850,242 +462,197 @@
 // ============================================================
 // I18N
 // ============================================================
-const LANGS = ['EN', 'FR', 'ES'];
+const LANGS = ['EN','FR','ES'];
 let langIdx = 0;
-const T = {
-  EN: {
-    title: 'DTK TRACKER', subtitle: 'K1246 Alliance',
-    nav_events: 'EVENTS', nav_power: 'POWER', nav_reports: 'REPORTS', nav_members: 'MEMBERS',
-    events_title: 'EVENTS', add_event: '+ ADD', total_events: 'Total Events', this_week: 'This Week',
-    loading: 'LOADING...', back: 'Back', delete: 'DELETE',
-    mark_all_yes: '✓ ALL YES', mark_all_no: '✗ ALL NO', clear_all: 'CLEAR',
-    power_title: 'POWER', save_snapshot: 'SAVE', week_label: 'WEEK',
-    reports_title: 'REPORTS', event_report_label: 'EVENT PARTICIPATION REPORT',
-    opt_week: 'This Week', opt_month: 'This Month', opt_all: 'All Time',
-    generate: 'GENERATE', power_report_label: 'POWER GROWTH REPORT',
-    opt_all_members: 'All Members', top_label: 'TOP PARTICIPATORS (MONTHLY)',
-    generate_first: 'Generate a report first', members_title: 'MEMBERS', add_member: '+ ADD',
-    add_event_title: 'NEW EVENT', event_name_label: 'EVENT NAME', custom_option: 'Custom...',
-    event_date_label: 'DATE', create: 'CREATE', cancel: 'CANCEL',
-    add_member_title: 'ADD MEMBER', member_name_label: 'IN-GAME NAME',
-    member_name_placeholder: 'Member name', rank_label: 'RANK', add: 'ADD',
-    search_member: 'Search member...', search: 'Search...',
-    participated: 'participated', absent: 'absent', pending: 'pending',
-    custom_event_placeholder: 'Custom event name',
-    saved: 'SAVED ✓', deleted: 'DELETED', added: 'ADDED ✓',
-    no_events: 'No events yet. Tap + to add one.',
-    no_members: 'No members yet.',
-    participation_rate: 'Participation Rate',
-    never_participated: 'Never Participated',
-    low_participation: 'Low Participation (<50%)',
-    top_3: '🏆 Top 3 This Month',
-    report_generated: 'Report Generated',
-  },
-  FR: {
-    title: 'DTK TRACKER', subtitle: 'Alliance K1246',
-    nav_events: 'ÉVÉNEMENTS', nav_power: 'PUISSANCE', nav_reports: 'RAPPORTS', nav_members: 'MEMBRES',
-    events_title: 'ÉVÉNEMENTS', add_event: '+ AJOUTER', total_events: 'Total Événements', this_week: 'Cette Semaine',
-    loading: 'CHARGEMENT...', back: 'Retour', delete: 'SUPPRIMER',
-    mark_all_yes: '✓ TOUS OUI', mark_all_no: '✗ TOUS NON', clear_all: 'EFFACER',
-    power_title: 'PUISSANCE', save_snapshot: 'SAUVER', week_label: 'SEMAINE',
-    reports_title: 'RAPPORTS', event_report_label: 'RAPPORT DE PARTICIPATION',
-    opt_week: 'Cette Semaine', opt_month: 'Ce Mois', opt_all: 'Tout',
-    generate: 'GÉNÉRER', power_report_label: 'RAPPORT DE PUISSANCE',
-    opt_all_members: 'Tous les Membres', top_label: 'TOP PARTICIPANTS (MENSUEL)',
-    generate_first: 'Générer un rapport d\'abord', members_title: 'MEMBRES', add_member: '+ AJOUTER',
-    add_event_title: 'NOUVEL ÉVÉNEMENT', event_name_label: 'NOM ÉVÉNEMENT', custom_option: 'Personnalisé...',
-    event_date_label: 'DATE', create: 'CRÉER', cancel: 'ANNULER',
-    add_member_title: 'AJOUTER MEMBRE', member_name_label: 'NOM EN JEU',
-    member_name_placeholder: 'Nom du membre', rank_label: 'RANG', add: 'AJOUTER',
-    search_member: 'Rechercher...', search: 'Rechercher...',
-    participated: 'participé', absent: 'absent', pending: 'en attente',
-    custom_event_placeholder: 'Nom d\'événement personnalisé',
-    saved: 'SAUVEGARDÉ ✓', deleted: 'SUPPRIMÉ', added: 'AJOUTÉ ✓',
-    no_events: 'Aucun événement. Tapez + pour en ajouter.',
-    no_members: 'Aucun membre.',
-    participation_rate: 'Taux de Participation',
-    never_participated: 'Jamais Participé',
-    low_participation: 'Faible Participation (<50%)',
-    top_3: '🏆 Top 3 Ce Mois',
-    report_generated: 'Rapport Généré',
-  },
-  ES: {
-    title: 'DTK TRACKER', subtitle: 'Alianza K1246',
-    nav_events: 'EVENTOS', nav_power: 'PODER', nav_reports: 'INFORMES', nav_members: 'MIEMBROS',
-    events_title: 'EVENTOS', add_event: '+ AÑADIR', total_events: 'Total Eventos', this_week: 'Esta Semana',
-    loading: 'CARGANDO...', back: 'Volver', delete: 'ELIMINAR',
-    mark_all_yes: '✓ TODOS SÍ', mark_all_no: '✗ TODOS NO', clear_all: 'LIMPIAR',
-    power_title: 'PODER', save_snapshot: 'GUARDAR', week_label: 'SEMANA',
-    reports_title: 'INFORMES', event_report_label: 'INFORME DE PARTICIPACIÓN',
-    opt_week: 'Esta Semana', opt_month: 'Este Mes', opt_all: 'Todo',
-    generate: 'GENERAR', power_report_label: 'INFORME DE PODER',
-    opt_all_members: 'Todos los Miembros', top_label: 'TOP PARTICIPANTES (MENSUAL)',
-    generate_first: 'Genera un informe primero', members_title: 'MIEMBROS', add_member: '+ AÑADIR',
-    add_event_title: 'NUEVO EVENTO', event_name_label: 'NOMBRE EVENTO', custom_option: 'Personalizado...',
-    event_date_label: 'FECHA', create: 'CREAR', cancel: 'CANCELAR',
-    add_member_title: 'AÑADIR MIEMBRO', member_name_label: 'NOMBRE EN JUEGO',
-    member_name_placeholder: 'Nombre del miembro', rank_label: 'RANGO', add: 'AÑADIR',
-    search_member: 'Buscar miembro...', search: 'Buscar...',
-    participated: 'participó', absent: 'ausente', pending: 'pendiente',
-    custom_event_placeholder: 'Nombre de evento personalizado',
-    saved: 'GUARDADO ✓', deleted: 'ELIMINADO', added: 'AÑADIDO ✓',
-    no_events: 'Sin eventos. Toca + para añadir.',
-    no_members: 'Sin miembros.',
-    participation_rate: 'Tasa de Participación',
-    never_participated: 'Nunca Participó',
-    low_participation: 'Baja Participación (<50%)',
-    top_3: '🏆 Top 3 Este Mes',
-    report_generated: 'Informe Generado',
-  }
+
+const EVENT_NAMES = {
+  'Swordland Shadow': { FR: 'Ombre Épée', ES: 'Sombra Espadacha' },
+  'Tri-Alliance Clash': { FR: 'Clash Tri-Alliance', ES: 'Choque Tri-Alianza' },
+  'Alliance Mobilization': { FR: 'Mobilisation Alliance', ES: 'Movilización Alianza' },
+  'Castle Battle': { FR: 'Bataille Château', ES: 'Batalla Castillo' },
+  'KvK': { FR: 'RcR', ES: 'RvR' },
+  'Feast': { FR: 'Festin', ES: 'Festín' },
+  'Fishing': { FR: 'Pêche', ES: 'Pesca' },
+  'Windward Voyage': { FR: 'Voyage au Vent', ES: 'Viaje al Viento' },
+  'Bear Event': { FR: 'Événement Ours', ES: 'Evento Oso' },
 };
 
-function t(key) { return T[LANGS[langIdx]][key] || T['EN'][key] || key; }
+function translateEventName(name) {
+  const lang = LANGS[langIdx];
+  if (lang === 'EN') return name;
+  return (EVENT_NAMES[name] && EVENT_NAMES[name][lang]) || name;
+}
+
+const UI_STRINGS = {
+  EN: { events:'EVENTS', bear:'BEAR', power:'POWER', reports:'REPORTS', members:'MEMBERS', loading:'LOADING...', back:'Back', delete:'DELETE', total_events:'Total Events', this_week:'This Week', all_yes:'✓ ALL YES', all_no:'✗ ALL NO', clear:'CLEAR', save:'SAVE', week_lbl:'WEEK LABEL', event_report:'EVENT PARTICIPATION REPORT', opt_week:'This Week', opt_month:'This Month', opt_all:'All Time', generate:'GENERATE', power_report:'POWER REPORT', opt_all_members:'All Members', top:'TOP PARTICIPATORS', gen_first:'Generate a report first', add_member:'ADD MEMBER', new_event:'NEW EVENT', copy:'📋 COPY FOR DISCORD', participated:'participated', absent:'absent', pending:'pending', stale:'⚠️ STALE' },
+  FR: { events:'ÉVÉNEMENTS', bear:'OURS', power:'PUISSANCE', reports:'RAPPORTS', members:'MEMBRES', loading:'CHARGEMENT...', back:'Retour', delete:'SUPPRIMER', total_events:'Total Événements', this_week:'Cette Semaine', all_yes:'✓ TOUS OUI', all_no:'✗ TOUS NON', clear:'EFFACER', save:'SAUVER', week_lbl:'SEMAINE', event_report:'RAPPORT DE PARTICIPATION', opt_week:'Cette Semaine', opt_month:'Ce Mois', opt_all:'Tout', generate:'GÉNÉRER', power_report:'RAPPORT PUISSANCE', opt_all_members:'Tous les Membres', top:'TOP PARTICIPANTS', gen_first:'Générez un rapport d\'abord', add_member:'AJOUTER MEMBRE', new_event:'NOUVEL ÉVÉNEMENT', copy:'📋 COPIER POUR DISCORD', participated:'participé', absent:'absent', pending:'en attente', stale:'⚠️ PÉRIMÉ' },
+  ES: { events:'EVENTOS', bear:'OSO', power:'PODER', reports:'INFORMES', members:'MIEMBROS', loading:'CARGANDO...', back:'Volver', delete:'ELIMINAR', total_events:'Total Eventos', this_week:'Esta Semana', all_yes:'✓ TODOS SÍ', all_no:'✗ TODOS NO', clear:'LIMPIAR', save:'GUARDAR', week_lbl:'SEMANA', event_report:'INFORME DE PARTICIPACIÓN', opt_week:'Esta Semana', opt_month:'Este Mes', opt_all:'Todo', generate:'GENERAR', power_report:'INFORME DE PODER', opt_all_members:'Todos los Miembros', top:'TOP PARTICIPANTES', gen_first:'Genera un informe primero', add_member:'AÑADIR MIEMBRO', new_event:'NUEVO EVENTO', copy:'📋 COPIAR PARA DISCORD', participated:'participó', absent:'ausente', pending:'pendiente', stale:'⚠️ OBSOLETO' },
+};
+
+function s(key) { return UI_STRINGS[LANGS[langIdx]][key] || UI_STRINGS['EN'][key] || key; }
 
 function cycleLang() {
   langIdx = (langIdx + 1) % LANGS.length;
   document.getElementById('langBtn').textContent = LANGS[langIdx];
-  applyTranslations();
+  applyLang();
+  renderCurrentPage();
 }
 
-function applyTranslations() {
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    el.textContent = t(key);
+function applyLang() {
+  const L = LANGS[langIdx];
+  const map = {
+    'nav-events': s('events'), 'nav-bear': s('bear'), 'nav-power': s('power'),
+    'nav-reports': s('reports'), 'nav-members': s('members'),
+    'lbl-events': s('events'), 'lbl-bear': s('bear'), 'lbl-power': s('power'),
+    'lbl-reports': s('reports'), 'lbl-members': s('members'),
+    'lbl-loading': s('loading'), 'lbl-loading2': s('loading'),
+    'lbl-back': s('back'), 'lbl-back2': s('back'),
+    'lbl-delete': s('delete'), 'lbl-delete2': s('delete'),
+    'lbl-total-events': s('total_events'), 'lbl-this-week': s('this_week'),
+    'lbl-all-yes': s('all_yes'), 'lbl-all-no': s('all_no'), 'lbl-clear': s('clear'),
+    'lbl-save': s('save'), 'lbl-week': s('week_lbl'),
+    'lbl-event-report': s('event_report'), 'lbl-power-report': s('power_report'),
+    'lbl-generate': s('generate'), 'lbl-generate2': s('generate'),
+    'lbl-top': s('top'), 'lbl-gen-first': s('gen_first'),
+    'lbl-add-member': s('add_member'), 'lbl-new-event': s('new_event'),
+    'opt-week': s('opt_week'), 'opt-month': s('opt_month'), 'opt-all': s('opt_all'),
+    'opt-all-members': s('opt_all_members'),
+  };
+  Object.entries(map).forEach(([id, txt]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = txt;
   });
-  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-    const key = el.getAttribute('data-i18n-placeholder');
-    el.placeholder = t(key);
-  });
+}
+
+// ============================================================
+// THEME
+// ============================================================
+function toggleTheme() {
+  const body = document.body;
+  const isDark = body.getAttribute('data-theme') === 'dark';
+  body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('themeBtn').textContent = isDark ? '☀️' : '🌙';
 }
 
 // ============================================================
 // STATE
 // ============================================================
-let db = null;
-let fs = null;
+let db = null, fs = null;
 let members = [];
 let events = [];
+let bearEvents = [];
 let currentEventId = null;
 let currentEventParticipation = {};
+let currentBearId = null;
+let currentBearParticipation = {};
 let powerEntries = {};
+let powerHistory = {};
+let memberFilter = 'ALL';
+let bearFilter = 'EU';
+let currentPage = 'events';
+let lastReportText = '';
 
 // ============================================================
-// INITIAL MEMBERS
+// INITIAL DATA
 // ============================================================
 const INITIAL_MEMBERS = [
-  // R5
-  { name: 'Lord Ace', rank: 'R5' },
-  // R4
-  { name: 'kesu1337', rank: 'R4' },
-  { name: 'Samette', rank: 'R4' },
-  { name: 'Book', rank: 'R4' },
-  { name: 'SLYDreadPaw', rank: 'R4' },
-  { name: 'Carol', rank: 'R4' },
-  { name: 'Tater', rank: 'R4' },
-  { name: 'Yuenzi', rank: 'R4' },
-  { name: 'Passenger', rank: 'R4' },
-  { name: 'djedje', rank: 'R4' },
-  { name: 'Vee', rank: 'R4' },
-  { name: 'Linkaac', rank: 'R4' },
-  { name: 'Cam', rank: 'R4' },
-  // R3
-  { name: 'ODY', rank: 'R3' },
-  { name: 'Messi', rank: 'R3' },
-  { name: 'Thalès', rank: 'R3' },
-  { name: 'Ray', rank: 'R3' },
-  { name: 'Astra', rank: 'R3' },
-  { name: 'DarcSyde', rank: 'R3' },
-  { name: 'Norseman75', rank: 'R3' },
-  { name: 'Sakaru360', rank: 'R3' },
-  { name: 'Buutenossi', rank: 'R3' },
-  { name: 'Ycfman', rank: 'R3' },
-  { name: 'Philib', rank: 'R3' },
-  { name: 'Jake from state', rank: 'R3' },
-  { name: 'papaoutai', rank: 'R3' },
-  { name: 'Lord Kenn', rank: 'R3' },
-  { name: 'LadyWarrior', rank: 'R3' },
-  { name: 'Dave', rank: 'R3' },
-  { name: 'GoshiG', rank: 'R3' },
-  { name: 'D†rkBlight', rank: 'R3' },
-  { name: 'Arthas', rank: 'R3' },
-  { name: 'Mosya', rank: 'R3' },
-  { name: 'Darth Helmchen', rank: 'R3' },
-  { name: 'Korben Dallas', rank: 'R3' },
-  { name: 'Roma', rank: 'R3' },
-  { name: 'Letsgodonuts', rank: 'R3' },
-  { name: 'Paul', rank: 'R3' },
-  { name: 'Korotaku', rank: 'R3' },
-  { name: 'Schaba', rank: 'R3' },
-  { name: 'Maiwu', rank: 'R3' },
-  { name: 'Clessin', rank: 'R3' },
-  { name: 'RDMIFL', rank: 'R3' },
-  { name: 'Brad', rank: 'R3' },
-  { name: 'Vivi Utiyama', rank: 'R3' },
-  { name: 'Cindyloowho', rank: 'R3' },
-  { name: 'Kelmie', rank: 'R3' },
-  { name: 'SexyJesus', rank: 'R3' },
-  { name: 'Cbass', rank: 'R3' },
-  { name: 'Firewolf6050', rank: 'R3' },
-  { name: 'TheProtectorMax', rank: 'R3' },
-  { name: 'MaThew', rank: 'R3' },
-  { name: 'MidnightHart', rank: 'R3' },
-  { name: 'Phoceus', rank: 'R3' },
-  { name: 'daioharo', rank: 'R3' },
-  { name: 'Adi', rank: 'R3' },
-  { name: 'My Lord', rank: 'R3' },
-  { name: 'Sbamp', rank: 'R3' },
-  { name: 'qwuack', rank: 'R3' },
-  { name: 'Dangercat', rank: 'R3' },
-  { name: 'Papa Ezy', rank: 'R3' },
-  { name: 'XAV | GEN85', rank: 'R3' },
-  { name: 'Maudietta', rank: 'R3' },
-  { name: 'Tenogil', rank: 'R3' },
-  { name: 'Rahif', rank: 'R3' },
-  { name: 'Edison', rank: 'R3' },
-  { name: 'BlkHwk131', rank: 'R3' },
-  { name: 'Lord of hell', rank: 'R3' },
-  { name: 'Hasonn', rank: 'R3' },
-  { name: 'Catsu Curry', rank: 'R3' },
-  { name: 'JacekJKP', rank: 'R3' },
-  { name: 'EddyH', rank: 'R3' },
-  { name: 'seb', rank: 'R3' },
-  { name: 'ViRu BoLtE', rank: 'R3' },
-  { name: 'ElisNM', rank: 'R3' },
-  { name: 'mazellem', rank: 'R3' },
-  { name: 'Xemi', rank: 'R3' },
-  { name: 'Hamza16', rank: 'R3' },
-  { name: 'Elif', rank: 'R3' },
-  { name: 'Albator29', rank: 'R3' },
-  { name: 'Roddog', rank: 'R3' },
-  { name: 'Sludge Lord', rank: 'R3' },
-  { name: 'RCH8', rank: 'R3' },
-  { name: 'Maximus', rank: 'R3' },
-  { name: 'Dracaufeu', rank: 'R3' },
-  { name: 'King Willy', rank: 'R3' },
-  { name: 'Zaza', rank: 'R3' },
-  { name: 'XaTaR', rank: 'R3' },
-  { name: 'Tim_3110', rank: 'R3' },
-  { name: 'Alex_Dr', rank: 'R3' },
-  { name: 'Stan', rank: 'R3' },
-  { name: 'Anomie21', rank: 'R3' },
-  // R2
-  { name: 'GarTuLyl', rank: 'R2' },
-  // R1
-  { name: 'Oskie', rank: 'R1' },
+  {name:'Lord Ace',rank:'R5',tz:'',power:'81.6M'},
+  {name:'Book',rank:'R4',tz:'',power:'138.8M'},
+  {name:'SLYDreadPaw',rank:'R4',tz:'',power:'134.7M'},
+  {name:'Tater',rank:'R4',tz:'',power:'104.7M'},
+  {name:'Carol',rank:'R4',tz:'EU',power:'112.3M'},
+  {name:'Yuenzi',rank:'R4',tz:'',power:'90.8M'},
+  {name:'Samette',rank:'R4',tz:'',power:'83.3M'},
+  {name:'Passenger',rank:'R4',tz:'',power:'87.9M'},
+  {name:'djedje',rank:'R4',tz:'',power:'80.3M'},
+  {name:'Vee',rank:'R4',tz:'',power:'76M'},
+  {name:'Linkaac',rank:'R4',tz:'',power:'73.5M'},
+  {name:'Cam',rank:'R4',tz:'US',power:'67.6M'},
+  {name:'Messi',rank:'R3',tz:'',power:'174.2M'},
+  {name:'Thalès',rank:'R3',tz:'EU',power:'173.7M'},
+  {name:'Ray',rank:'R3',tz:'',power:'119.3M'},
+  {name:'Astra',rank:'R3',tz:'',power:'113.9M'},
+  {name:'DarcSyde',rank:'R3',tz:'',power:'112.8M'},
+  {name:'Norseman75',rank:'R3',tz:'',power:'99.9M'},
+  {name:'Sakaru360',rank:'R3',tz:'',power:'96.6M'},
+  {name:'Buutenossi',rank:'R3',tz:'EU',power:'96.5M'},
+  {name:'Ycfman',rank:'R3',tz:'',power:'93.2M'},
+  {name:'Philib',rank:'R3',tz:'',power:'91.9M'},
+  {name:'Jake from state',rank:'R3',tz:'US',power:'88.7M'},
+  {name:'Lord Kenn',rank:'R3',tz:'',power:'87.3M'},
+  {name:'LadyWarrior',rank:'R3',tz:'',power:'87.2M'},
+  {name:'papaoutai',rank:'R3',tz:'EU',power:'87.6M'},
+  {name:'Dave',rank:'R3',tz:'',power:'87M'},
+  {name:'SexyJesus',rank:'R3',tz:'',power:'85.7M'},
+  {name:'Kelmie',rank:'R3',tz:'',power:'85.1M'},
+  {name:'Cbass',rank:'R3',tz:'US',power:'84.6M'},
+  {name:'TheProtectorMax',rank:'R3',tz:'',power:'83.6M'},
+  {name:'Firewolf6050',rank:'R3',tz:'',power:'83.5M'},
+  {name:'MaThew',rank:'R3',tz:'EU',power:'83.3M'},
+  {name:'MidnightHart',rank:'R3',tz:'',power:'81.6M'},
+  {name:'Phoceus',rank:'R3',tz:'EU',power:'80.7M'},
+  {name:'Adi',rank:'R3',tz:'',power:'78.4M'},
+  {name:'daioharo',rank:'R3',tz:'',power:'78.1M'},
+  {name:'My Lord',rank:'R3',tz:'',power:'77.6M'},
+  {name:'qwuack',rank:'R3',tz:'',power:'77.2M'},
+  {name:'Dangercat',rank:'R3',tz:'',power:'76.1M'},
+  {name:'XAV | GEN85',rank:'R3',tz:'',power:'75.6M'},
+  {name:'Tenogil',rank:'R3',tz:'',power:'75.5M'},
+  {name:'Papa Ezy',rank:'R3',tz:'',power:'75.4M'},
+  {name:'Maudietta',rank:'R3',tz:'EU',power:'75M'},
+  {name:'Rahif',rank:'R3',tz:'',power:'74.5M'},
+  {name:'Edison',rank:'R3',tz:'',power:'74M'},
+  {name:'BlkHwk131',rank:'R3',tz:'US',power:'73M'},
+  {name:'ODY',rank:'R3',tz:'',power:'72M'},
+  {name:'Lord of hell',rank:'R3',tz:'',power:'71.5M'},
+  {name:'Hasonn',rank:'R3',tz:'',power:'70.8M'},
+  {name:'JacekJKP',rank:'R3',tz:'EU',power:'70.3M'},
+  {name:'Catsu Curry',rank:'R3',tz:'',power:'70.3M'},
+  {name:'EddyH',rank:'R3',tz:'',power:'69.8M'},
+  {name:'seb',rank:'R3',tz:'EU',power:'68.2M'},
+  {name:'ViRu BoLtE',rank:'R3',tz:'',power:'67.9M'},
+  {name:'ElisNM',rank:'R3',tz:'EU',power:'67M'},
+  {name:'mazellem',rank:'R3',tz:'EU',power:'65.2M'},
+  {name:'Hamza16',rank:'R3',tz:'',power:'65.1M'},
+  {name:'Xemi',rank:'R3',tz:'',power:'64.6M'},
+  {name:'Albator29',rank:'R3',tz:'EU',power:'64.3M'},
+  {name:'Elif',rank:'R3',tz:'EU',power:'64.2M'},
+  {name:'Roddog',rank:'R3',tz:'US',power:'64.1M'},
+  {name:'Sludge Lord',rank:'R3',tz:'',power:'63.9M'},
+  {name:'Maximus',rank:'R3',tz:'',power:'63.4M'},
+  {name:'RCH8',rank:'R3',tz:'US',power:'63.2M'},
+  {name:'Dracaufeu',rank:'R3',tz:'EU',power:'62.5M'},
+  {name:'King Willy',rank:'R3',tz:'',power:'61.9M'},
+  {name:'Zaza',rank:'R3',tz:'',power:'61.8M'},
+  {name:'XaTaR',rank:'R3',tz:'',power:'61.8M'},
+  {name:'Tim_3110',rank:'R3',tz:'',power:'60.8M'},
+  {name:'Alex_Dr',rank:'R3',tz:'',power:'60.1M'},
+  {name:'Arthas',rank:'R3',tz:'',power:'60.1M'},
+  {name:'Stan',rank:'R3',tz:'',power:'58.9M'},
+  {name:'Anomie21',rank:'R3',tz:'',power:'58.4M'},
+  {name:'GoshiG',rank:'R3',tz:'',power:'58.3M'},
+  {name:'D\u2020rkBlight',rank:'R3',tz:'',power:'57.2M'},
+  {name:'Mosya',rank:'R3',tz:'EU',power:'56.3M'},
+  {name:'Korben Dallas',rank:'R3',tz:'EU',power:'56M'},
+  {name:'Darth Helmchen',rank:'R3',tz:'EU',power:'55.5M'},
+  {name:'Roma',rank:'R3',tz:'EU',power:'54.6M'},
+  {name:'Letsgodonuts',rank:'R3',tz:'US',power:'53.4M'},
+  {name:'Korotaku',rank:'R3',tz:'',power:'52.5M'},
+  {name:'Paul',rank:'R3',tz:'',power:'52.1M'},
+  {name:'Schaba',rank:'R3',tz:'EU',power:'51.8M'},
+  {name:'Maiwu',rank:'R3',tz:'',power:'51.3M'},
+  {name:'Clessin',rank:'R3',tz:'EU',power:'50.5M'},
+  {name:'RDMIFL',rank:'R3',tz:'',power:'47.9M'},
+  {name:'Brad',rank:'R3',tz:'US',power:'46.9M'},
+  {name:'Vivi Utiyama',rank:'R3',tz:'',power:'45.3M'},
+  {name:'Cindyloowho',rank:'R3',tz:'',power:'39.7M'},
+  {name:'GarTuLyl',rank:'R2',tz:'',power:'129.3M'},
+  {name:'Oskie',rank:'R1',tz:'',power:'50.5M'},
 ];
 
-// ============================================================
-// INITIAL EVENTS
-// ============================================================
 const INITIAL_EVENTS = [
-  { name: 'Swordland Shadow', type: 'SWORDLAND' },
-  { name: 'Tri-Alliance Clash', type: 'TRI-ALLIANCE' },
-  { name: 'Alliance Mobilization', type: 'MOBILIZATION' },
-  { name: 'Castle Battle', type: 'CASTLE' },
-  { name: 'KvK', type: 'KVK' },
-  { name: 'Feast', type: 'FEAST' },
-  { name: 'Fishing', type: 'FISHING' },
-  { name: 'Windward Voyage', type: 'WINDWARD' },
+  'Swordland Shadow','Tri-Alliance Clash','Alliance Mobilization',
+  'Castle Battle','KvK','Feast','Fishing','Windward Voyage'
 ];
 
 // ============================================================
@@ -1093,466 +660,99 @@ const INITIAL_EVENTS = [
 // ============================================================
 window.addEventListener('firebase-ready', async () => {
   db = window.__db;
-  fs = window.__firestore;
-
-  await initMembers();
-  await loadEvents();
-  loadPowerPage();
-  populatePowerReportSelect();
+  fs = window.__fs;
+  await seedMembers();
+  await seedEvents();
+  await loadAll();
 });
 
-async function initMembers() {
+async function seedMembers() {
   try {
-    // Seed all members using stable fixed IDs — safe to re-run, won't duplicate
+    const snap = await fs.getDocs(fs.collection(db,'members'));
+    const existingIds = new Set();
+    snap.forEach(d => existingIds.add(d.id));
     for (const m of INITIAL_MEMBERS) {
-      const id = 'mbr_' + m.name.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
-      await fs.setDoc(fs.doc(db, 'members', id), { name: m.name, rank: m.rank, addedAt: Date.now() }, { merge: true });
-    }
-
-    // Seed default event types using stable fixed IDs — only creates if not already there
-    const today = new Date().toISOString().split('T')[0];
-    for (const ev of INITIAL_EVENTS) {
-      const id = 'ev_default_' + ev.name.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
-      const existing = await fs.getDoc(fs.doc(db, 'events', id));
-      if (!existing.exists()) {
-        await fs.setDoc(fs.doc(db, 'events', id), {
-          name: ev.name,
-          type: ev.type,
-          date: today,
-          participation: {},
-          createdAt: Date.now()
+      const id = 'mbr_' + m.name.replace(/[^a-zA-Z0-9]/g,'_').toLowerCase();
+      if (!existingIds.has(id)) {
+        await fs.setDoc(fs.doc(db,'members',id), {
+          name:m.name, rank:m.rank, tz:m.tz||'',
+          basePower:m.power, currentPower:m.power,
+          powerUpdatedAt:Date.now(), notes:'', status:'active', addedAt:Date.now()
         });
       }
     }
+  } catch(e) { console.error('seedMembers',e); }
+}
 
-    await loadMembers();
-    await loadEvents();
-  } catch(e) { console.error(e); showToast('Firebase error: check config'); }
+async function seedEvents() {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    for (const name of INITIAL_EVENTS) {
+      const id = 'ev_def_' + name.replace(/[^a-zA-Z0-9]/g,'_').toLowerCase();
+      const existing = await fs.getDoc(fs.doc(db,'events',id));
+      if (!existing.exists()) {
+        await fs.setDoc(fs.doc(db,'events',id), {
+          name, date:today, participation:{}, createdAt:Date.now(), createdBy:'system'
+        });
+      }
+    }
+  } catch(e) { console.error('seedEvents',e); }
+}
+
+async function loadAll() {
+  await loadMembers();
+  await loadEvents();
+  await loadBearEvents();
+  await loadPowerHistory();
+  renderCurrentPage();
 }
 
 async function loadMembers() {
   try {
-    const snap = await fs.getDocs(fs.collection(db, 'members'));
+    const snap = await fs.getDocs(fs.collection(db,'members'));
     members = [];
-    snap.forEach(d => members.push({ id: d.id, ...d.data() }));
+    snap.forEach(d => members.push({id:d.id,...d.data()}));
     members.sort((a,b) => {
       const ro = ['R5','R4','R3','R2','R1'];
-      return ro.indexOf(a.rank) - ro.indexOf(b.rank) || a.name.localeCompare(b.name);
+      return ro.indexOf(a.rank)-ro.indexOf(b.rank) || a.name.localeCompare(b.name);
     });
-    renderMembersList();
-    loadPowerPage();
-    populatePowerReportSelect();
+    populatePowerSelect();
   } catch(e) { console.error(e); }
 }
 
-// ============================================================
-// MEMBERS PAGE
-// ============================================================
-function renderMembersList(filter='') {
-  const el = document.getElementById('members-list');
-  const countEl = document.getElementById('member-count-label');
-  const filtered = members.filter(m => m.name.toLowerCase().includes(filter.toLowerCase()));
-  countEl.textContent = `${filtered.length} members`;
-
-  if (!filtered.length) {
-    el.innerHTML = `<div class="empty-state">${t('no_members')}</div>`;
-    return;
-  }
-
-  let html = '';
-  filtered.forEach(m => {
-    const rc = m.rank === 'R5' ? 'r5' : m.rank === 'R4' ? 'r4' : m.rank === 'R3' ? 'r3' : '';
-    html += `<div class="member-row">
-      <div>
-        <span class="rank-badge ${rc}">${m.rank}</span>
-        <span style="font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14px">${m.name}</span>
-      </div>
-      <button class="btn-ghost" style="padding:4px 10px;font-size:11px;color:var(--red);border-color:rgba(239,68,68,0.3)" onclick="deleteMember('${m.id}','${m.name.replace(/'/g,"\\'")}')">✕</button>
-    </div>`;
-  });
-  el.innerHTML = html;
-}
-
-function filterMembers() {
-  const q = document.getElementById('member-search').value;
-  renderMembersList(q);
-}
-
-function openAddMemberModal() {
-  document.getElementById('new-member-name').value = '';
-  document.getElementById('modal-add-member').classList.add('open');
-}
-
-async function addMember() {
-  const name = document.getElementById('new-member-name').value.trim();
-  const rank = document.getElementById('new-member-rank').value;
-  if (!name) return;
-  const id = name.replace(/[^a-zA-Z0-9]/g, '_') + '_' + Date.now();
-  await fs.setDoc(fs.doc(db, 'members', id), { name, rank, addedAt: Date.now() });
-  closeModal('modal-add-member');
-  await loadMembers();
-  showToast(t('added'));
-}
-
-async function deleteMember(id, name) {
-  if (!confirm(`Remove ${name}?`)) return;
-  await fs.deleteDoc(fs.doc(db, 'members', id));
-  await loadMembers();
-  showToast(t('deleted'));
-}
-
-// ============================================================
-// EVENTS PAGE
-// ============================================================
 async function loadEvents() {
   try {
-    const snap = await fs.getDocs(fs.collection(db, 'events'));
+    const snap = await fs.getDocs(fs.collection(db,'events'));
     events = [];
-    snap.forEach(d => events.push({ id: d.id, ...d.data() }));
+    snap.forEach(d => events.push({id:d.id,...d.data()}));
     events.sort((a,b) => b.date.localeCompare(a.date));
-    renderEventsList();
   } catch(e) { console.error(e); }
 }
 
-function renderEventsList() {
-  const el = document.getElementById('events-list');
-  const now = new Date();
-  const weekAgo = new Date(now - 7*24*60*60*1000).toISOString().split('T')[0];
-
-  document.getElementById('stat-total-events').textContent = events.length;
-  document.getElementById('stat-this-week').textContent = events.filter(e => e.date >= weekAgo).length;
-
-  if (!events.length) {
-    el.innerHTML = `<div class="empty-state">${t('no_events')}</div>`;
-    return;
-  }
-
-  let html = '';
-  events.forEach(ev => {
-    const p = ev.participation || {};
-    const yes = Object.values(p).filter(v=>v==='yes').length;
-    const total = members.length || 1;
-    const pct = Math.round(yes/total*100);
-    html += `<div class="event-item" onclick="openEventDetail('${ev.id}')">
-      <div style="flex:1;min-width:0">
-        <div class="card-title">${ev.name}</div>
-        <div style="color:var(--text3);font-size:11px;margin-top:2px">${formatDate(ev.date)}</div>
-        <div class="progress-bar" style="margin-top:8px;width:80%">
-          <div class="progress-fill" style="width:${pct}%"></div>
-        </div>
-        <div style="font-size:11px;color:var(--text3);margin-top:3px">${yes}/${total} • ${pct}%</div>
-      </div>
-      <span class="event-tag">${ev.type || 'EVENT'}</span>
-    </div>`;
-  });
-  el.innerHTML = html;
+async function loadBearEvents() {
+  try {
+    const snap = await fs.getDocs(fs.collection(db,'bear'));
+    bearEvents = [];
+    snap.forEach(d => bearEvents.push({id:d.id,...d.data()}));
+    bearEvents.sort((a,b) => b.date.localeCompare(a.date));
+  } catch(e) { console.error(e); }
 }
 
-function openAddEventModal() {
-  document.getElementById('new-event-date').value = new Date().toISOString().split('T')[0];
-  document.getElementById('new-event-custom').style.display = 'none';
-  document.getElementById('modal-add-event').classList.add('open');
-}
-
-document.getElementById('new-event-type').addEventListener('change', function() {
-  const custom = document.getElementById('new-event-custom');
-  custom.style.display = this.value === 'Custom...' || this.value === 'Personnalisé...' || this.value === 'Personalizado...' ? 'block' : 'none';
-});
-
-async function addEvent() {
-  let name = document.getElementById('new-event-type').value;
-  const custom = document.getElementById('new-event-custom').value.trim();
-  if (name.includes('Custom') || name.includes('Personnalisé') || name.includes('Personalizado')) {
-    if (!custom) return;
-    name = custom;
-  }
-  const date = document.getElementById('new-event-date').value || new Date().toISOString().split('T')[0];
-  const id = 'ev_' + Date.now();
-  await fs.setDoc(fs.doc(db, 'events', id), { name, date, type: name.toUpperCase().substring(0,10), participation: {}, createdAt: Date.now() });
-  closeModal('modal-add-event');
-  await loadEvents();
-  showToast(t('added'));
-}
-
-async function openEventDetail(eventId) {
-  currentEventId = eventId;
-  const ev = events.find(e => e.id === eventId);
-  if (!ev) return;
-
-  currentEventParticipation = { ...(ev.participation || {}) };
-
-  document.getElementById('detail-event-name').textContent = ev.name;
-  document.getElementById('detail-event-date').textContent = formatDate(ev.date);
-  document.getElementById('detail-search').value = '';
-
-  showPage('event-detail');
-  renderDetailMembers();
-}
-
-function renderDetailMembers(filter='') {
-  const ev = events.find(e => e.id === currentEventId);
-  if (!ev) return;
-
-  const filtered = members.filter(m => m.name.toLowerCase().includes(filter.toLowerCase()));
-  const yes = Object.values(currentEventParticipation).filter(v=>v==='yes').length;
-  const no = Object.values(currentEventParticipation).filter(v=>v==='no').length;
-  const pending = members.length - yes - no;
-
-  document.getElementById('detail-participated').textContent = `✓ ${yes} ${t('participated')}`;
-  document.getElementById('detail-absent').textContent = `✗ ${no} ${t('absent')}`;
-  document.getElementById('detail-pending').textContent = `? ${pending} ${t('pending')}`;
-  const pct = members.length ? Math.round(yes/members.length*100) : 0;
-  document.getElementById('detail-progress').style.width = pct + '%';
-
-  let html = '';
-  filtered.forEach(m => {
-    const status = currentEventParticipation[m.id] || 'pending';
-    const yClass = status === 'yes' ? 'selected-yes' : '';
-    const nClass = status === 'no' ? 'selected-no' : '';
-    html += `<div class="member-row">
-      <div style="flex:1;min-width:0">
-        <span style="font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14px;word-break:break-word">${m.name}</span>
-      </div>
-      <div class="toggle-group">
-        <button class="toggle-btn ${yClass}" onclick="setParticipation('${m.id}','yes','${m.name.replace(/'/g,"\\'")}')">✓</button>
-        <button class="toggle-btn ${nClass}" onclick="setParticipation('${m.id}','no','${m.name.replace(/'/g,"\\'")}')">✗</button>
-      </div>
-    </div>`;
-  });
-  document.getElementById('detail-members-list').innerHTML = html || `<div class="empty-state">${t('no_members')}</div>`;
-}
-
-function filterDetailMembers() {
-  const q = document.getElementById('detail-search').value;
-  renderDetailMembers(q);
-}
-
-async function setParticipation(memberId, status, memberName) {
-  if (currentEventParticipation[memberId] === status) {
-    delete currentEventParticipation[memberId];
-  } else {
-    currentEventParticipation[memberId] = status;
-  }
-  renderDetailMembers(document.getElementById('detail-search').value);
-  // Auto-save
-  await fs.setDoc(fs.doc(db, 'events', currentEventId), { participation: currentEventParticipation }, { merge: true });
-  // Update local cache
-  const idx = events.findIndex(e => e.id === currentEventId);
-  if (idx >= 0) events[idx].participation = { ...currentEventParticipation };
-}
-
-async function markAll(status) {
-  members.forEach(m => { currentEventParticipation[m.id] = status; });
-  renderDetailMembers(document.getElementById('detail-search').value);
-  await fs.setDoc(fs.doc(db, 'events', currentEventId), { participation: currentEventParticipation }, { merge: true });
-  const idx = events.findIndex(e => e.id === currentEventId);
-  if (idx >= 0) events[idx].participation = { ...currentEventParticipation };
-}
-
-async function clearAll() {
-  currentEventParticipation = {};
-  renderDetailMembers(document.getElementById('detail-search').value);
-  await fs.setDoc(fs.doc(db, 'events', currentEventId), { participation: {} }, { merge: true });
-  const idx = events.findIndex(e => e.id === currentEventId);
-  if (idx >= 0) events[idx].participation = {};
-}
-
-async function deleteCurrentEvent() {
-  if (!confirm('Delete this event?')) return;
-  await fs.deleteDoc(fs.doc(db, 'events', currentEventId));
-  await loadEvents();
-  showPage('events');
-  showToast(t('deleted'));
-}
-
-// ============================================================
-// POWER PAGE
-// ============================================================
-function loadPowerPage(filter='') {
-  const el = document.getElementById('power-members-list');
-  if (!members.length) {
-    el.innerHTML = `<div class="loading">${t('loading')}</div>`;
-    return;
-  }
-  const filtered = members.filter(m => m.name.toLowerCase().includes(filter.toLowerCase()));
-  let html = '';
-  filtered.forEach(m => {
-    const val = powerEntries[m.id] || '';
-    html += `<div class="power-member-row">
-      <div class="power-name">${m.name}</div>
-      <input class="power-input" type="text" placeholder="e.g. 98.9M" value="${val}" 
-        oninput="powerEntries['${m.id}']=this.value" 
-        data-member="${m.id}">
-    </div>`;
-  });
-  el.innerHTML = html;
-}
-
-function filterPowerMembers() {
-  const q = document.getElementById('power-search').value;
-  loadPowerPage(q);
-}
-
-async function savePowerSnapshot() {
-  const weekLabel = document.getElementById('power-week-label').value.trim() || 
-    'Week ' + new Date().toISOString().split('T')[0];
-  
-  // Collect values from DOM
-  document.querySelectorAll('.power-input[data-member]').forEach(inp => {
-    if (inp.value.trim()) powerEntries[inp.getAttribute('data-member')] = inp.value.trim();
-  });
-
-  const snapshot = { weekLabel, entries: { ...powerEntries }, savedAt: Date.now() };
-  await fs.setDoc(fs.doc(db, 'power', 'snapshot_' + Date.now()), snapshot);
-  showToast(t('saved'));
-}
-
-function populatePowerReportSelect() {
-  const sel = document.getElementById('power-report-member');
-  sel.innerHTML = `<option value="all">${t('opt_all_members')}</option>`;
-  members.forEach(m => {
-    sel.innerHTML += `<option value="${m.id}">${m.name}</option>`;
-  });
-}
-
-// ============================================================
-// REPORTS
-// ============================================================
-async function generateEventReport() {
-  const period = document.getElementById('report-period').value;
-  const now = new Date();
-  let since = null;
-
-  if (period === 'week') {
-    since = new Date(now - 7*24*60*60*1000).toISOString().split('T')[0];
-  } else if (period === 'month') {
-    since = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
-  }
-
-  const filtered = since ? events.filter(e => e.date >= since) : events;
-
-  if (!filtered.length) {
-    document.getElementById('event-report-output').style.display = 'block';
-    document.getElementById('event-report-output').textContent = 'No events in this period.';
-    return;
-  }
-
-  // Build participation counts per member
-  const counts = {};
-  members.forEach(m => { counts[m.id] = { name: m.name, yes: 0, no: 0, total: 0 }; });
-
-  filtered.forEach(ev => {
-    const p = ev.participation || {};
-    members.forEach(m => {
-      if (p[m.id]) {
-        counts[m.id].total++;
-        if (p[m.id] === 'yes') counts[m.id].yes++;
-        else if (p[m.id] === 'no') counts[m.id].no++;
+async function loadPowerHistory() {
+  try {
+    const snap = await fs.getDocs(fs.collection(db,'power'));
+    powerHistory = {};
+    snap.forEach(d => {
+      const data = d.data();
+      if (data.entries) {
+        Object.entries(data.entries).forEach(([mid,val]) => {
+          if (!powerHistory[mid]) powerHistory[mid] = [];
+          powerHistory[mid].push({week:data.weekLabel, value:val, savedAt:data.savedAt});
+        });
       }
     });
-  });
-
-  const totalEvents = filtered.length;
-  const neverParticipated = members.filter(m => counts[m.id].yes === 0);
-  const lowParticipation = members.filter(m => {
-    const c = counts[m.id];
-    return c.total > 0 && (c.yes / c.total) < 0.5;
-  });
-
-  const sorted = [...members].sort((a,b) => counts[b.id].yes - counts[a.id].yes);
-  const top3 = sorted.slice(0,3).filter(m => counts[m.id].yes > 0);
-
-  let report = `📊 ${t('event_report_label')}\n`;
-  report += `Period: ${period === 'week' ? t('opt_week') : period === 'month' ? t('opt_month') : t('opt_all')}\n`;
-  report += `Events tracked: ${totalEvents}\n\n`;
-
-  report += `🚫 ${t('never_participated')} (${neverParticipated.length}):\n`;
-  if (neverParticipated.length) {
-    neverParticipated.forEach(m => { report += `  • ${m.name}\n`; });
-  } else { report += `  None\n`; }
-
-  report += `\n⚠️ ${t('low_participation')} (${lowParticipation.length}):\n`;
-  if (lowParticipation.length) {
-    lowParticipation.forEach(m => {
-      const c = counts[m.id];
-      const pct = c.total ? Math.round(c.yes/c.total*100) : 0;
-      report += `  • ${m.name}: ${c.yes}/${c.total} (${pct}%)\n`;
-    });
-  } else { report += `  None\n`; }
-
-  report += `\n${t('top_3')}:\n`;
-  top3.forEach((m, i) => {
-    const medals = ['🥇','🥈','🥉'];
-    const c = counts[m.id];
-    const pct = c.total ? Math.round(c.yes/c.total*100) : 0;
-    report += `  ${medals[i]} ${m.name}: ${c.yes} events (${pct}%)\n`;
-  });
-
-  report += `\n📋 Full ${t('participation_rate')}:\n`;
-  sorted.forEach(m => {
-    const c = counts[m.id];
-    const pct = c.total ? Math.round(c.yes/c.total*100) : 0;
-    report += `  ${m.name}: ${c.yes}/${totalEvents} (${pct}%)\n`;
-  });
-
-  const out = document.getElementById('event-report-output');
-  out.style.display = 'block';
-  out.textContent = report;
-
-  // Top participators widget
-  let topHtml = `<div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;color:var(--gold2);margin-bottom:10px">${t('top_3')}</div>`;
-  if (top3.length) {
-    top3.forEach((m, i) => {
-      const medals = ['🥇','🥈','🥉'];
-      const c = counts[m.id];
-      const pct = c.total ? Math.round(c.yes/c.total*100) : 0;
-      topHtml += `<div class="member-row">
-        <div>${medals[i]} <span style="font-family:'Rajdhani',sans-serif;font-weight:600">${m.name}</span></div>
-        <div style="color:var(--teal);font-family:'Rajdhani',sans-serif;font-weight:700">${c.yes} <span style="font-size:11px;color:var(--text3)">events</span></div>
-      </div>`;
-    });
-  } else {
-    topHtml += `<div class="empty-state">${t('generate_first')}</div>`;
-  }
-  document.getElementById('top-participators').innerHTML = topHtml;
-
-  showToast(t('report_generated'));
-}
-
-async function generatePowerReport() {
-  const snap = await fs.getDocs(fs.collection(db, 'power'));
-  const snapshots = [];
-  snap.forEach(d => snapshots.push({ id: d.id, ...d.data() }));
-  snapshots.sort((a,b) => a.savedAt - b.savedAt);
-
-  if (snapshots.length < 1) {
-    document.getElementById('power-report-output').style.display = 'block';
-    document.getElementById('power-report-output').textContent = 'No power snapshots saved yet.';
-    return;
-  }
-
-  const memberId = document.getElementById('power-report-member').value;
-  let report = `⚡ ${t('power_report_label')}\n`;
-  report += `Snapshots: ${snapshots.length}\n\n`;
-
-  const targetMembers = memberId === 'all' ? members : members.filter(m => m.id === memberId);
-
-  targetMembers.forEach(m => {
-    const history = snapshots
-      .filter(s => s.entries && s.entries[m.id])
-      .map(s => ({ week: s.weekLabel, value: s.entries[m.id] }));
-
-    if (history.length > 0) {
-      report += `👤 ${m.name}:\n`;
-      history.forEach(h => { report += `  ${h.week}: ${h.value}\n`; });
-      report += '\n';
-    }
-  });
-
-  const out = document.getElementById('power-report-output');
-  out.style.display = 'block';
-  out.textContent = report;
-  showToast(t('report_generated'));
+    Object.values(powerHistory).forEach(arr => arr.sort((a,b)=>a.savedAt-b.savedAt));
+  } catch(e) { console.error(e); }
 }
 
 // ============================================================
@@ -1561,47 +761,618 @@ async function generatePowerReport() {
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  const nb = document.getElementById('nav-'+name);
+  if (nb) nb.classList.add('active');
+  currentPage = name;
+  renderCurrentPage();
+}
 
-  document.getElementById('page-' + name).classList.add('active');
+function renderCurrentPage() {
+  if (currentPage==='events') renderEvents();
+  else if (currentPage==='bear') renderBear();
+  else if (currentPage==='power') renderPower();
+  else if (currentPage==='members') renderMembers();
+}
 
-  const navMap = { events: 0, power: 1, reports: 2, members: 3 };
-  const navBtns = document.querySelectorAll('.nav-btn');
-  if (navMap[name] !== undefined) navBtns[navMap[name]].classList.add('active');
+function backToEvents() {
+  showPage('events');
+}
 
-  if (name === 'events') loadEvents();
-  if (name === 'power') loadPowerPage();
-  if (name === 'members') renderMembersList();
+// ============================================================
+// EVENTS
+// ============================================================
+function renderEvents() {
+  const el = document.getElementById('events-list');
+  const now = new Date();
+  const weekAgo = new Date(now-7*24*60*60*1000).toISOString().split('T')[0];
+  document.getElementById('stat-total').textContent = events.length;
+  document.getElementById('stat-week').textContent = events.filter(e=>e.date>=weekAgo).length;
+  if (!events.length) { el.innerHTML=`<div class="empty-state">No events yet. Tap + to add.</div>`; return; }
+  const activeM = members.filter(m=>m.status!=='inactive');
+  let html='';
+  events.forEach(ev=>{
+    const p=ev.participation||{};
+    const yes=Object.values(p).filter(v=>v==='yes').length;
+    const total=activeM.length||1;
+    const pct=Math.round(yes/total*100);
+    const dname=translateEventName(ev.name);
+    html+=`<div class="event-item" onclick="openEvent('${ev.id}')">
+      <div style="flex:1;min-width:0">
+        <div style="font-family:'Rajdhani',sans-serif;font-weight:600;font-size:15px">${dname}</div>
+        <div style="color:var(--text3);font-size:11px;margin-top:2px">${fmtDate(ev.date)}</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">${yes}/${total} • ${pct}%</div>
+      </div>
+      <span class="event-tag">${dname.substring(0,8).toUpperCase()}</span>
+    </div>`;
+  });
+  el.innerHTML=html;
+}
+
+function openEvent(id) {
+  currentEventId=id;
+  const ev=events.find(e=>e.id===id);
+  if (!ev) return;
+  currentEventParticipation={...(ev.participation||{})};
+  document.getElementById('detail-name').textContent=translateEventName(ev.name);
+  document.getElementById('detail-date').textContent=fmtDate(ev.date);
+  document.getElementById('detail-search').value='';
+  currentPage='event-detail';
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-event-detail').classList.add('active');
+  renderDetail();
+}
+
+function renderDetail(filter='') {
+  const activeM=members.filter(m=>m.status!=='inactive');
+  const filtered=activeM.filter(m=>m.name.toLowerCase().includes(filter.toLowerCase()));
+  const yes=Object.values(currentEventParticipation).filter(v=>v==='yes').length;
+  const no=Object.values(currentEventParticipation).filter(v=>v==='no').length;
+  const pending=activeM.length-yes-no;
+  document.getElementById('detail-yes').textContent=`✓ ${yes} ${s('participated')}`;
+  document.getElementById('detail-no').textContent=`✗ ${no} ${s('absent')}`;
+  document.getElementById('detail-pending').textContent=`? ${pending} ${s('pending')}`;
+  const pct=activeM.length?Math.round(yes/activeM.length*100):0;
+  document.getElementById('detail-prog').style.width=pct+'%';
+  let html='';
+  filtered.forEach(m=>{
+    const st=currentEventParticipation[m.id]||'pending';
+    const tzb=m.tz?`<span class="tz-badge tz-${m.tz.toLowerCase()}">${m.tz}</span>`:'';
+    html+=`<div class="member-row">
+      <div style="flex:1;min-width:0;display:flex;align-items:center;flex-wrap:wrap;gap:3px">
+        <span style="font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14px">${m.name}</span>${tzb}
+      </div>
+      <div class="toggle-group">
+        <button class="toggle-btn ${st==='yes'?'yes':''}" onclick="setParticipation('${m.id}','yes')">✓</button>
+        <button class="toggle-btn ${st==='no'?'no':''}" onclick="setParticipation('${m.id}','no')">✗</button>
+      </div>
+    </div>`;
+  });
+  document.getElementById('detail-list').innerHTML=html||`<div class="empty-state">No members</div>`;
+}
+
+function filterDetail() { renderDetail(document.getElementById('detail-search').value); }
+
+async function setParticipation(mid, status) {
+  if (currentEventParticipation[mid]===status) delete currentEventParticipation[mid];
+  else currentEventParticipation[mid]=status;
+  renderDetail(document.getElementById('detail-search').value);
+  await fs.setDoc(fs.doc(db,'events',currentEventId),{participation:currentEventParticipation,lastEditedAt:Date.now()},{merge:true});
+  const idx=events.findIndex(e=>e.id===currentEventId);
+  if (idx>=0) events[idx].participation={...currentEventParticipation};
+}
+
+async function markAll(status) {
+  members.filter(m=>m.status!=='inactive').forEach(m=>{currentEventParticipation[m.id]=status;});
+  renderDetail(document.getElementById('detail-search').value);
+  await fs.setDoc(fs.doc(db,'events',currentEventId),{participation:currentEventParticipation,lastEditedAt:Date.now()},{merge:true});
+  const idx=events.findIndex(e=>e.id===currentEventId);
+  if (idx>=0) events[idx].participation={...currentEventParticipation};
+}
+
+async function clearAll() {
+  currentEventParticipation={};
+  renderDetail(document.getElementById('detail-search').value);
+  await fs.setDoc(fs.doc(db,'events',currentEventId),{participation:{},lastEditedAt:Date.now()},{merge:true});
+  const idx=events.findIndex(e=>e.id===currentEventId);
+  if (idx>=0) events[idx].participation={};
+}
+
+async function deleteCurrentEvent() {
+  if (!confirm('Delete this event?')) return;
+  await fs.deleteDoc(fs.doc(db,'events',currentEventId));
+  await loadEvents();
+  showPage('events');
+  showToast('DELETED');
+}
+
+function openAddEventModal() {
+  document.getElementById('new-event-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('new-event-custom').style.display='none';
+  document.getElementById('modal-add-event').classList.add('open');
+}
+
+function toggleCustomEvent() {
+  const v=document.getElementById('new-event-type').value;
+  document.getElementById('new-event-custom').style.display=v==='custom'?'block':'none';
+}
+
+async function addEvent() {
+  let name=document.getElementById('new-event-type').value;
+  if (name==='custom') { name=document.getElementById('new-event-custom').value.trim(); if(!name)return; }
+  const date=document.getElementById('new-event-date').value||new Date().toISOString().split('T')[0];
+  // Duplicate check
+  const dup=events.find(e=>e.name===name&&e.date===date);
+  if (dup) { showToast('DUPLICATE EVENT'); closeModal('modal-add-event'); return; }
+  const id='ev_'+Date.now();
+  await fs.setDoc(fs.doc(db,'events',id),{name,date,participation:{},createdAt:Date.now(),createdBy:'council'});
+  await loadEvents();
+  closeModal('modal-add-event');
+  showToast('ADDED ✓');
+  renderEvents();
+}
+
+// ============================================================
+// BEAR
+// ============================================================
+function setBearFilter(f) {
+  bearFilter=f;
+  document.getElementById('bear-eu-btn').className='bear-tab-btn'+(f==='EU'?' active-eu':'');
+  document.getElementById('bear-us-btn').className='bear-tab-btn'+(f==='US'?' active-us':'');
+  document.getElementById('bear-all-btn').className='bear-tab-btn'+(f==='ALL'?' active-eu':'');
+  renderBear();
+}
+
+function renderBear() {
+  const el=document.getElementById('bear-list');
+  const filtered=bearFilter==='ALL'?bearEvents:bearEvents.filter(b=>b.region===bearFilter);
+  if (!filtered.length) { el.innerHTML=`<div class="empty-state">No Bear events for ${bearFilter==='ALL'?'any region':bearFilter}. Tap + to add.</div>`; return; }
+  const activeM=members.filter(m=>m.status!=='inactive');
+  let html='';
+  filtered.forEach(b=>{
+    const p=b.participation||{};
+    const yes=Object.values(p).filter(v=>v==='yes').length;
+    const total=activeM.length||1;
+    const pct=Math.round(yes/total*100);
+    const cls=b.region==='EU'?'eu':'us';
+    html+=`<div class="event-item" onclick="openBear('${b.id}')">
+      <div style="flex:1;min-width:0">
+        <div style="font-family:'Rajdhani',sans-serif;font-weight:600;font-size:15px">${translateEventName('Bear Event')} — ${b.region}</div>
+        <div style="color:var(--text3);font-size:11px;margin-top:2px">${fmtDate(b.date)}</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">${yes}/${total} • ${pct}%</div>
+      </div>
+      <span class="event-tag ${cls}">${b.region}</span>
+    </div>`;
+  });
+  el.innerHTML=html;
+}
+
+function openBear(id) {
+  currentBearId=id;
+  const b=bearEvents.find(x=>x.id===id);
+  if (!b) return;
+  currentBearParticipation={...(b.participation||{})};
+  document.getElementById('bear-detail-name').textContent=`${translateEventName('Bear Event')} — ${b.region}`;
+  document.getElementById('bear-detail-date').textContent=fmtDate(b.date);
+  document.getElementById('bear-search').value='';
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-bear-detail').classList.add('active');
+  renderBearDetail();
+}
+
+function renderBearDetail(filter='') {
+  const b=bearEvents.find(x=>x.id===currentBearId);
+  const activeM=members.filter(m=>m.status!=='inactive');
+  const filtered=activeM.filter(m=>m.name.toLowerCase().includes(filter.toLowerCase()));
+  const yes=Object.values(currentBearParticipation).filter(v=>v==='yes').length;
+  const no=Object.values(currentBearParticipation).filter(v=>v==='no').length;
+  document.getElementById('bear-detail-yes').textContent=`✓ ${yes} ${s('participated')}`;
+  document.getElementById('bear-detail-no').textContent=`✗ ${no} ${s('absent')}`;
+  const pct=activeM.length?Math.round(yes/activeM.length*100):0;
+  document.getElementById('bear-detail-prog').style.width=pct+'%';
+  let html='';
+  filtered.forEach(m=>{
+    const st=currentBearParticipation[m.id]||'pending';
+    const tzb=m.tz?`<span class="tz-badge tz-${m.tz.toLowerCase()}">${m.tz}</span>`:'';
+    html+=`<div class="member-row">
+      <div style="flex:1;min-width:0;display:flex;align-items:center;gap:3px">
+        <span style="font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14px">${m.name}</span>${tzb}
+      </div>
+      <div class="toggle-group">
+        <button class="toggle-btn ${st==='yes'?'yes':''}" onclick="setBearP('${m.id}','yes')">✓</button>
+        <button class="toggle-btn ${st==='no'?'no':''}" onclick="setBearP('${m.id}','no')">✗</button>
+      </div>
+    </div>`;
+  });
+  document.getElementById('bear-detail-list').innerHTML=html;
+}
+
+function filterBearDetail() { renderBearDetail(document.getElementById('bear-search').value); }
+
+async function setBearP(mid,status) {
+  if (currentBearParticipation[mid]===status) delete currentBearParticipation[mid];
+  else currentBearParticipation[mid]=status;
+  renderBearDetail(document.getElementById('bear-search').value);
+  await fs.setDoc(fs.doc(db,'bear',currentBearId),{participation:currentBearParticipation,lastEditedAt:Date.now()},{merge:true});
+  const idx=bearEvents.findIndex(e=>e.id===currentBearId);
+  if (idx>=0) bearEvents[idx].participation={...currentBearParticipation};
+}
+
+async function markBearAll(status) {
+  members.filter(m=>m.status!=='inactive').forEach(m=>{currentBearParticipation[m.id]=status;});
+  renderBearDetail();
+  await fs.setDoc(fs.doc(db,'bear',currentBearId),{participation:currentBearParticipation,lastEditedAt:Date.now()},{merge:true});
+}
+
+async function clearBearAll() {
+  currentBearParticipation={};
+  renderBearDetail();
+  await fs.setDoc(fs.doc(db,'bear',currentBearId),{participation:{},lastEditedAt:Date.now()},{merge:true});
+}
+
+async function deleteCurrentBear() {
+  if (!confirm('Delete this Bear event?')) return;
+  await fs.deleteDoc(fs.doc(db,'bear',currentBearId));
+  await loadBearEvents();
+  showPage('bear');
+  showToast('DELETED');
+}
+
+function openAddBearModal() {
+  document.getElementById('new-bear-date').value=new Date().toISOString().split('T')[0];
+  selectBearRegion('EU');
+  document.getElementById('modal-add-bear').classList.add('open');
+}
+
+function selectBearRegion(r) {
+  document.getElementById('new-bear-region').value=r;
+  document.getElementById('bear-modal-eu').className='bear-tab-btn flex-1'+(r==='EU'?' active-eu':'');
+  document.getElementById('bear-modal-us').className='bear-tab-btn flex-1'+(r==='US'?' active-us':'');
+}
+
+async function addBearEvent() {
+  const region=document.getElementById('new-bear-region').value;
+  const date=document.getElementById('new-bear-date').value||new Date().toISOString().split('T')[0];
+  const dup=bearEvents.find(b=>b.region===region&&b.date===date);
+  if (dup) { showToast('DUPLICATE'); closeModal('modal-add-bear'); return; }
+  const id='bear_'+Date.now();
+  await fs.setDoc(fs.doc(db,'bear',id),{region,date,participation:{},createdAt:Date.now()});
+  await loadBearEvents();
+  closeModal('modal-add-bear');
+  showToast('ADDED ✓');
+  renderBear();
+}
+
+// ============================================================
+// POWER
+// ============================================================
+function renderPower(filter='') {
+  const el=document.getElementById('power-list');
+  const twoWeeksAgo=Date.now()-14*24*60*60*1000;
+  // Sort by current power descending
+  const sorted=[...members].sort((a,b)=>{
+    const av=parseFloat((a.currentPower||'0').replace('M',''))||0;
+    const bv=parseFloat((b.currentPower||'0').replace('M',''))||0;
+    return bv-av;
+  });
+  const filtered=sorted.filter(m=>m.name.toLowerCase().includes(filter.toLowerCase()));
+  let html='';
+  filtered.forEach((m,i)=>{
+    const rc=rankClass(m.rank);
+    const prev=powerHistory[m.id]&&powerHistory[m.id].length>1?powerHistory[m.id][powerHistory[m.id].length-2]:null;
+    const cur=parseFloat((m.currentPower||'0').replace(/[^0-9.]/g,''))||0;
+    const prv=prev?parseFloat((prev.value||'0').replace(/[^0-9.]/g,''))||0:0;
+    let trend='';
+    if (prev) trend=cur>prv?'<span style="color:var(--green)">↑</span>':cur<prv?'<span style="color:var(--red)">↓</span>':'<span style="color:var(--text3)">—</span>';
+    const stale=m.powerUpdatedAt&&m.powerUpdatedAt<twoWeeksAgo?`<span class="power-stale">${s('stale')}</span>`:'';
+    const tzb=m.tz?`<span class="tz-badge tz-${m.tz.toLowerCase()}">${m.tz}</span>`:'';
+    html+=`<div class="power-row">
+      <span class="power-rank ${rc}">${m.rank}</span>
+      <span class="power-name">${m.name}${tzb}</span>
+      <span class="power-trend">${trend}</span>
+      <span class="power-val">${m.currentPower||'—'}${stale}</span>
+      <input class="power-input-sm" type="text" placeholder="New" data-mid="${m.id}" value="">
+    </div>`;
+  });
+  el.innerHTML=html||`<div class="empty-state">No members</div>`;
+}
+
+function filterPower() { renderPower(document.getElementById('power-search').value); }
+
+async function savePowerSnapshot() {
+  const weekLabel=document.getElementById('power-week').value.trim()||'Week '+new Date().toISOString().split('T')[0];
+  const inputs=document.querySelectorAll('.power-input-sm[data-mid]');
+  const entries={};
+  const updates=[];
+  inputs.forEach(inp=>{
+    const val=inp.value.trim();
+    const mid=inp.getAttribute('data-mid');
+    if (val) {
+      entries[mid]=val;
+      updates.push(fs.setDoc(fs.doc(db,'members',mid),{currentPower:val,powerUpdatedAt:Date.now()},{merge:true}));
+    }
+  });
+  if (!Object.keys(entries).length) { showToast('NO DATA ENTERED'); return; }
+  await Promise.all(updates);
+  await fs.setDoc(fs.doc(db,'power','snap_'+Date.now()),{weekLabel,entries,savedAt:Date.now()});
+  await loadMembers();
+  await loadPowerHistory();
+  renderPower();
+  showToast('SAVED ✓');
+}
+
+function populatePowerSelect() {
+  const sel=document.getElementById('power-report-member');
+  if (!sel) return;
+  sel.innerHTML=`<option value="all">${s('opt_all_members')}</option>`;
+  members.forEach(m=>{ sel.innerHTML+=`<option value="${m.id}">${m.name}</option>`; });
+}
+
+// ============================================================
+// REPORTS
+// ============================================================
+async function generateEventReport() {
+  const period=document.getElementById('report-period').value;
+  const now=new Date();
+  let since=null;
+  if (period==='week') since=new Date(now-7*24*60*60*1000).toISOString().split('T')[0];
+  else if (period==='month') since=new Date(now.getFullYear(),now.getMonth(),1).toISOString().split('T')[0];
+  const filtered=since?events.filter(e=>e.date>=since):events;
+  const activeM=members.filter(m=>m.status!=='inactive');
+  if (!filtered.length) { showReport('event-report-out','No events in this period.'); return; }
+  const counts={};
+  activeM.forEach(m=>{counts[m.id]={name:m.name,rank:m.rank,yes:0,missed:[],consecutive:0,lastStatus:null};});
+  filtered.forEach(ev=>{
+    const p=ev.participation||{};
+    const evName=translateEventName(ev.name);
+    activeM.forEach(m=>{
+      if (!counts[m.id]) return;
+      const st=p[m.id];
+      if (st==='yes') { counts[m.id].yes++; counts[m.id].consecutive=0; counts[m.id].lastStatus='yes'; }
+      else if (st==='no') { counts[m.id].missed.push(evName+' ('+fmtDate(ev.date)+')'); counts[m.id].consecutive++; }
+    });
+  });
+  const total=filtered.length;
+  const sorted=[...activeM].sort((a,b)=>counts[b.id].yes-counts[a.id].yes);
+  const consecutive3=activeM.filter(m=>counts[m.id].consecutive>=3);
+  const neverShowed=activeM.filter(m=>counts[m.id].yes===0);
+  const top3=sorted.slice(0,3).filter(m=>counts[m.id].yes>0);
+  let rpt=`📊 ${s('event_report').toUpperCase()}\n`;
+  rpt+=`Period: ${period==='week'?s('opt_week'):period==='month'?s('opt_month'):s('opt_all')}\n`;
+  rpt+=`Events: ${total} | Active members: ${activeM.length}\n\n`;
+  if (consecutive3.length) {
+    rpt+=`🚨 CONSECUTIVE ABSENCES (3+):\n`;
+    consecutive3.forEach(m=>{ rpt+=`  ⚠️ ${m.name} — ${counts[m.id].consecutive} in a row\n`; });
+    rpt+='\n';
+  }
+  rpt+=`❌ NEVER PARTICIPATED (${neverShowed.length}):\n`;
+  if (neverShowed.length) neverShowed.forEach(m=>{ rpt+=`  • ${m.name}\n`; });
+  else rpt+=`  None\n`;
+  rpt+='\n';
+  rpt+=`📋 MISSED EVENTS BY MEMBER:\n`;
+  activeM.filter(m=>counts[m.id].missed.length>0).sort((a,b)=>counts[b.id].missed.length-counts[a.id].missed.length).forEach(m=>{
+    const c=counts[m.id];
+    rpt+=`  ${m.name} (${c.missed.length} missed):\n`;
+    c.missed.forEach(ev=>{ rpt+=`    — ${ev}\n`; });
+  });
+  rpt+='\n';
+  rpt+=`🏆 TOP 3 THIS PERIOD:\n`;
+  top3.forEach((m,i)=>{ const medals=['🥇','🥈','🥉']; const c=counts[m.id]; const pct=Math.round(c.yes/total*100); rpt+=`  ${medals[i]} ${m.name}: ${c.yes}/${total} (${pct}%)\n`; });
+  rpt+='\n';
+  rpt+=`📈 R4 vs R3 PARTICIPATION:\n`;
+  const r4s=activeM.filter(m=>m.rank==='R4'); const r3s=activeM.filter(m=>m.rank==='R3');
+  const r4avg=r4s.length?Math.round(r4s.reduce((a,m)=>a+counts[m.id].yes,0)/(r4s.length*total)*100):0;
+  const r3avg=r3s.length?Math.round(r3s.reduce((a,m)=>a+counts[m.id].yes,0)/(r3s.length*total)*100):0;
+  rpt+=`  R4 avg: ${r4avg}% | R3 avg: ${r3avg}%\n`;
+  showReport('event-report-out',rpt);
+  lastReportText=rpt;
+  document.getElementById('copy-report-btn').style.display='block';
+  // Top box
+  let topHtml=`<div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;color:var(--gold2);margin-bottom:8px">🏆 ${s('top')}</div>`;
+  if (top3.length) top3.forEach((m,i)=>{ const medals=['🥇','🥈','🥉']; const c=counts[m.id]; topHtml+=`<div class="member-row"><div>${medals[i]} <span style="font-family:'Rajdhani',sans-serif;font-weight:600">${m.name}</span></div><div style="color:var(--teal);font-family:'Rajdhani',sans-serif;font-weight:700">${c.yes} events</div></div>`; });
+  else topHtml+=`<div class="empty-state">${s('gen_first')}</div>`;
+  document.getElementById('top-box').innerHTML=topHtml;
+}
+
+async function generatePowerReport() {
+  const mid=document.getElementById('power-report-member').value;
+  const twoWeeksAgo=Date.now()-14*24*60*60*1000;
+  const snap=await fs.getDocs(fs.collection(db,'power'));
+  const snaps=[];
+  snap.forEach(d=>snaps.push({id:d.id,...d.data()}));
+  snaps.sort((a,b)=>a.savedAt-b.savedAt);
+  if (!snaps.length) { showReport('power-report-out','No power snapshots saved yet.'); return; }
+  const targetM=mid==='all'?[...members].sort((a,b)=>{
+    const av=parseFloat((a.currentPower||'0').replace('M',''))||0;
+    const bv=parseFloat((b.currentPower||'0').replace('M',''))||0;
+    return bv-av;
+  }):members.filter(m=>m.id===mid);
+  let rpt=`⚡ POWER REPORT — Sorted Highest to Lowest\n`;
+  rpt+=`Baseline: April 1, 2026\n\n`;
+  targetM.forEach(m=>{
+    const history=snaps.filter(s=>s.entries&&s.entries[m.id]).map(s=>({week:s.weekLabel,value:s.entries[m.id],savedAt:s.savedAt}));
+    const stale=m.powerUpdatedAt&&m.powerUpdatedAt<twoWeeksAgo?` ${s('stale')}`:'';
+    rpt+=`${m.rank} ${m.name} — ${m.currentPower||'—'}${stale}\n`;
+    if (m.basePower&&m.basePower!==m.currentPower) rpt+=`  Baseline: ${m.basePower}\n`;
+    if (history.length>0) history.forEach(h=>{ rpt+=`  ${h.week}: ${h.value}\n`; });
+    rpt+='\n';
+  });
+  showReport('power-report-out',rpt);
+  lastReportText=rpt;
+  document.getElementById('copy-report-btn').style.display='block';
+}
+
+function showReport(id,text) {
+  const el=document.getElementById(id);
+  el.style.display='block';
+  el.textContent=text;
+}
+
+function copyReport() {
+  navigator.clipboard.writeText(lastReportText).then(()=>showToast('COPIED ✓')).catch(()=>showToast('SELECT & COPY MANUALLY'));
+}
+
+// ============================================================
+// MEMBERS
+// ============================================================
+function setMemberFilter(f) {
+  memberFilter=f;
+  ['ALL','EU','US','INACTIVE'].forEach(x=>{
+    const btn=document.getElementById('mf-'+x.toLowerCase());
+    if (btn) { btn.style.color=''; btn.style.borderColor=''; }
+  });
+  const active=document.getElementById('mf-'+f.toLowerCase());
+  if (active) { active.style.color='var(--gold2)'; active.style.borderColor='var(--gold)'; }
+  renderMembers();
+}
+
+function renderMembers(filter='') {
+  const q=filter||document.getElementById('member-search').value||'';
+  let filtered=members.filter(m=>m.name.toLowerCase().includes(q.toLowerCase()));
+  if (memberFilter==='EU') filtered=filtered.filter(m=>m.tz==='EU');
+  else if (memberFilter==='US') filtered=filtered.filter(m=>m.tz==='US');
+  else if (memberFilter==='INACTIVE') filtered=filtered.filter(m=>m.status==='inactive');
+  document.getElementById('member-count').textContent=`${filtered.length} members`;
+  if (!filtered.length) { document.getElementById('members-list').innerHTML=`<div class="empty-state">No members found</div>`; return; }
+  let html='';
+  filtered.forEach(m=>{
+    const rc=rankClass(m.rank);
+    const tzb=m.tz?`<span class="tz-badge tz-${m.tz.toLowerCase()}">${m.tz}</span>`:'';
+    const inact=m.status==='inactive'?`<span class="inactive-badge">INACTIVE</span>`:'';
+    const notes=m.notes?`<div style="font-size:11px;color:var(--text3);margin-top:2px">${m.notes}</div>`:'';
+    html+=`<div class="member-row">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:3px">
+          <span class="power-rank ${rc}">${m.rank}</span>
+          <span style="font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14px">${m.name}</span>
+          ${tzb}${inact}
+        </div>
+        <div style="font-size:12px;color:var(--teal);margin-top:1px">${m.currentPower||'—'}</div>
+        ${notes}
+      </div>
+      <button class="icon-btn" onclick="openEditMember('${m.id}')" style="font-size:14px">✏️</button>
+    </div>`;
+  });
+  document.getElementById('members-list').innerHTML=html;
+}
+
+function filterMembers() { renderMembers(); }
+
+function openEditMember(id) {
+  const m=members.find(x=>x.id===id);
+  if (!m) return;
+  document.getElementById('edit-member-id').value=id;
+  document.getElementById('edit-member-name').value=m.name;
+  document.getElementById('edit-member-rank').value=m.rank;
+  document.getElementById('edit-member-notes').value=m.notes||'';
+  document.getElementById('edit-member-tz').value=m.tz||'';
+  document.getElementById('edit-member-status').value=m.status||'active';
+  selectEditTZ(m.tz||'');
+  selectEditStatus(m.status||'active');
+  document.getElementById('modal-edit-member').classList.add('open');
+}
+
+function selectEditTZ(tz) {
+  document.getElementById('edit-member-tz').value=tz;
+  ['EU','US'].forEach(x=>{ document.getElementById('em-'+x.toLowerCase()).className='bear-tab-btn flex-1'+(tz===x?(' active-'+(x==='EU'?'eu':'us')):''); });
+  document.getElementById('em-none').style.color=tz?'':'var(--gold2)';
+}
+
+function selectEditStatus(st) {
+  document.getElementById('edit-member-status').value=st;
+  document.getElementById('em-active').style.background=st==='active'?'rgba(34,197,94,0.1)':'';
+  document.getElementById('em-active').style.color=st==='active'?'var(--green)':'';
+  document.getElementById('em-active').style.borderColor=st==='active'?'var(--green)':'';
+  document.getElementById('em-inactive').style.background=st==='inactive'?'rgba(239,68,68,0.1)':'';
+  document.getElementById('em-inactive').style.color=st==='inactive'?'var(--red)':'';
+  document.getElementById('em-inactive').style.borderColor=st==='inactive'?'var(--red)':'';
+}
+
+async function saveMemberEdit() {
+  const id=document.getElementById('edit-member-id').value;
+  const name=document.getElementById('edit-member-name').value.trim();
+  if (!name) return;
+  // Duplicate check
+  const dup=members.find(m=>m.name.toLowerCase()===name.toLowerCase()&&m.id!==id);
+  if (dup) { showToast('NAME ALREADY EXISTS'); return; }
+  const rank=document.getElementById('edit-member-rank').value;
+  const tz=document.getElementById('edit-member-tz').value;
+  const notes=document.getElementById('edit-member-notes').value.trim();
+  const status=document.getElementById('edit-member-status').value;
+  await fs.setDoc(fs.doc(db,'members',id),{name,rank,tz,notes,status,lastEditedAt:Date.now()},{merge:true});
+  closeModal('modal-edit-member');
+  await loadMembers();
+  renderMembers();
+  showToast('SAVED ✓');
+}
+
+async function deleteMemberFromEdit() {
+  const id=document.getElementById('edit-member-id').value;
+  const name=document.getElementById('edit-member-name').value;
+  if (!confirm(`Remove ${name}?`)) return;
+  await fs.deleteDoc(fs.doc(db,'members',id));
+  closeModal('modal-edit-member');
+  await loadMembers();
+  renderMembers();
+  showToast('REMOVED');
+}
+
+function openAddMemberModal() {
+  document.getElementById('new-member-name').value='';
+  selectNewTZ('EU');
+  document.getElementById('modal-add-member').classList.add('open');
+}
+
+function selectNewTZ(tz) {
+  document.getElementById('new-member-tz').value=tz;
+  document.getElementById('nm-eu').className='bear-tab-btn flex-1'+(tz==='EU'?' active-eu':'');
+  document.getElementById('nm-us').className='bear-tab-btn flex-1'+(tz==='US'?' active-us':'');
+  document.getElementById('nm-none').style.color=tz?'':'var(--gold2)';
+}
+
+async function addMember() {
+  const name=document.getElementById('new-member-name').value.trim();
+  if (!name) return;
+  const dup=members.find(m=>m.name.toLowerCase()===name.toLowerCase());
+  if (dup) { showToast('ALREADY EXISTS'); return; }
+  const rank=document.getElementById('new-member-rank').value;
+  const tz=document.getElementById('new-member-tz').value;
+  const id='mbr_'+name.replace(/[^a-zA-Z0-9]/g,'_').toLowerCase()+'_'+Date.now();
+  await fs.setDoc(fs.doc(db,'members',id),{name,rank,tz,notes:'',status:'active',currentPower:'',basePower:'',powerUpdatedAt:Date.now(),addedAt:Date.now()});
+  closeModal('modal-add-member');
+  await loadMembers();
+  renderMembers();
+  showToast('ADDED ✓');
 }
 
 // ============================================================
 // UTILS
 // ============================================================
-function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
+function rankClass(r) { return r==='R5'?'r5c':r==='R4'?'r4c':r==='R3'?'r3c':r==='R2'?'r2c':'r1c'; }
+
+function fmtDate(str) {
+  if (!str) return '';
+  const d=new Date(str+'T12:00:00');
+  return d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric',year:'numeric'});
 }
+
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
 function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
+  const t=document.getElementById('toast');
+  t.textContent=msg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2000);
+  setTimeout(()=>t.classList.remove('show'),2000);
 }
 
-function formatDate(str) {
-  if (!str) return '';
-  const d = new Date(str + 'T12:00:00');
-  return d.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
-}
-
-// Close modals on overlay tap
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', function(e) {
-    if (e.target === this) this.classList.remove('open');
-  });
+document.querySelectorAll('.modal-overlay').forEach(o=>{
+  o.addEventListener('click',function(e){ if(e.target===this) this.classList.remove('open'); });
 });
 
-// Set today's date default
-document.getElementById('new-event-date').value = new Date().toISOString().split('T')[0];
+document.getElementById('new-event-date').value=new Date().toISOString().split('T')[0];
+document.getElementById('new-bear-date').value=new Date().toISOString().split('T')[0];
 </script>
 
 </body>
