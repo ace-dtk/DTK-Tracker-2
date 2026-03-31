@@ -9,8 +9,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, doc, setDoc, getDoc, collection, getDocs, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
+  import { getFirestore, doc, setDoc, getDoc, collection, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   const firebaseConfig = {
     apiKey: "AIzaSyDF_6uP5JkRzG3uxWHPmbABwOxfvkFcj8E",
     authDomain: "dtk-tracker.firebaseapp.com",
@@ -20,161 +19,139 @@
     appId: "1:241220534002:web:9dc0b95e3e4c8ffd80da6b",
     measurementId: "G-X3H6DB39J1"
   };
-
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   window.__db = db;
-  window.__fs = { doc, setDoc, getDoc, collection, getDocs, deleteDoc, query, orderBy };
+  window.__fs = { doc, setDoc, getDoc, collection, getDocs, deleteDoc };
   window.dispatchEvent(new Event('firebase-ready'));
 </script>
 
 <style>
 :root {
-  --bg: #0a0c10;
-  --surface: #111418;
-  --surface2: #181c24;
-  --border: #1e2530;
-  --gold: #c9a84c;
-  --gold2: #e8c96a;
-  --teal: #2dd4bf;
-  --teal2: #14b8a6;
-  --red: #ef4444;
-  --green: #22c55e;
-  --orange: #f97316;
-  --text: #e8eaf0;
-  --text2: #8a92a6;
-  --text3: #4a5268;
-  --eu: #60a5fa;
-  --us: #f87171;
+  --bg:#0a0c10;--surface:#111418;--surface2:#181c24;--border:#1e2530;
+  --gold:#c9a84c;--gold2:#e8c96a;--teal:#2dd4bf;--teal2:#14b8a6;
+  --red:#ef4444;--green:#22c55e;--orange:#f97316;--purple:#a78bfa;
+  --text:#e8eaf0;--text2:#8a92a6;--text3:#4a5268;--eu:#60a5fa;--us:#f87171;
 }
-[data-theme="light"] {
-  --bg: #f0f2f5;
-  --surface: #ffffff;
-  --surface2: #f5f7fa;
-  --border: #dde1ea;
-  --text: #1a1d26;
-  --text2: #5a6180;
-  --text3: #9aa0b8;
-}
-* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-body { background:var(--bg); color:var(--text); font-family:'Exo 2',sans-serif; font-size:14px; min-height:100vh; transition:background 0.3s,color 0.3s; }
-body::before { content:''; position:fixed; inset:0; background:radial-gradient(ellipse at 20% 0%,rgba(201,168,76,0.05) 0%,transparent 50%),radial-gradient(ellipse at 80% 100%,rgba(45,212,191,0.04) 0%,transparent 50%); pointer-events:none; z-index:0; }
-[data-theme="light"] body::before { display:none; }
-#app { position:relative; z-index:1; }
+[data-theme="light"]{--bg:#f0f2f5;--surface:#fff;--surface2:#f5f7fa;--border:#dde1ea;--text:#1a1d26;--text2:#5a6180;--text3:#9aa0b8;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;font-size:14px;min-height:100vh;transition:background .3s,color .3s;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 0%,rgba(201,168,76,.05) 0%,transparent 50%),radial-gradient(ellipse at 80% 100%,rgba(45,212,191,.04) 0%,transparent 50%);pointer-events:none;z-index:0;}
+[data-theme="light"] body::before{display:none;}
+#app{position:relative;z-index:1;}
 
-.header { background:var(--surface); border-bottom:1px solid var(--border); padding:12px 16px; position:sticky; top:0; z-index:100; display:flex; align-items:center; justify-content:space-between; }
-.header-left { display:flex; align-items:center; gap:10px; }
-.logo { width:34px; height:34px; background:linear-gradient(135deg,var(--gold),var(--gold2)); border-radius:8px; display:flex; align-items:center; justify-content:center; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:15px; color:#0a0c10; flex-shrink:0; }
-.header-title { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:18px; color:var(--gold2); letter-spacing:1px; }
-.header-sub { font-size:10px; color:var(--text3); letter-spacing:2px; text-transform:uppercase; }
-.header-right { display:flex; gap:6px; align-items:center; }
-.icon-btn { background:var(--surface2); border:1px solid var(--border); color:var(--text2); padding:5px 9px; border-radius:6px; font-size:12px; cursor:pointer; font-family:'Exo 2',sans-serif; }
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:11px 14px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;}
+.header-left{display:flex;align-items:center;gap:9px;}
+.logo{width:33px;height:33px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;color:#0a0c10;flex-shrink:0;}
+.htitle{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;color:var(--gold2);letter-spacing:1px;}
+.hsub{font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;}
+.hright{display:flex;gap:5px;}
+.ibtn{background:var(--surface2);border:1px solid var(--border);color:var(--text2);padding:5px 9px;border-radius:6px;font-size:11px;cursor:pointer;font-family:'Exo 2',sans-serif;}
 
-.nav { display:flex; background:var(--surface); border-bottom:1px solid var(--border); overflow-x:auto; scrollbar-width:none; }
-.nav::-webkit-scrollbar { display:none; }
-.nav-btn { flex:1; min-width:70px; padding:11px 6px; background:none; border:none; color:var(--text3); font-family:'Rajdhani',sans-serif; font-weight:600; font-size:11px; letter-spacing:1px; text-transform:uppercase; cursor:pointer; border-bottom:2px solid transparent; transition:all 0.2s; white-space:nowrap; }
-.nav-btn.active { color:var(--gold2); border-bottom-color:var(--gold2); }
+.nav{display:flex;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;}
+.nav::-webkit-scrollbar{display:none;}
+.nbtn{flex:1;min-width:60px;padding:10px 5px;background:none;border:none;color:var(--text3);font-family:'Rajdhani',sans-serif;font-weight:600;font-size:10px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;}
+.nbtn.active{color:var(--gold2);border-bottom-color:var(--gold2);}
 
-.page { display:none; padding:14px; }
-.page.active { display:block; }
+.page{display:none;padding:13px;}
+.page.active{display:block;}
 
-.section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
-.section-title { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:17px; color:var(--gold2); letter-spacing:1px; }
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;}
+.stitle{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;color:var(--gold2);letter-spacing:1px;}
 
-.card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:13px; margin-bottom:10px; }
+.card{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:12px;margin-bottom:9px;}
 
-.btn { background:linear-gradient(135deg,var(--gold),var(--gold2)); color:#0a0c10; border:none; padding:9px 16px; border-radius:8px; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:12px; letter-spacing:1px; cursor:pointer; text-transform:uppercase; transition:opacity 0.2s; }
-.btn:active { opacity:0.8; }
-.btn-sm { padding:5px 11px; font-size:11px; border-radius:6px; }
-.btn-outline { background:transparent; border:1px solid var(--gold); color:var(--gold); }
-.btn-teal { background:linear-gradient(135deg,var(--teal2),var(--teal)); color:#0a0c10; }
-.btn-red { background:var(--red); color:white; }
-.btn-ghost { background:var(--surface2); border:1px solid var(--border); color:var(--text2); padding:7px 13px; border-radius:8px; font-family:'Exo 2',sans-serif; font-size:13px; cursor:pointer; }
+.btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0a0c10;border:none;padding:8px 15px;border-radius:7px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;cursor:pointer;text-transform:uppercase;transition:opacity .2s;}
+.btn:active{opacity:.8;}
+.bsm{padding:5px 10px;font-size:10px;border-radius:5px;}
+.bout{background:transparent;border:1px solid var(--gold);color:var(--gold);}
+.bteal{background:linear-gradient(135deg,var(--teal2),var(--teal));color:#0a0c10;}
+.bred{background:var(--red);color:#fff;}
+.bghost{background:var(--surface2);border:1px solid var(--border);color:var(--text2);padding:7px 12px;border-radius:7px;font-family:'Exo 2',sans-serif;font-size:12px;cursor:pointer;}
 
-.input { width:100%; background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:9px 11px; border-radius:8px; font-family:'Exo 2',sans-serif; font-size:14px; margin-bottom:9px; outline:none; }
-.input:focus { border-color:var(--gold); }
-.input::placeholder { color:var(--text3); }
-select.input { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a92a6' fill='none' stroke-width='2'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 11px center; padding-right:30px; }
+.inp{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:7px;font-family:'Exo 2',sans-serif;font-size:13px;margin-bottom:8px;outline:none;}
+.inp:focus{border-color:var(--gold);}
+.inp::placeholder{color:var(--text3);}
+select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238a92a6' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;}
 
-.event-item { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:13px; margin-bottom:9px; cursor:pointer; transition:border-color 0.2s; display:flex; align-items:center; justify-content:space-between; }
-.event-item:active { border-color:var(--gold); }
-.event-tag { background:rgba(201,168,76,0.15); color:var(--gold2); font-size:10px; letter-spacing:1px; text-transform:uppercase; padding:3px 7px; border-radius:4px; font-family:'Rajdhani',sans-serif; font-weight:600; flex-shrink:0; }
-.event-tag.eu { background:rgba(96,165,250,0.15); color:var(--eu); }
-.event-tag.us { background:rgba(248,113,113,0.15); color:var(--us); }
+.eitem{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:12px;margin-bottom:8px;cursor:pointer;transition:border-color .2s;display:flex;align-items:center;justify-content:space-between;}
+.eitem:active{border-color:var(--gold);}
+.etag{background:rgba(201,168,76,.15);color:var(--gold2);font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:2px 6px;border-radius:3px;font-family:'Rajdhani',sans-serif;font-weight:600;flex-shrink:0;}
+.etag.eu{background:rgba(96,165,250,.15);color:var(--eu);}
+.etag.us{background:rgba(248,113,113,.15);color:var(--us);}
 
-.member-row { display:flex; align-items:center; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border); gap:8px; }
-.member-row:last-child { border-bottom:none; }
+.mrow{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);gap:7px;}
+.mrow:last-child{border-bottom:none;}
 
-.toggle-group { display:flex; gap:5px; }
-.toggle-btn { width:34px; height:27px; border-radius:6px; border:1px solid var(--border); background:var(--surface2); color:var(--text3); font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; }
-.toggle-btn.yes { background:rgba(34,197,94,0.2); border-color:var(--green); color:var(--green); }
-.toggle-btn.no { background:rgba(239,68,68,0.2); border-color:var(--red); color:var(--red); }
+.tgrp{display:flex;gap:4px;}
+.tbtn{width:32px;height:26px;border-radius:5px;border:1px solid var(--border);background:var(--surface2);color:var(--text3);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.tbtn.yes{background:rgba(34,197,94,.2);border-color:var(--green);color:var(--green);}
+.tbtn.no{background:rgba(239,68,68,.2);border-color:var(--red);color:var(--red);}
 
-.stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-bottom:14px; }
-.stat-box { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:13px; text-align:center; }
-.stat-num { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:26px; color:var(--gold2); }
-.stat-label { font-size:10px; color:var(--text3); letter-spacing:1px; text-transform:uppercase; margin-top:2px; }
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:13px;}
+.sbox{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:12px;text-align:center;}
+.snum{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:24px;color:var(--gold2);}
+.slbl{font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
 
-.power-row { display:flex; align-items:center; padding:9px 0; border-bottom:1px solid var(--border); gap:8px; }
-.power-row:last-child { border-bottom:none; }
-.power-rank { font-size:10px; padding:2px 5px; border-radius:3px; font-family:'Rajdhani',sans-serif; font-weight:700; letter-spacing:1px; flex-shrink:0; }
-.r5c { background:rgba(201,168,76,0.3); color:var(--gold2); }
-.r4c { background:rgba(45,212,191,0.2); color:var(--teal); }
-.r3c { background:rgba(139,92,246,0.2); color:#a78bfa; }
-.r2c { background:rgba(251,146,60,0.2); color:#fb923c; }
-.r1c { background:rgba(148,163,184,0.2); color:#94a3b8; }
-.power-name { font-family:'Rajdhani',sans-serif; font-weight:600; font-size:14px; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.power-val { font-size:13px; color:var(--teal); font-weight:600; min-width:55px; text-align:right; flex-shrink:0; }
-.power-trend { font-size:13px; width:20px; text-align:center; flex-shrink:0; }
-.power-stale { font-size:10px; color:var(--orange); margin-left:4px; }
-.power-input-sm { width:82px; background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:5px 7px; border-radius:6px; font-family:'Exo 2',sans-serif; font-size:12px; outline:none; text-align:center; flex-shrink:0; }
-.power-input-sm:focus { border-color:var(--teal); }
+.prow{display:flex;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);gap:7px;}
+.prow:last-child{border-bottom:none;}
+.prk{font-size:9px;padding:2px 4px;border-radius:3px;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1px;flex-shrink:0;}
+.r5c{background:rgba(201,168,76,.3);color:var(--gold2);}
+.r4c{background:rgba(45,212,191,.2);color:var(--teal);}
+.r3c{background:rgba(139,92,246,.2);color:var(--purple);}
+.r2c{background:rgba(251,146,60,.2);color:#fb923c;}
+.r1c{background:rgba(148,163,184,.2);color:#94a3b8;}
+.pname{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pval{font-size:12px;color:var(--teal);font-weight:600;min-width:50px;text-align:right;flex-shrink:0;}
+.ptrend{font-size:12px;width:18px;text-align:center;flex-shrink:0;}
+.pinp{width:78px;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:4px 6px;border-radius:5px;font-family:'Exo 2',sans-serif;font-size:11px;outline:none;text-align:center;flex-shrink:0;}
+.pinp:focus{border-color:var(--teal);}
 
-.tz-badge { font-size:9px; padding:1px 5px; border-radius:3px; font-family:'Rajdhani',sans-serif; font-weight:700; letter-spacing:1px; margin-left:4px; flex-shrink:0; }
-.tz-eu { background:rgba(96,165,250,0.2); color:var(--eu); }
-.tz-us { background:rgba(248,113,113,0.2); color:var(--us); }
+.tz-b{font-size:8px;padding:1px 4px;border-radius:3px;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1px;flex-shrink:0;}
+.tz-eu{background:rgba(96,165,250,.2);color:var(--eu);}
+.tz-us{background:rgba(248,113,113,.2);color:var(--us);}
+.ib{font-size:8px;padding:1px 4px;border-radius:3px;background:rgba(239,68,68,.15);color:var(--red);font-family:'Rajdhani',sans-serif;font-weight:700;}
+.vb{font-size:8px;padding:1px 4px;border-radius:3px;background:rgba(167,139,250,.15);color:var(--purple);font-family:'Rajdhani',sans-serif;font-weight:700;}
+.flagb{font-size:8px;padding:1px 4px;border-radius:3px;background:rgba(249,115,22,.15);color:var(--orange);font-family:'Rajdhani',sans-serif;font-weight:700;}
 
-.inactive-badge { font-size:9px; padding:1px 5px; border-radius:3px; background:rgba(239,68,68,0.15); color:var(--red); font-family:'Rajdhani',sans-serif; font-weight:700; margin-left:4px; }
+.rbox{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:12px;margin-bottom:10px;white-space:pre-wrap;font-size:11px;line-height:1.7;color:var(--text2);font-family:'Exo 2',sans-serif;}
 
-.progress-bar { height:3px; background:var(--border); border-radius:2px; overflow:hidden; margin-top:5px; }
-.progress-fill { height:100%; background:linear-gradient(90deg,var(--gold),var(--gold2)); border-radius:2px; transition:width 0.3s; }
+.sbar{position:relative;margin-bottom:11px;}
+.sbar .inp{margin-bottom:0;padding-left:32px;}
+.sbar::before{content:'🔍';position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:11px;z-index:1;}
 
-.report-box { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:13px; margin-bottom:11px; white-space:pre-wrap; font-size:12px; line-height:1.7; color:var(--text2); font-family:'Exo 2',sans-serif; }
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.87);z-index:200;align-items:flex-end;}
+.mo.open{display:flex;}
+.md{background:var(--surface);border:1px solid var(--border);border-top-left-radius:15px;border-top-right-radius:15px;padding:17px 14px 28px;width:100%;max-height:90vh;overflow-y:auto;}
+.mtitle{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;color:var(--gold2);margin-bottom:13px;letter-spacing:1px;}
 
-.search-bar { position:relative; margin-bottom:12px; }
-.search-bar .input { margin-bottom:0; padding-left:34px; }
-.search-bar::before { content:'🔍'; position:absolute; left:10px; top:50%; transform:translateY(-50%); font-size:12px; z-index:1; }
+.lbl{font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+.flex{display:flex;gap:6px;}
+.f1{flex:1;}
+.mt8{margin-top:8px;}
+.mt12{margin-top:12px;}
+.mb8{margin-bottom:8px;}
+.mb12{margin-bottom:12px;}
+.div{height:1px;background:var(--border);margin:13px 0;}
 
-.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:200; align-items:flex-end; }
-.modal-overlay.open { display:flex; }
-.modal { background:var(--surface); border:1px solid var(--border); border-top-left-radius:16px; border-top-right-radius:16px; padding:18px 15px 30px; width:100%; max-height:88vh; overflow-y:auto; }
-.modal-title { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:17px; color:var(--gold2); margin-bottom:14px; letter-spacing:1px; }
+.btab{flex:1;padding:8px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:1px;transition:all .2s;}
+.btab.aeu{background:rgba(96,165,250,.15);border-color:var(--eu);color:var(--eu);}
+.btab.aus{background:rgba(248,113,113,.15);border-color:var(--us);color:var(--us);}
+.btab.agreen{background:rgba(34,197,94,.1);border-color:var(--green);color:var(--green);}
+.btab.ared{background:rgba(239,68,68,.1);border-color:var(--red);color:var(--red);}
 
-.label { font-size:10px; color:var(--text3); letter-spacing:1px; text-transform:uppercase; margin-bottom:5px; }
-.flex { display:flex; gap:7px; }
-.flex-1 { flex:1; }
-.mt-8 { margin-top:8px; }
-.mt-12 { margin-top:12px; }
-.mb-8 { margin-bottom:8px; }
-.mb-12 { margin-bottom:12px; }
-.divider { height:1px; background:var(--border); margin:14px 0; }
+.pb{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:4px;}
+.pf{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:2px;transition:width .3s;}
 
-.audit-entry { font-size:11px; color:var(--text3); padding:5px 0; border-bottom:1px solid var(--border); }
-.audit-entry:last-child { border-bottom:none; }
+.mcnt{font-size:10px;color:var(--text3);margin-bottom:9px;}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--surface2);border:1px solid var(--gold);color:var(--gold2);padding:8px 16px;border-radius:7px;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:12px;letter-spacing:1px;z-index:9999;transition:transform .3s;white-space:nowrap;}
+#toast.show{transform:translateX(-50%) translateY(0);}
+.empty{text-align:center;color:var(--text3);padding:25px 16px;font-size:12px;}
 
-#toast { position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(100px); background:var(--surface2); border:1px solid var(--gold); color:var(--gold2); padding:9px 18px; border-radius:8px; font-family:'Rajdhani',sans-serif; font-weight:600; font-size:13px; letter-spacing:1px; z-index:9999; transition:transform 0.3s; white-space:nowrap; }
-#toast.show { transform:translateX(-50%) translateY(0); }
-
-.empty-state { text-align:center; color:var(--text3); padding:28px 18px; font-size:13px; }
-.member-count { font-size:11px; color:var(--text3); margin-bottom:10px; }
-
-.bear-header { display:flex; gap:8px; margin-bottom:12px; }
-.bear-tab-btn { flex:1; padding:9px; border-radius:8px; border:1px solid var(--border); background:var(--surface2); color:var(--text2); font-family:'Rajdhani',sans-serif; font-weight:700; font-size:13px; cursor:pointer; letter-spacing:1px; transition:all 0.2s; }
-.bear-tab-btn.active-eu { background:rgba(96,165,250,0.15); border-color:var(--eu); color:var(--eu); }
-.bear-tab-btn.active-us { background:rgba(248,113,113,0.15); border-color:var(--us); color:var(--us); }
-
-.member-edit-row { display:flex; align-items:center; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border); gap:6px; }
-.member-edit-row:last-child { border-bottom:none; }
+.trend-section{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:12px;margin-bottom:10px;}
+.trend-bar-wrap{display:flex;align-items:center;gap:8px;margin-top:6px;}
+.trend-bar-bg{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+.trend-bar-fill{height:100%;border-radius:3px;transition:width .4s;}
 </style>
 
 </head>
@@ -184,176 +161,171 @@ select.input { appearance:none; background-image:url("data:image/svg+xml,%3Csvg 
 <div class="header">
   <div class="header-left">
     <div class="logo">DTK</div>
-    <div>
-      <div class="header-title">DTK TRACKER</div>
-      <div class="header-sub">K1246 ALLIANCE</div>
-    </div>
+    <div><div class="htitle">DTK TRACKER</div><div class="hsub">K1246 ALLIANCE</div></div>
   </div>
-  <div class="header-right">
-    <button class="icon-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
-    <button class="icon-btn" onclick="cycleLang()" id="langBtn">EN</button>
+  <div class="hright">
+    <button class="ibtn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+    <button class="ibtn" onclick="cycleLang()" id="langBtn">EN</button>
   </div>
 </div>
 
 <div class="nav">
-  <button class="nav-btn active" onclick="showPage('events')" id="nav-events">EVENTS</button>
-  <button class="nav-btn" onclick="showPage('bear')" id="nav-bear">BEAR</button>
-  <button class="nav-btn" onclick="showPage('power')" id="nav-power">POWER</button>
-  <button class="nav-btn" onclick="showPage('reports')" id="nav-reports">REPORTS</button>
-  <button class="nav-btn" onclick="showPage('members')" id="nav-members">MEMBERS</button>
+  <button class="nbtn active" onclick="goPage('events')" id="nav-events">EVENTS</button>
+  <button class="nbtn" onclick="goPage('bear')" id="nav-bear">BEAR</button>
+  <button class="nbtn" onclick="goPage('power')" id="nav-power">POWER</button>
+  <button class="nbtn" onclick="goPage('reports')" id="nav-reports">REPORTS</button>
+  <button class="nbtn" onclick="goPage('members')" id="nav-members">MEMBERS</button>
 </div>
 
-<!-- EVENTS PAGE -->
+<!-- EVENTS -->
 
 <div class="page active" id="page-events">
-  <div class="section-header">
-    <div class="section-title" id="lbl-events">EVENTS</div>
-    <button class="btn btn-sm" onclick="openAddEventModal()">+ ADD</button>
+  <div class="sh"><div class="stitle">EVENTS</div><button class="btn bsm" onclick="openModal('modal-add-event')">+ ADD</button></div>
+  <div class="sgrid">
+    <div class="sbox"><div class="snum" id="s-total">—</div><div class="slbl">Total Events</div></div>
+    <div class="sbox"><div class="snum" id="s-week">—</div><div class="slbl">This Week</div></div>
   </div>
-  <div class="stats-grid">
-    <div class="stat-box"><div class="stat-num" id="stat-total">—</div><div class="stat-label" id="lbl-total-events">Total Events</div></div>
-    <div class="stat-box"><div class="stat-num" id="stat-week">—</div><div class="stat-label" id="lbl-this-week">This Week</div></div>
-  </div>
-  <div id="events-list"><div class="empty-state" id="lbl-loading">LOADING...</div></div>
+  <div id="events-list"><div class="empty">LOADING...</div></div>
 </div>
 
-<!-- EVENT DETAIL PAGE -->
+<!-- EVENT DETAIL -->
 
-<div class="page" id="page-event-detail">
-  <div class="section-header">
-    <button class="btn-ghost" onclick="backToEvents()">← <span id="lbl-back">Back</span></button>
-    <button class="btn btn-sm btn-red" onclick="deleteCurrentEvent()" id="lbl-delete">DELETE</button>
+<div class="page" id="page-edetail">
+  <div class="sh">
+    <button class="bghost" onclick="goPage('events')">← Back</button>
+    <button class="btn bsm bred" onclick="delEvent()">DELETE</button>
   </div>
-  <div class="card mb-12">
-    <div class="section-title" id="detail-name">—</div>
-    <div style="color:var(--text3);font-size:11px;margin-top:3px" id="detail-date">—</div>
-    <div style="margin-top:8px;display:flex;gap:10px;flex-wrap:wrap">
-      <span id="detail-yes" style="color:var(--green);font-size:12px"></span>
-      <span id="detail-no" style="color:var(--red);font-size:12px"></span>
-      <span id="detail-pending" style="color:var(--text3);font-size:12px"></span>
+  <div class="card mb12">
+    <div class="stitle" id="ed-name">—</div>
+    <div style="color:var(--text3);font-size:10px;margin-top:2px" id="ed-date">—</div>
+    <div style="margin-top:7px;display:flex;gap:9px;flex-wrap:wrap">
+      <span id="ed-yes" style="color:var(--green);font-size:11px"></span>
+      <span id="ed-no" style="color:var(--red);font-size:11px"></span>
+      <span id="ed-pend" style="color:var(--text3);font-size:11px"></span>
     </div>
-    <div class="progress-bar"><div class="progress-fill" id="detail-prog" style="width:0%"></div></div>
+    <div class="pb"><div class="pf" id="ed-prog" style="width:0%"></div></div>
   </div>
-  <div class="search-bar"><input class="input" id="detail-search" type="text" placeholder="Search member..." oninput="filterDetail()"></div>
-  <div class="flex mb-12">
-    <button class="btn btn-sm flex-1" onclick="markAll('yes')" id="lbl-all-yes">✓ ALL YES</button>
-    <button class="btn btn-sm btn-outline flex-1" onclick="markAll('no')" id="lbl-all-no">✗ ALL NO</button>
-    <button class="btn-ghost btn-sm flex-1" onclick="clearAll()" id="lbl-clear">CLEAR</button>
+  <div class="sbar"><input class="inp" id="ed-search" type="text" placeholder="Search member..." oninput="renderEDetail()"></div>
+  <div class="flex mb12">
+    <button class="btn bsm f1" onclick="markAllE('yes')">✓ ALL YES</button>
+    <button class="btn bsm bout f1" onclick="markAllE('no')">✗ ALL NO</button>
+    <button class="bghost bsm f1" onclick="clearAllE()">CLEAR</button>
   </div>
-  <div id="detail-list"></div>
+  <div id="ed-list"></div>
 </div>
 
-<!-- BEAR PAGE -->
+<!-- BEAR -->
 
 <div class="page" id="page-bear">
-  <div class="section-header">
-    <div class="section-title" id="lbl-bear">BEAR EVENT</div>
-    <button class="btn btn-sm" onclick="openAddBearModal()">+ ADD</button>
+  <div class="sh"><div class="stitle">BEAR EVENT</div><button class="btn bsm" onclick="openModal('modal-add-bear')">+ ADD</button></div>
+  <div class="flex mb12">
+    <button class="btab aeu f1" id="bf-eu" onclick="setBF('EU')">🇪🇺 EU</button>
+    <button class="btab f1" id="bf-us" onclick="setBF('US')">🇺🇸 US</button>
+    <button class="btab f1" id="bf-all" onclick="setBF('ALL')" style="flex:.6;font-size:10px">ALL</button>
   </div>
-  <div class="bear-header">
-    <button class="bear-tab-btn active-eu" id="bear-eu-btn" onclick="setBearFilter('EU')">🇪🇺 EU</button>
-    <button class="bear-tab-btn" id="bear-us-btn" onclick="setBearFilter('US')">🇺🇸 US</button>
-    <button class="bear-tab-btn" id="bear-all-btn" onclick="setBearFilter('ALL')" style="flex:0.6;font-size:11px">ALL</button>
-  </div>
-  <div id="bear-list"><div class="empty-state" id="lbl-loading2">LOADING...</div></div>
+  <div id="bear-list"><div class="empty">LOADING...</div></div>
 </div>
 
-<!-- BEAR DETAIL PAGE -->
+<!-- BEAR DETAIL -->
 
-<div class="page" id="page-bear-detail">
-  <div class="section-header">
-    <button class="btn-ghost" onclick="showPage('bear')">← <span id="lbl-back2">Back</span></button>
-    <button class="btn btn-sm btn-red" onclick="deleteCurrentBear()" id="lbl-delete2">DELETE</button>
+<div class="page" id="page-bdetail">
+  <div class="sh">
+    <button class="bghost" onclick="goPage('bear')">← Back</button>
+    <button class="btn bsm bred" onclick="delBear()">DELETE</button>
   </div>
-  <div class="card mb-12">
-    <div class="section-title" id="bear-detail-name">—</div>
-    <div style="color:var(--text3);font-size:11px;margin-top:3px" id="bear-detail-date">—</div>
-    <div style="margin-top:8px;display:flex;gap:10px">
-      <span id="bear-detail-yes" style="color:var(--green);font-size:12px"></span>
-      <span id="bear-detail-no" style="color:var(--red);font-size:12px"></span>
+  <div class="card mb12">
+    <div class="stitle" id="bd-name">—</div>
+    <div style="color:var(--text3);font-size:10px;margin-top:2px" id="bd-date">—</div>
+    <div style="margin-top:7px;display:flex;gap:9px">
+      <span id="bd-yes" style="color:var(--green);font-size:11px"></span>
+      <span id="bd-no" style="color:var(--red);font-size:11px"></span>
     </div>
-    <div class="progress-bar"><div class="progress-fill" id="bear-detail-prog" style="width:0%"></div></div>
+    <div class="pb"><div class="pf" id="bd-prog" style="width:0%"></div></div>
   </div>
-  <div class="search-bar"><input class="input" id="bear-search" type="text" placeholder="Search member..." oninput="filterBearDetail()"></div>
-  <div class="flex mb-12">
-    <button class="btn btn-sm flex-1" onclick="markBearAll('yes')">✓ ALL YES</button>
-    <button class="btn btn-sm btn-outline flex-1" onclick="markBearAll('no')">✗ ALL NO</button>
-    <button class="btn-ghost btn-sm flex-1" onclick="clearBearAll()">CLEAR</button>
+  <div class="sbar"><input class="inp" id="bd-search" type="text" placeholder="Search member..." oninput="renderBDetail()"></div>
+  <div class="flex mb12">
+    <button class="btn bsm f1" onclick="markAllB('yes')">✓ ALL YES</button>
+    <button class="btn bsm bout f1" onclick="markAllB('no')">✗ ALL NO</button>
+    <button class="bghost bsm f1" onclick="clearAllB()">CLEAR</button>
   </div>
-  <div id="bear-detail-list"></div>
+  <div id="bd-list"></div>
 </div>
 
-<!-- POWER PAGE -->
+<!-- POWER -->
 
 <div class="page" id="page-power">
-  <div class="section-header">
-    <div class="section-title" id="lbl-power">POWER</div>
-    <button class="btn btn-sm btn-teal" onclick="savePowerSnapshot()" id="lbl-save">SAVE</button>
+  <div class="sh"><div class="stitle">POWER</div><button class="btn bsm bteal" onclick="savePower()">SAVE</button></div>
+  <div class="card mb12">
+    <div class="lbl">WEEK LABEL</div>
+    <input class="inp" id="pw-week" type="text" placeholder="e.g. Week 1 — Apr 1" style="margin-bottom:0">
   </div>
-  <div class="card mb-12">
-    <div class="label" id="lbl-week">WEEK LABEL</div>
-    <input class="input" id="power-week" type="text" placeholder="e.g. Week 1 - Apr 1" style="margin-bottom:0">
-  </div>
-  <div class="search-bar"><input class="input" id="power-search" type="text" placeholder="Search..." oninput="filterPower()"></div>
-  <div id="power-list"><div class="empty-state">LOADING...</div></div>
+  <div class="sbar"><input class="inp" id="pw-search" type="text" placeholder="Search..." oninput="renderPower()"></div>
+  <div id="power-list"><div class="empty">LOADING...</div></div>
 </div>
 
-<!-- REPORTS PAGE -->
+<!-- REPORTS -->
 
 <div class="page" id="page-reports">
-  <div class="section-title mb-12" id="lbl-reports">REPORTS</div>
-  <div class="label" id="lbl-event-report">EVENT PARTICIPATION REPORT</div>
-  <div class="flex mb-12 mt-8">
-    <select class="input flex-1" id="report-period" style="margin-bottom:0">
-      <option value="week" id="opt-week">This Week</option>
-      <option value="month" id="opt-month">This Month</option>
-      <option value="all" id="opt-all">All Time</option>
+  <div class="stitle mb12">REPORTS</div>
+
+  <div class="lbl">EVENT PARTICIPATION REPORT</div>
+  <div class="flex mt8 mb12">
+    <select class="inp f1" id="rp-period" style="margin-bottom:0">
+      <option value="week">This Week</option>
+      <option value="month">This Month</option>
+      <option value="lastmonth">Last Month</option>
+      <option value="all">All Time</option>
     </select>
-    <button class="btn btn-sm" onclick="generateEventReport()" id="lbl-generate">GENERATE</button>
+    <button class="btn bsm" onclick="genEventReport()">GENERATE</button>
   </div>
-  <div id="event-report-out" class="report-box" style="display:none"></div>
-  <button class="btn btn-sm btn-outline mb-12" id="copy-report-btn" style="display:none;width:100%" onclick="copyReport()" id="lbl-copy">📋 COPY FOR DISCORD</button>
-  <div class="divider"></div>
-  <div class="label" id="lbl-power-report">POWER REPORT</div>
-  <div class="flex mt-8 mb-12">
-    <select class="input flex-1" id="power-report-member" style="margin-bottom:0">
-      <option value="all" id="opt-all-members">All Members</option>
+  <div id="rp-event-out" class="rbox" style="display:none"></div>
+  <button class="btn bsm bout mb12" id="rp-copy-btn" style="display:none;width:100%" onclick="copyReport('event')">📋 COPY FOR DISCORD</button>
+
+  <div class="div"></div>
+  <div class="lbl">MONTH OVER MONTH TREND</div>
+  <div class="mt8 mb12" id="mom-section"><div class="empty" style="padding:15px">Generate an event report first</div></div>
+
+  <div class="div"></div>
+  <div class="lbl">POWER GROWTH REPORT</div>
+  <div class="flex mt8 mb12">
+    <select class="inp f1" id="rp-power-member" style="margin-bottom:0">
+      <option value="all">All Members</option>
     </select>
-    <button class="btn btn-sm btn-teal" onclick="generatePowerReport()" id="lbl-generate2">GENERATE</button>
+    <button class="btn bsm bteal" onclick="genPowerReport()">GENERATE</button>
   </div>
-  <div id="power-report-out" class="report-box" style="display:none"></div>
-  <div class="divider"></div>
-  <div class="label" id="lbl-top">TOP PARTICIPATORS</div>
-  <div class="card mt-8" id="top-box"><div class="empty-state" id="lbl-gen-first">Generate a report first</div></div>
+  <div id="rp-power-out" class="rbox" style="display:none"></div>
+  <button class="btn bsm bout mb12" id="rp-copy-btn2" style="display:none;width:100%" onclick="copyReport('power')">📋 COPY FOR DISCORD</button>
+
+  <div class="div"></div>
+  <div class="lbl">RUNNING TOP PARTICIPATORS</div>
+  <div class="card mt8" id="top-box"><div class="empty">Generate a report first</div></div>
 </div>
 
-<!-- MEMBERS PAGE -->
+<!-- MEMBERS -->
 
 <div class="page" id="page-members">
-  <div class="section-header">
-    <div class="section-title" id="lbl-members">MEMBERS</div>
-    <button class="btn btn-sm" onclick="openAddMemberModal()">+ ADD</button>
+  <div class="sh"><div class="stitle">MEMBERS</div><button class="btn bsm" onclick="openModal('modal-add-member')">+ ADD</button></div>
+  <div class="sbar"><input class="inp" id="ms-search" type="text" placeholder="Search..." oninput="renderMembers()"></div>
+  <div class="flex mb12" style="gap:5px;flex-wrap:wrap">
+    <button class="ibtn f1" onclick="setMF('ALL')" id="mf-all" style="color:var(--gold2);border-color:var(--gold)">ALL</button>
+    <button class="ibtn f1" onclick="setMF('EU')" id="mf-eu">🇪🇺 EU</button>
+    <button class="ibtn f1" onclick="setMF('US')" id="mf-us">🇺🇸 US</button>
+    <button class="ibtn f1" onclick="setMF('VAC')" id="mf-vac">🏖️ VAC</button>
+    <button class="ibtn f1" onclick="setMF('INACTIVE')" id="mf-inactive">INACTIVE</button>
   </div>
-  <div class="search-bar"><input class="input" id="member-search" type="text" placeholder="Search..." oninput="filterMembers()"></div>
-  <div class="flex mb-12" style="gap:6px">
-    <button class="icon-btn flex-1" onclick="setMemberFilter('ALL')" id="mf-all" style="color:var(--gold2);border-color:var(--gold)">ALL</button>
-    <button class="icon-btn flex-1" onclick="setMemberFilter('EU')" id="mf-eu">🇪🇺 EU</button>
-    <button class="icon-btn flex-1" onclick="setMemberFilter('US')" id="mf-us">🇺🇸 US</button>
-    <button class="icon-btn flex-1" onclick="setMemberFilter('INACTIVE')" id="mf-inactive">INACTIVE</button>
-  </div>
-  <div class="member-count" id="member-count"></div>
-  <div id="members-list"><div class="empty-state">LOADING...</div></div>
+  <div class="mcnt" id="ms-count"></div>
+  <div id="members-list"><div class="empty">LOADING...</div></div>
 </div>
 
-</div><!-- /app -->
+</div>
 
 <!-- MODALS -->
 
-<div class="modal-overlay" id="modal-add-event">
-  <div class="modal">
-    <div class="modal-title" id="lbl-new-event">NEW EVENT</div>
-    <div class="label">EVENT TYPE</div>
-    <select class="input" id="new-event-type" onchange="toggleCustomEvent()">
+<div class="mo" id="modal-add-event">
+  <div class="md">
+    <div class="mtitle">NEW EVENT</div>
+    <div class="lbl">EVENT TYPE</div>
+    <select class="inp" id="ne-type" onchange="toggleCE()">
       <option value="Swordland Shadow">Swordland Shadow</option>
       <option value="Tri-Alliance Clash">Tri-Alliance Clash</option>
       <option value="Alliance Mobilization">Alliance Mobilization</option>
@@ -364,95 +336,94 @@ select.input { appearance:none; background-image:url("data:image/svg+xml,%3Csvg 
       <option value="Windward Voyage">Windward Voyage</option>
       <option value="custom">Custom...</option>
     </select>
-    <input class="input" id="new-event-custom" type="text" placeholder="Custom event name" style="display:none">
-    <div class="label">DATE</div>
-    <input class="input" id="new-event-date" type="date">
-    <div class="flex mt-8">
-      <button class="btn flex-1" onclick="addEvent()">CREATE</button>
-      <button class="btn-ghost flex-1" onclick="closeModal('modal-add-event')">CANCEL</button>
+    <input class="inp" id="ne-custom" type="text" placeholder="Custom event name" style="display:none">
+    <div class="lbl">DATE</div>
+    <input class="inp" id="ne-date" type="date">
+    <div class="flex mt8">
+      <button class="btn f1" onclick="addEvent()">CREATE</button>
+      <button class="bghost f1" onclick="closeModal('modal-add-event')">CANCEL</button>
     </div>
   </div>
 </div>
 
-<div class="modal-overlay" id="modal-add-bear">
-  <div class="modal">
-    <div class="modal-title">NEW BEAR EVENT</div>
-    <div class="label">REGION</div>
-    <div class="flex mb-12">
-      <button class="bear-tab-btn active-eu flex-1" id="bear-modal-eu" onclick="selectBearRegion('EU')">🇪🇺 EU</button>
-      <button class="bear-tab-btn flex-1" id="bear-modal-us" onclick="selectBearRegion('US')">🇺🇸 US</button>
+<div class="mo" id="modal-add-bear">
+  <div class="md">
+    <div class="mtitle">NEW BEAR EVENT</div>
+    <div class="lbl">REGION</div>
+    <div class="flex mb12">
+      <button class="btab aeu f1" id="bm-eu" onclick="selBR('EU')">🇪🇺 EU</button>
+      <button class="btab f1" id="bm-us" onclick="selBR('US')">🇺🇸 US</button>
     </div>
-    <input type="hidden" id="new-bear-region" value="EU">
-    <div class="label">DATE</div>
-    <input class="input" id="new-bear-date" type="date">
-    <div class="flex mt-8">
-      <button class="btn flex-1" onclick="addBearEvent()">CREATE</button>
-      <button class="btn-ghost flex-1" onclick="closeModal('modal-add-bear')">CANCEL</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="modal-add-member">
-  <div class="modal">
-    <div class="modal-title" id="lbl-add-member">ADD MEMBER</div>
-    <div class="label">IN-GAME NAME</div>
-    <input class="input" id="new-member-name" type="text" placeholder="Member name">
-    <div class="label">RANK</div>
-    <select class="input" id="new-member-rank">
-      <option value="R5">R5</option>
-      <option value="R4">R4</option>
-      <option value="R3" selected>R3</option>
-      <option value="R2">R2</option>
-      <option value="R1">R1</option>
-    </select>
-    <div class="label">TIMEZONE</div>
-    <div class="flex mb-12">
-      <button class="bear-tab-btn active-eu flex-1" id="nm-eu" onclick="selectNewTZ('EU')">🇪🇺 EU</button>
-      <button class="bear-tab-btn flex-1" id="nm-us" onclick="selectNewTZ('US')">🇺🇸 US</button>
-      <button class="icon-btn flex-1" id="nm-none" onclick="selectNewTZ('')" style="color:var(--text2)">NONE</button>
-    </div>
-    <input type="hidden" id="new-member-tz" value="EU">
-    <div class="flex mt-8">
-      <button class="btn flex-1" onclick="addMember()">ADD</button>
-      <button class="btn-ghost flex-1" onclick="closeModal('modal-add-member')">CANCEL</button>
+    <input type="hidden" id="nb-region" value="EU">
+    <div class="lbl">DATE</div>
+    <input class="inp" id="nb-date" type="date">
+    <div class="flex mt8">
+      <button class="btn f1" onclick="addBear()">CREATE</button>
+      <button class="bghost f1" onclick="closeModal('modal-add-bear')">CANCEL</button>
     </div>
   </div>
 </div>
 
-<div class="modal-overlay" id="modal-edit-member">
-  <div class="modal">
-    <div class="modal-title">EDIT MEMBER</div>
-    <input type="hidden" id="edit-member-id">
-    <div class="label">IN-GAME NAME</div>
-    <input class="input" id="edit-member-name" type="text">
-    <div class="label">RANK</div>
-    <select class="input" id="edit-member-rank">
-      <option value="R5">R5</option>
-      <option value="R4">R4</option>
-      <option value="R3">R3</option>
-      <option value="R2">R2</option>
-      <option value="R1">R1</option>
-    </select>
-    <div class="label">TIMEZONE</div>
-    <div class="flex mb-12">
-      <button class="bear-tab-btn flex-1" id="em-eu" onclick="selectEditTZ('EU')">🇪🇺 EU</button>
-      <button class="bear-tab-btn flex-1" id="em-us" onclick="selectEditTZ('US')">🇺🇸 US</button>
-      <button class="icon-btn flex-1" id="em-none" onclick="selectEditTZ('')" style="color:var(--text2)">NONE</button>
+<div class="mo" id="modal-add-member">
+  <div class="md">
+    <div class="mtitle">ADD MEMBER</div>
+    <div class="lbl">IN-GAME NAME</div>
+    <input class="inp" id="nm-name" type="text" placeholder="Member name">
+    <div class="lbl">RANK</div>
+    <select class="inp" id="nm-rank"><option value="R5">R5</option><option value="R4">R4</option><option value="R3" selected>R3</option><option value="R2">R2</option><option value="R1">R1</option></select>
+    <div class="lbl">TIMEZONE</div>
+    <div class="flex mb12">
+      <button class="btab aeu f1" id="nm-eu" onclick="selNTZ('EU')">🇪🇺 EU</button>
+      <button class="btab f1" id="nm-us" onclick="selNTZ('US')">🇺🇸 US</button>
+      <button class="ibtn f1" id="nm-none" onclick="selNTZ('')">NONE</button>
     </div>
-    <input type="hidden" id="edit-member-tz" value="">
-    <div class="label">NOTES</div>
-    <input class="input" id="edit-member-notes" type="text" placeholder="Council notes...">
-    <div class="label">STATUS</div>
-    <div class="flex mb-12">
-      <button class="bear-tab-btn flex-1" id="em-active" onclick="selectEditStatus('active')" style="color:var(--green);border-color:var(--green);background:rgba(34,197,94,0.1)">ACTIVE</button>
-      <button class="bear-tab-btn flex-1" id="em-inactive" onclick="selectEditStatus('inactive')">INACTIVE</button>
+    <input type="hidden" id="nm-tz" value="EU">
+    <div class="flex mt8">
+      <button class="btn f1" onclick="addMember()">ADD</button>
+      <button class="bghost f1" onclick="closeModal('modal-add-member')">CANCEL</button>
     </div>
-    <input type="hidden" id="edit-member-status" value="active">
-    <div class="flex mt-8">
-      <button class="btn flex-1" onclick="saveMemberEdit()">SAVE</button>
-      <button class="btn-ghost flex-1" onclick="closeModal('modal-edit-member')">CANCEL</button>
+  </div>
+</div>
+
+<div class="mo" id="modal-edit-member">
+  <div class="md">
+    <div class="mtitle">EDIT MEMBER</div>
+    <input type="hidden" id="em-id">
+    <div class="lbl">IN-GAME NAME</div>
+    <input class="inp" id="em-name" type="text">
+    <div class="lbl">RANK</div>
+    <select class="inp" id="em-rank"><option value="R5">R5</option><option value="R4">R4</option><option value="R3">R3</option><option value="R2">R2</option><option value="R1">R1</option></select>
+    <div class="lbl">TIMEZONE</div>
+    <div class="flex mb8">
+      <button class="btab f1" id="em-eu" onclick="selETZ('EU')">🇪🇺 EU</button>
+      <button class="btab f1" id="em-us" onclick="selETZ('US')">🇺🇸 US</button>
+      <button class="ibtn f1" id="em-none" onclick="selETZ('')">NONE</button>
     </div>
-    <button class="btn btn-sm btn-red mt-12" style="width:100%" onclick="deleteMemberFromEdit()">REMOVE MEMBER</button>
+    <input type="hidden" id="em-tz" value="">
+    <div class="lbl">NOTES</div>
+    <input class="inp" id="em-notes" type="text" placeholder="Council notes...">
+    <div class="lbl">STATUS</div>
+    <div class="flex mb8">
+      <button class="btab agreen f1" id="em-active" onclick="selES('active')">ACTIVE</button>
+      <button class="btab f1" id="em-inactive" onclick="selES('inactive')">INACTIVE</button>
+    </div>
+    <input type="hidden" id="em-status" value="active">
+    <div class="div"></div>
+    <div class="lbl">🏖️ VACATION</div>
+    <div class="flex mb8">
+      <button class="btab f1" id="em-vac-off" onclick="selEVac(false)">NOT ON VAC</button>
+      <button class="btab f1" id="em-vac-on" onclick="selEVac(true)">ON VACATION</button>
+    </div>
+    <input type="hidden" id="em-vac" value="false">
+    <div id="em-vac-dates" style="display:none">
+      <div class="lbl">RETURN DATE</div>
+      <input class="inp" id="em-return" type="date">
+    </div>
+    <div class="flex mt8">
+      <button class="btn f1" onclick="saveEdit()">SAVE</button>
+      <button class="bghost f1" onclick="closeModal('modal-edit-member')">CANCEL</button>
+    </div>
+    <button class="btn bsm bred mt12" style="width:100%" onclick="delMemberEdit()">REMOVE MEMBER</button>
   </div>
 </div>
 
@@ -462,917 +433,767 @@ select.input { appearance:none; background-image:url("data:image/svg+xml,%3Csvg 
 // ============================================================
 // I18N
 // ============================================================
-const LANGS = ['EN','FR','ES'];
-let langIdx = 0;
-
-const EVENT_NAMES = {
-  'Swordland Shadow': { FR: 'Ombre Épée', ES: 'Sombra Espadacha' },
-  'Tri-Alliance Clash': { FR: 'Clash Tri-Alliance', ES: 'Choque Tri-Alianza' },
-  'Alliance Mobilization': { FR: 'Mobilisation Alliance', ES: 'Movilización Alianza' },
-  'Castle Battle': { FR: 'Bataille Château', ES: 'Batalla Castillo' },
-  'KvK': { FR: 'RcR', ES: 'RvR' },
-  'Feast': { FR: 'Festin', ES: 'Festín' },
-  'Fishing': { FR: 'Pêche', ES: 'Pesca' },
-  'Windward Voyage': { FR: 'Voyage au Vent', ES: 'Viaje al Viento' },
-  'Bear Event': { FR: 'Événement Ours', ES: 'Evento Oso' },
+const LANGS=['EN','FR','ES'];
+let langIdx=0;
+const EN={
+  'Swordland Shadow':'Swordland Shadow','Tri-Alliance Clash':'Tri-Alliance Clash',
+  'Alliance Mobilization':'Alliance Mobilization','Castle Battle':'Castle Battle',
+  'KvK':'KvK','Feast':'Feast','Fishing':'Fishing','Windward Voyage':'Windward Voyage','Bear Event':'Bear Event'
 };
-
-function translateEventName(name) {
-  const lang = LANGS[langIdx];
-  if (lang === 'EN') return name;
-  return (EVENT_NAMES[name] && EVENT_NAMES[name][lang]) || name;
-}
-
-const UI_STRINGS = {
-  EN: { events:'EVENTS', bear:'BEAR', power:'POWER', reports:'REPORTS', members:'MEMBERS', loading:'LOADING...', back:'Back', delete:'DELETE', total_events:'Total Events', this_week:'This Week', all_yes:'✓ ALL YES', all_no:'✗ ALL NO', clear:'CLEAR', save:'SAVE', week_lbl:'WEEK LABEL', event_report:'EVENT PARTICIPATION REPORT', opt_week:'This Week', opt_month:'This Month', opt_all:'All Time', generate:'GENERATE', power_report:'POWER REPORT', opt_all_members:'All Members', top:'TOP PARTICIPATORS', gen_first:'Generate a report first', add_member:'ADD MEMBER', new_event:'NEW EVENT', copy:'📋 COPY FOR DISCORD', participated:'participated', absent:'absent', pending:'pending', stale:'⚠️ STALE' },
-  FR: { events:'ÉVÉNEMENTS', bear:'OURS', power:'PUISSANCE', reports:'RAPPORTS', members:'MEMBRES', loading:'CHARGEMENT...', back:'Retour', delete:'SUPPRIMER', total_events:'Total Événements', this_week:'Cette Semaine', all_yes:'✓ TOUS OUI', all_no:'✗ TOUS NON', clear:'EFFACER', save:'SAUVER', week_lbl:'SEMAINE', event_report:'RAPPORT DE PARTICIPATION', opt_week:'Cette Semaine', opt_month:'Ce Mois', opt_all:'Tout', generate:'GÉNÉRER', power_report:'RAPPORT PUISSANCE', opt_all_members:'Tous les Membres', top:'TOP PARTICIPANTS', gen_first:'Générez un rapport d\'abord', add_member:'AJOUTER MEMBRE', new_event:'NOUVEL ÉVÉNEMENT', copy:'📋 COPIER POUR DISCORD', participated:'participé', absent:'absent', pending:'en attente', stale:'⚠️ PÉRIMÉ' },
-  ES: { events:'EVENTOS', bear:'OSO', power:'PODER', reports:'INFORMES', members:'MIEMBROS', loading:'CARGANDO...', back:'Volver', delete:'ELIMINAR', total_events:'Total Eventos', this_week:'Esta Semana', all_yes:'✓ TODOS SÍ', all_no:'✗ TODOS NO', clear:'LIMPIAR', save:'GUARDAR', week_lbl:'SEMANA', event_report:'INFORME DE PARTICIPACIÓN', opt_week:'Esta Semana', opt_month:'Este Mes', opt_all:'Todo', generate:'GENERAR', power_report:'INFORME DE PODER', opt_all_members:'Todos los Miembros', top:'TOP PARTICIPANTES', gen_first:'Genera un informe primero', add_member:'AÑADIR MIEMBRO', new_event:'NUEVO EVENTO', copy:'📋 COPIAR PARA DISCORD', participated:'participó', absent:'ausente', pending:'pendiente', stale:'⚠️ OBSOLETO' },
+const FR={
+  'Swordland Shadow':'Ombre Épée','Tri-Alliance Clash':'Clash Tri-Alliance',
+  'Alliance Mobilization':'Mobilisation Alliance','Castle Battle':'Bataille Château',
+  'KvK':'RcR','Feast':'Festin','Fishing':'Pêche','Windward Voyage':'Voyage au Vent','Bear Event':'Événement Ours'
 };
-
-function s(key) { return UI_STRINGS[LANGS[langIdx]][key] || UI_STRINGS['EN'][key] || key; }
-
-function cycleLang() {
-  langIdx = (langIdx + 1) % LANGS.length;
-  document.getElementById('langBtn').textContent = LANGS[langIdx];
-  applyLang();
-  renderCurrentPage();
-}
-
-function applyLang() {
-  const L = LANGS[langIdx];
-  const map = {
-    'nav-events': s('events'), 'nav-bear': s('bear'), 'nav-power': s('power'),
-    'nav-reports': s('reports'), 'nav-members': s('members'),
-    'lbl-events': s('events'), 'lbl-bear': s('bear'), 'lbl-power': s('power'),
-    'lbl-reports': s('reports'), 'lbl-members': s('members'),
-    'lbl-loading': s('loading'), 'lbl-loading2': s('loading'),
-    'lbl-back': s('back'), 'lbl-back2': s('back'),
-    'lbl-delete': s('delete'), 'lbl-delete2': s('delete'),
-    'lbl-total-events': s('total_events'), 'lbl-this-week': s('this_week'),
-    'lbl-all-yes': s('all_yes'), 'lbl-all-no': s('all_no'), 'lbl-clear': s('clear'),
-    'lbl-save': s('save'), 'lbl-week': s('week_lbl'),
-    'lbl-event-report': s('event_report'), 'lbl-power-report': s('power_report'),
-    'lbl-generate': s('generate'), 'lbl-generate2': s('generate'),
-    'lbl-top': s('top'), 'lbl-gen-first': s('gen_first'),
-    'lbl-add-member': s('add_member'), 'lbl-new-event': s('new_event'),
-    'opt-week': s('opt_week'), 'opt-month': s('opt_month'), 'opt-all': s('opt_all'),
-    'opt-all-members': s('opt_all_members'),
-  };
-  Object.entries(map).forEach(([id, txt]) => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = txt;
-  });
-}
-
-// ============================================================
-// THEME
-// ============================================================
-function toggleTheme() {
-  const body = document.body;
-  const isDark = body.getAttribute('data-theme') === 'dark';
-  body.setAttribute('data-theme', isDark ? 'light' : 'dark');
-  document.getElementById('themeBtn').textContent = isDark ? '☀️' : '🌙';
-}
+const ES={
+  'Swordland Shadow':'Sombra Espadacha','Tri-Alliance Clash':'Choque Tri-Alianza',
+  'Alliance Mobilization':'Movilización Alianza','Castle Battle':'Batalla Castillo',
+  'KvK':'RvR','Feast':'Festín','Fishing':'Pesca','Windward Voyage':'Viaje al Viento','Bear Event':'Evento Oso'
+};
+function tev(name){const lang=LANGS[langIdx];const map=lang==='FR'?FR:lang==='ES'?ES:EN;return map[name]||name;}
+function cycleLang(){langIdx=(langIdx+1)%LANGS.length;document.getElementById('langBtn').textContent=LANGS[langIdx];renderCurrent();}
+function toggleTheme(){const b=document.body;const d=b.getAttribute('data-theme')==='dark';b.setAttribute('data-theme',d?'light':'dark');document.getElementById('themeBtn').textContent=d?'☀️':'🌙';}
 
 // ============================================================
 // STATE
 // ============================================================
-let db = null, fs = null;
-let members = [];
-let events = [];
-let bearEvents = [];
-let currentEventId = null;
-let currentEventParticipation = {};
-let currentBearId = null;
-let currentBearParticipation = {};
-let powerEntries = {};
-let powerHistory = {};
-let memberFilter = 'ALL';
-let bearFilter = 'EU';
-let currentPage = 'events';
-let lastReportText = '';
+let db=null,fs=null;
+let members=[],events=[],bearEvents=[],powerSnaps=[];
+let curEId=null,curEPart={};
+let curBId=null,curBPart={};
+let mFilter='ALL',bFilter='EU';
+let curPage='events';
+let lastEventRpt='',lastPowerRpt='';
+let runningTally={};
 
-// ============================================================
-// INITIAL DATA
-// ============================================================
-const INITIAL_MEMBERS = [
+const INITIAL_MEMBERS=[
   {name:'Lord Ace',rank:'R5',tz:'',power:'81.6M'},
-  {name:'Book',rank:'R4',tz:'',power:'138.8M'},
-  {name:'SLYDreadPaw',rank:'R4',tz:'',power:'134.7M'},
-  {name:'Tater',rank:'R4',tz:'',power:'104.7M'},
-  {name:'Carol',rank:'R4',tz:'EU',power:'112.3M'},
-  {name:'Yuenzi',rank:'R4',tz:'',power:'90.8M'},
-  {name:'Samette',rank:'R4',tz:'',power:'83.3M'},
-  {name:'Passenger',rank:'R4',tz:'',power:'87.9M'},
-  {name:'djedje',rank:'R4',tz:'',power:'80.3M'},
-  {name:'Vee',rank:'R4',tz:'',power:'76M'},
-  {name:'Linkaac',rank:'R4',tz:'',power:'73.5M'},
+  {name:'Book',rank:'R4',tz:'',power:'138.8M'},{name:'SLYDreadPaw',rank:'R4',tz:'',power:'134.7M'},
+  {name:'Tater',rank:'R4',tz:'',power:'104.7M'},{name:'Carol',rank:'R4',tz:'EU',power:'112.3M'},
+  {name:'Yuenzi',rank:'R4',tz:'',power:'90.8M'},{name:'Samette',rank:'R4',tz:'',power:'83.3M'},
+  {name:'Passenger',rank:'R4',tz:'',power:'87.9M'},{name:'djedje',rank:'R4',tz:'',power:'80.3M'},
+  {name:'Vee',rank:'R4',tz:'',power:'76M'},{name:'Linkaac',rank:'R4',tz:'',power:'73.5M'},
   {name:'Cam',rank:'R4',tz:'US',power:'67.6M'},
-  {name:'Messi',rank:'R3',tz:'',power:'174.2M'},
-  {name:'Thalès',rank:'R3',tz:'EU',power:'173.7M'},
-  {name:'Ray',rank:'R3',tz:'',power:'119.3M'},
-  {name:'Astra',rank:'R3',tz:'',power:'113.9M'},
-  {name:'DarcSyde',rank:'R3',tz:'',power:'112.8M'},
-  {name:'Norseman75',rank:'R3',tz:'',power:'99.9M'},
-  {name:'Sakaru360',rank:'R3',tz:'',power:'96.6M'},
-  {name:'Buutenossi',rank:'R3',tz:'EU',power:'96.5M'},
-  {name:'Ycfman',rank:'R3',tz:'',power:'93.2M'},
-  {name:'Philib',rank:'R3',tz:'',power:'91.9M'},
-  {name:'Jake from state',rank:'R3',tz:'US',power:'88.7M'},
-  {name:'Lord Kenn',rank:'R3',tz:'',power:'87.3M'},
-  {name:'LadyWarrior',rank:'R3',tz:'',power:'87.2M'},
-  {name:'papaoutai',rank:'R3',tz:'EU',power:'87.6M'},
-  {name:'Dave',rank:'R3',tz:'',power:'87M'},
-  {name:'SexyJesus',rank:'R3',tz:'',power:'85.7M'},
-  {name:'Kelmie',rank:'R3',tz:'',power:'85.1M'},
-  {name:'Cbass',rank:'R3',tz:'US',power:'84.6M'},
-  {name:'TheProtectorMax',rank:'R3',tz:'',power:'83.6M'},
-  {name:'Firewolf6050',rank:'R3',tz:'',power:'83.5M'},
-  {name:'MaThew',rank:'R3',tz:'EU',power:'83.3M'},
-  {name:'MidnightHart',rank:'R3',tz:'',power:'81.6M'},
-  {name:'Phoceus',rank:'R3',tz:'EU',power:'80.7M'},
-  {name:'Adi',rank:'R3',tz:'',power:'78.4M'},
-  {name:'daioharo',rank:'R3',tz:'',power:'78.1M'},
-  {name:'My Lord',rank:'R3',tz:'',power:'77.6M'},
-  {name:'qwuack',rank:'R3',tz:'',power:'77.2M'},
-  {name:'Dangercat',rank:'R3',tz:'',power:'76.1M'},
-  {name:'XAV | GEN85',rank:'R3',tz:'',power:'75.6M'},
-  {name:'Tenogil',rank:'R3',tz:'',power:'75.5M'},
-  {name:'Papa Ezy',rank:'R3',tz:'',power:'75.4M'},
-  {name:'Maudietta',rank:'R3',tz:'EU',power:'75M'},
-  {name:'Rahif',rank:'R3',tz:'',power:'74.5M'},
-  {name:'Edison',rank:'R3',tz:'',power:'74M'},
-  {name:'BlkHwk131',rank:'R3',tz:'US',power:'73M'},
-  {name:'ODY',rank:'R3',tz:'',power:'72M'},
-  {name:'Lord of hell',rank:'R3',tz:'',power:'71.5M'},
-  {name:'Hasonn',rank:'R3',tz:'',power:'70.8M'},
-  {name:'JacekJKP',rank:'R3',tz:'EU',power:'70.3M'},
-  {name:'Catsu Curry',rank:'R3',tz:'',power:'70.3M'},
-  {name:'EddyH',rank:'R3',tz:'',power:'69.8M'},
-  {name:'seb',rank:'R3',tz:'EU',power:'68.2M'},
-  {name:'ViRu BoLtE',rank:'R3',tz:'',power:'67.9M'},
-  {name:'ElisNM',rank:'R3',tz:'EU',power:'67M'},
-  {name:'mazellem',rank:'R3',tz:'EU',power:'65.2M'},
-  {name:'Hamza16',rank:'R3',tz:'',power:'65.1M'},
-  {name:'Xemi',rank:'R3',tz:'',power:'64.6M'},
-  {name:'Albator29',rank:'R3',tz:'EU',power:'64.3M'},
-  {name:'Elif',rank:'R3',tz:'EU',power:'64.2M'},
-  {name:'Roddog',rank:'R3',tz:'US',power:'64.1M'},
-  {name:'Sludge Lord',rank:'R3',tz:'',power:'63.9M'},
-  {name:'Maximus',rank:'R3',tz:'',power:'63.4M'},
-  {name:'RCH8',rank:'R3',tz:'US',power:'63.2M'},
-  {name:'Dracaufeu',rank:'R3',tz:'EU',power:'62.5M'},
-  {name:'King Willy',rank:'R3',tz:'',power:'61.9M'},
-  {name:'Zaza',rank:'R3',tz:'',power:'61.8M'},
-  {name:'XaTaR',rank:'R3',tz:'',power:'61.8M'},
-  {name:'Tim_3110',rank:'R3',tz:'',power:'60.8M'},
-  {name:'Alex_Dr',rank:'R3',tz:'',power:'60.1M'},
-  {name:'Arthas',rank:'R3',tz:'',power:'60.1M'},
-  {name:'Stan',rank:'R3',tz:'',power:'58.9M'},
-  {name:'Anomie21',rank:'R3',tz:'',power:'58.4M'},
-  {name:'GoshiG',rank:'R3',tz:'',power:'58.3M'},
-  {name:'D\u2020rkBlight',rank:'R3',tz:'',power:'57.2M'},
-  {name:'Mosya',rank:'R3',tz:'EU',power:'56.3M'},
-  {name:'Korben Dallas',rank:'R3',tz:'EU',power:'56M'},
-  {name:'Darth Helmchen',rank:'R3',tz:'EU',power:'55.5M'},
-  {name:'Roma',rank:'R3',tz:'EU',power:'54.6M'},
-  {name:'Letsgodonuts',rank:'R3',tz:'US',power:'53.4M'},
-  {name:'Korotaku',rank:'R3',tz:'',power:'52.5M'},
-  {name:'Paul',rank:'R3',tz:'',power:'52.1M'},
-  {name:'Schaba',rank:'R3',tz:'EU',power:'51.8M'},
-  {name:'Maiwu',rank:'R3',tz:'',power:'51.3M'},
-  {name:'Clessin',rank:'R3',tz:'EU',power:'50.5M'},
-  {name:'RDMIFL',rank:'R3',tz:'',power:'47.9M'},
-  {name:'Brad',rank:'R3',tz:'US',power:'46.9M'},
-  {name:'Vivi Utiyama',rank:'R3',tz:'',power:'45.3M'},
-  {name:'Cindyloowho',rank:'R3',tz:'',power:'39.7M'},
-  {name:'GarTuLyl',rank:'R2',tz:'',power:'129.3M'},
-  {name:'Oskie',rank:'R1',tz:'',power:'50.5M'},
+  {name:'Messi',rank:'R3',tz:'',power:'174.2M'},{name:'Thalès',rank:'R3',tz:'EU',power:'173.7M'},
+  {name:'Ray',rank:'R3',tz:'',power:'119.3M'},{name:'Astra',rank:'R3',tz:'',power:'113.9M'},
+  {name:'DarcSyde',rank:'R3',tz:'',power:'112.8M'},{name:'Norseman75',rank:'R3',tz:'',power:'99.9M'},
+  {name:'Sakaru360',rank:'R3',tz:'',power:'96.6M'},{name:'Buutenossi',rank:'R3',tz:'EU',power:'96.5M'},
+  {name:'Ycfman',rank:'R3',tz:'',power:'93.2M'},{name:'Philib',rank:'R3',tz:'',power:'91.9M'},
+  {name:'Jake from state',rank:'R3',tz:'US',power:'88.7M'},{name:'Lord Kenn',rank:'R3',tz:'',power:'87.3M'},
+  {name:'LadyWarrior',rank:'R3',tz:'',power:'87.2M'},{name:'papaoutai',rank:'R3',tz:'EU',power:'87.6M'},
+  {name:'Dave',rank:'R3',tz:'',power:'87M'},{name:'SexyJesus',rank:'R3',tz:'',power:'85.7M'},
+  {name:'Kelmie',rank:'R3',tz:'',power:'85.1M'},{name:'Cbass',rank:'R3',tz:'US',power:'84.6M'},
+  {name:'TheProtectorMax',rank:'R3',tz:'',power:'83.6M'},{name:'Firewolf6050',rank:'R3',tz:'',power:'83.5M'},
+  {name:'MaThew',rank:'R3',tz:'EU',power:'83.3M'},{name:'MidnightHart',rank:'R3',tz:'',power:'81.6M'},
+  {name:'Phoceus',rank:'R3',tz:'EU',power:'80.7M'},{name:'Adi',rank:'R3',tz:'',power:'78.4M'},
+  {name:'daioharo',rank:'R3',tz:'',power:'78.1M'},{name:'My Lord',rank:'R3',tz:'',power:'77.6M'},
+  {name:'qwuack',rank:'R3',tz:'',power:'77.2M'},{name:'Dangercat',rank:'R3',tz:'',power:'76.1M'},
+  {name:'XAV | GEN85',rank:'R3',tz:'',power:'75.6M'},{name:'Tenogil',rank:'R3',tz:'',power:'75.5M'},
+  {name:'Papa Ezy',rank:'R3',tz:'',power:'75.4M'},{name:'Maudietta',rank:'R3',tz:'EU',power:'75M'},
+  {name:'Rahif',rank:'R3',tz:'',power:'74.5M'},{name:'Edison',rank:'R3',tz:'',power:'74M'},
+  {name:'BlkHwk131',rank:'R3',tz:'US',power:'73M'},{name:'ODY',rank:'R3',tz:'',power:'72M'},
+  {name:'Lord of hell',rank:'R3',tz:'',power:'71.5M'},{name:'Hasonn',rank:'R3',tz:'',power:'70.8M'},
+  {name:'JacekJKP',rank:'R3',tz:'EU',power:'70.3M'},{name:'Catsu Curry',rank:'R3',tz:'',power:'70.3M'},
+  {name:'EddyH',rank:'R3',tz:'',power:'69.8M'},{name:'seb',rank:'R3',tz:'EU',power:'68.2M'},
+  {name:'ViRu BoLtE',rank:'R3',tz:'',power:'67.9M'},{name:'ElisNM',rank:'R3',tz:'EU',power:'67M'},
+  {name:'mazellem',rank:'R3',tz:'EU',power:'65.2M'},{name:'Hamza16',rank:'R3',tz:'',power:'65.1M'},
+  {name:'Xemi',rank:'R3',tz:'',power:'64.6M'},{name:'Albator29',rank:'R3',tz:'EU',power:'64.3M'},
+  {name:'Elif',rank:'R3',tz:'EU',power:'64.2M'},{name:'Roddog',rank:'R3',tz:'US',power:'64.1M'},
+  {name:'Sludge Lord',rank:'R3',tz:'',power:'63.9M'},{name:'Maximus',rank:'R3',tz:'',power:'63.4M'},
+  {name:'RCH8',rank:'R3',tz:'US',power:'63.2M'},{name:'Dracaufeu',rank:'R3',tz:'EU',power:'62.5M'},
+  {name:'King Willy',rank:'R3',tz:'',power:'61.9M'},{name:'Zaza',rank:'R3',tz:'',power:'61.8M'},
+  {name:'XaTaR',rank:'R3',tz:'',power:'61.8M'},{name:'Tim_3110',rank:'R3',tz:'',power:'60.8M'},
+  {name:'Alex_Dr',rank:'R3',tz:'',power:'60.1M'},{name:'Arthas',rank:'R3',tz:'',power:'60.1M'},
+  {name:'Stan',rank:'R3',tz:'',power:'58.9M'},{name:'Anomie21',rank:'R3',tz:'',power:'58.4M'},
+  {name:'GoshiG',rank:'R3',tz:'',power:'58.3M'},{name:'D\u2020rkBlight',rank:'R3',tz:'',power:'57.2M'},
+  {name:'Mosya',rank:'R3',tz:'EU',power:'56.3M'},{name:'Korben Dallas',rank:'R3',tz:'EU',power:'56M'},
+  {name:'Darth Helmchen',rank:'R3',tz:'EU',power:'55.5M'},{name:'Roma',rank:'R3',tz:'EU',power:'54.6M'},
+  {name:'Letsgodonuts',rank:'R3',tz:'US',power:'53.4M'},{name:'Korotaku',rank:'R3',tz:'',power:'52.5M'},
+  {name:'Paul',rank:'R3',tz:'',power:'52.1M'},{name:'Schaba',rank:'R3',tz:'EU',power:'51.8M'},
+  {name:'Maiwu',rank:'R3',tz:'',power:'51.3M'},{name:'Clessin',rank:'R3',tz:'EU',power:'50.5M'},
+  {name:'RDMIFL',rank:'R3',tz:'',power:'47.9M'},{name:'Brad',rank:'R3',tz:'US',power:'46.9M'},
+  {name:'Vivi Utiyama',rank:'R3',tz:'',power:'45.3M'},{name:'Cindyloowho',rank:'R3',tz:'',power:'39.7M'},
+  {name:'GarTuLyl',rank:'R2',tz:'',power:'129.3M'},{name:'Oskie',rank:'R1',tz:'',power:'50.5M'},
 ];
 
-const INITIAL_EVENTS = [
-  'Swordland Shadow','Tri-Alliance Clash','Alliance Mobilization',
-  'Castle Battle','KvK','Feast','Fishing','Windward Voyage'
-];
+const INIT_EVENTS=['Swordland Shadow','Tri-Alliance Clash','Alliance Mobilization','Castle Battle','KvK','Feast','Fishing','Windward Voyage'];
 
 // ============================================================
-// FIREBASE INIT
+// FIREBASE
 // ============================================================
-window.addEventListener('firebase-ready', async () => {
-  db = window.__db;
-  fs = window.__fs;
+window.addEventListener('firebase-ready',async()=>{
+  db=window.__db; fs=window.__fs;
   await seedMembers();
   await seedEvents();
   await loadAll();
 });
 
-async function seedMembers() {
-  try {
-    const snap = await fs.getDocs(fs.collection(db,'members'));
-    const existingIds = new Set();
-    snap.forEach(d => existingIds.add(d.id));
-    for (const m of INITIAL_MEMBERS) {
-      const id = 'mbr_' + m.name.replace(/[^a-zA-Z0-9]/g,'_').toLowerCase();
-      if (!existingIds.has(id)) {
-        await fs.setDoc(fs.doc(db,'members',id), {
-          name:m.name, rank:m.rank, tz:m.tz||'',
-          basePower:m.power, currentPower:m.power,
-          powerUpdatedAt:Date.now(), notes:'', status:'active', addedAt:Date.now()
-        });
-      }
+async function seedMembers(){
+  try{
+    const snap=await fs.getDocs(fs.collection(db,'members'));
+    const ex=new Set(); snap.forEach(d=>ex.add(d.id));
+    for(const m of INITIAL_MEMBERS){
+      const id='mbr_'+m.name.replace(/[^a-zA-Z0-9]/g,'_').toLowerCase();
+      if(!ex.has(id)) await fs.setDoc(fs.doc(db,'members',id),{name:m.name,rank:m.rank,tz:m.tz||'',basePower:m.power,currentPower:m.power,powerUpdatedAt:Date.now(),notes:'',status:'active',onVacation:false,returnDate:'',addedAt:Date.now()});
     }
-  } catch(e) { console.error('seedMembers',e); }
+  }catch(e){console.error(e);}
 }
 
-async function seedEvents() {
-  try {
-    const today = new Date().toISOString().split('T')[0];
-    for (const name of INITIAL_EVENTS) {
-      const id = 'ev_def_' + name.replace(/[^a-zA-Z0-9]/g,'_').toLowerCase();
-      const existing = await fs.getDoc(fs.doc(db,'events',id));
-      if (!existing.exists()) {
-        await fs.setDoc(fs.doc(db,'events',id), {
-          name, date:today, participation:{}, createdAt:Date.now(), createdBy:'system'
-        });
-      }
+async function seedEvents(){
+  try{
+    const today=new Date().toISOString().split('T')[0];
+    for(const name of INIT_EVENTS){
+      const id='ev_def_'+name.replace(/[^a-zA-Z0-9]/g,'_').toLowerCase();
+      const ex=await fs.getDoc(fs.doc(db,'events',id));
+      if(!ex.exists()) await fs.setDoc(fs.doc(db,'events',id),{name,date:today,participation:{},createdAt:Date.now()});
     }
-  } catch(e) { console.error('seedEvents',e); }
+  }catch(e){console.error(e);}
 }
 
-async function loadAll() {
-  await loadMembers();
-  await loadEvents();
-  await loadBearEvents();
-  await loadPowerHistory();
-  renderCurrentPage();
+async function loadAll(){
+  await Promise.all([loadMembers(),loadEvents(),loadBears(),loadPowerSnaps()]);
+  renderCurrent();
 }
 
-async function loadMembers() {
-  try {
-    const snap = await fs.getDocs(fs.collection(db,'members'));
-    members = [];
-    snap.forEach(d => members.push({id:d.id,...d.data()}));
-    members.sort((a,b) => {
-      const ro = ['R5','R4','R3','R2','R1'];
-      return ro.indexOf(a.rank)-ro.indexOf(b.rank) || a.name.localeCompare(b.name);
-    });
-    populatePowerSelect();
-  } catch(e) { console.error(e); }
+async function loadMembers(){
+  const snap=await fs.getDocs(fs.collection(db,'members'));
+  members=[];
+  snap.forEach(d=>members.push({id:d.id,...d.data()}));
+  members.sort((a,b)=>{const ro=['R5','R4','R3','R2','R1'];return ro.indexOf(a.rank)-ro.indexOf(b.rank)||a.name.localeCompare(b.name);});
+  // Check vacation expiry
+  const today=new Date().toISOString().split('T')[0];
+  for(const m of members){
+    if(m.onVacation&&m.returnDate&&m.returnDate<today){
+      await fs.setDoc(fs.doc(db,'members',m.id),{onVacation:false},{merge:true});
+      m.onVacation=false;
+    }
+  }
+  populatePowerSelect();
 }
 
-async function loadEvents() {
-  try {
-    const snap = await fs.getDocs(fs.collection(db,'events'));
-    events = [];
-    snap.forEach(d => events.push({id:d.id,...d.data()}));
-    events.sort((a,b) => b.date.localeCompare(a.date));
-  } catch(e) { console.error(e); }
+async function loadEvents(){
+  const snap=await fs.getDocs(fs.collection(db,'events'));
+  events=[]; snap.forEach(d=>events.push({id:d.id,...d.data()}));
+  events.sort((a,b)=>b.date.localeCompare(a.date));
 }
 
-async function loadBearEvents() {
-  try {
-    const snap = await fs.getDocs(fs.collection(db,'bear'));
-    bearEvents = [];
-    snap.forEach(d => bearEvents.push({id:d.id,...d.data()}));
-    bearEvents.sort((a,b) => b.date.localeCompare(a.date));
-  } catch(e) { console.error(e); }
+async function loadBears(){
+  const snap=await fs.getDocs(fs.collection(db,'bear'));
+  bearEvents=[]; snap.forEach(d=>bearEvents.push({id:d.id,...d.data()}));
+  bearEvents.sort((a,b)=>b.date.localeCompare(a.date));
 }
 
-async function loadPowerHistory() {
-  try {
-    const snap = await fs.getDocs(fs.collection(db,'power'));
-    powerHistory = {};
-    snap.forEach(d => {
-      const data = d.data();
-      if (data.entries) {
-        Object.entries(data.entries).forEach(([mid,val]) => {
-          if (!powerHistory[mid]) powerHistory[mid] = [];
-          powerHistory[mid].push({week:data.weekLabel, value:val, savedAt:data.savedAt});
-        });
-      }
-    });
-    Object.values(powerHistory).forEach(arr => arr.sort((a,b)=>a.savedAt-b.savedAt));
-  } catch(e) { console.error(e); }
+async function loadPowerSnaps(){
+  const snap=await fs.getDocs(fs.collection(db,'power'));
+  powerSnaps=[]; snap.forEach(d=>powerSnaps.push({id:d.id,...d.data()}));
+  powerSnaps.sort((a,b)=>a.savedAt-b.savedAt);
 }
 
 // ============================================================
 // NAV
 // ============================================================
-function showPage(name) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+function goPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
-  const nb = document.getElementById('nav-'+name);
-  if (nb) nb.classList.add('active');
-  currentPage = name;
-  renderCurrentPage();
+  const nb=document.getElementById('nav-'+name);
+  if(nb) nb.classList.add('active');
+  curPage=name;
+  renderCurrent();
 }
 
-function renderCurrentPage() {
-  if (currentPage==='events') renderEvents();
-  else if (currentPage==='bear') renderBear();
-  else if (currentPage==='power') renderPower();
-  else if (currentPage==='members') renderMembers();
-}
-
-function backToEvents() {
-  showPage('events');
+function renderCurrent(){
+  if(curPage==='events') renderEvents();
+  else if(curPage==='bear') renderBear();
+  else if(curPage==='power') renderPower();
+  else if(curPage==='members') renderMembers();
 }
 
 // ============================================================
 // EVENTS
 // ============================================================
-function renderEvents() {
-  const el = document.getElementById('events-list');
-  const now = new Date();
-  const weekAgo = new Date(now-7*24*60*60*1000).toISOString().split('T')[0];
-  document.getElementById('stat-total').textContent = events.length;
-  document.getElementById('stat-week').textContent = events.filter(e=>e.date>=weekAgo).length;
-  if (!events.length) { el.innerHTML=`<div class="empty-state">No events yet. Tap + to add.</div>`; return; }
-  const activeM = members.filter(m=>m.status!=='inactive');
+function renderEvents(){
+  const activeM=activeMembers();
+  const weekAgo=new Date(Date.now()-7*24*60*60*1000).toISOString().split('T')[0];
+  document.getElementById('s-total').textContent=events.length;
+  document.getElementById('s-week').textContent=events.filter(e=>e.date>=weekAgo).length;
+  if(!events.length){document.getElementById('events-list').innerHTML=`<div class="empty">No events yet. Tap + to add.</div>`;return;}
   let html='';
   events.forEach(ev=>{
     const p=ev.participation||{};
     const yes=Object.values(p).filter(v=>v==='yes').length;
-    const total=activeM.length||1;
-    const pct=Math.round(yes/total*100);
-    const dname=translateEventName(ev.name);
-    html+=`<div class="event-item" onclick="openEvent('${ev.id}')">
+    const tot=activeM.length||1;
+    const pct=Math.round(yes/tot*100);
+    const dn=tev(ev.name);
+    html+=`<div class="eitem" onclick="openEvent('${ev.id}')">
       <div style="flex:1;min-width:0">
-        <div style="font-family:'Rajdhani',sans-serif;font-weight:600;font-size:15px">${dname}</div>
-        <div style="color:var(--text3);font-size:11px;margin-top:2px">${fmtDate(ev.date)}</div>
-        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
-        <div style="font-size:11px;color:var(--text3);margin-top:2px">${yes}/${total} • ${pct}%</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14px">${dn}</div>
+        <div style="color:var(--text3);font-size:10px;margin-top:1px">${fd(ev.date)}</div>
+        <div class="pb"><div class="pf" style="width:${pct}%"></div></div>
+        <div style="font-size:10px;color:var(--text3);margin-top:2px">${yes}/${tot} • ${pct}%</div>
       </div>
-      <span class="event-tag">${dname.substring(0,8).toUpperCase()}</span>
+      <span class="etag">${dn.substring(0,7).toUpperCase()}</span>
     </div>`;
   });
-  el.innerHTML=html;
+  document.getElementById('events-list').innerHTML=html;
 }
 
-function openEvent(id) {
-  currentEventId=id;
+function openEvent(id){
+  curEId=id;
   const ev=events.find(e=>e.id===id);
-  if (!ev) return;
-  currentEventParticipation={...(ev.participation||{})};
-  document.getElementById('detail-name').textContent=translateEventName(ev.name);
-  document.getElementById('detail-date').textContent=fmtDate(ev.date);
-  document.getElementById('detail-search').value='';
-  currentPage='event-detail';
+  if(!ev) return;
+  curEPart={...(ev.participation||{})};
+  document.getElementById('ed-name').textContent=tev(ev.name);
+  document.getElementById('ed-date').textContent=fd(ev.date);
+  document.getElementById('ed-search').value='';
+  curPage='edetail';
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('page-event-detail').classList.add('active');
-  renderDetail();
+  document.getElementById('page-edetail').classList.add('active');
+  renderEDetail();
 }
 
-function renderDetail(filter='') {
-  const activeM=members.filter(m=>m.status!=='inactive');
-  const filtered=activeM.filter(m=>m.name.toLowerCase().includes(filter.toLowerCase()));
-  const yes=Object.values(currentEventParticipation).filter(v=>v==='yes').length;
-  const no=Object.values(currentEventParticipation).filter(v=>v==='no').length;
-  const pending=activeM.length-yes-no;
-  document.getElementById('detail-yes').textContent=`✓ ${yes} ${s('participated')}`;
-  document.getElementById('detail-no').textContent=`✗ ${no} ${s('absent')}`;
-  document.getElementById('detail-pending').textContent=`? ${pending} ${s('pending')}`;
-  const pct=activeM.length?Math.round(yes/activeM.length*100):0;
-  document.getElementById('detail-prog').style.width=pct+'%';
+function renderEDetail(){
+  const q=document.getElementById('ed-search').value.toLowerCase();
+  const am=activeMembers().filter(m=>m.name.toLowerCase().includes(q));
+  const yes=Object.values(curEPart).filter(v=>v==='yes').length;
+  const no=Object.values(curEPart).filter(v=>v==='no').length;
+  const pend=activeMembers().length-yes-no;
+  document.getElementById('ed-yes').textContent=`✓ ${yes} participated`;
+  document.getElementById('ed-no').textContent=`✗ ${no} absent`;
+  document.getElementById('ed-pend').textContent=`? ${pend} pending`;
+  const pct=activeMembers().length?Math.round(yes/activeMembers().length*100):0;
+  document.getElementById('ed-prog').style.width=pct+'%';
   let html='';
-  filtered.forEach(m=>{
-    const st=currentEventParticipation[m.id]||'pending';
-    const tzb=m.tz?`<span class="tz-badge tz-${m.tz.toLowerCase()}">${m.tz}</span>`:'';
-    html+=`<div class="member-row">
-      <div style="flex:1;min-width:0;display:flex;align-items:center;flex-wrap:wrap;gap:3px">
-        <span style="font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14px">${m.name}</span>${tzb}
+  am.forEach(m=>{
+    const st=curEPart[m.id]||'pending';
+    const tzb=m.tz?`<span class="tz-b tz-${m.tz.toLowerCase()}">${m.tz}</span>`:'';
+    html+=`<div class="mrow">
+      <div style="flex:1;min-width:0;display:flex;align-items:center;gap:3px;flex-wrap:wrap">
+        <span style="font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px">${m.name}</span>${tzb}
       </div>
-      <div class="toggle-group">
-        <button class="toggle-btn ${st==='yes'?'yes':''}" onclick="setParticipation('${m.id}','yes')">✓</button>
-        <button class="toggle-btn ${st==='no'?'no':''}" onclick="setParticipation('${m.id}','no')">✗</button>
+      <div class="tgrp">
+        <button class="tbtn ${st==='yes'?'yes':''}" onclick="setEP('${m.id}','yes')">✓</button>
+        <button class="tbtn ${st==='no'?'no':''}" onclick="setEP('${m.id}','no')">✗</button>
       </div>
     </div>`;
   });
-  document.getElementById('detail-list').innerHTML=html||`<div class="empty-state">No members</div>`;
+  document.getElementById('ed-list').innerHTML=html||`<div class="empty">No members</div>`;
 }
 
-function filterDetail() { renderDetail(document.getElementById('detail-search').value); }
-
-async function setParticipation(mid, status) {
-  if (currentEventParticipation[mid]===status) delete currentEventParticipation[mid];
-  else currentEventParticipation[mid]=status;
-  renderDetail(document.getElementById('detail-search').value);
-  await fs.setDoc(fs.doc(db,'events',currentEventId),{participation:currentEventParticipation,lastEditedAt:Date.now()},{merge:true});
-  const idx=events.findIndex(e=>e.id===currentEventId);
-  if (idx>=0) events[idx].participation={...currentEventParticipation};
+async function setEP(mid,st){
+  if(curEPart[mid]===st) delete curEPart[mid]; else curEPart[mid]=st;
+  renderEDetail();
+  await fs.setDoc(fs.doc(db,'events',curEId),{participation:curEPart,lastEditAt:Date.now()},{merge:true});
+  const i=events.findIndex(e=>e.id===curEId); if(i>=0) events[i].participation={...curEPart};
 }
 
-async function markAll(status) {
-  members.filter(m=>m.status!=='inactive').forEach(m=>{currentEventParticipation[m.id]=status;});
-  renderDetail(document.getElementById('detail-search').value);
-  await fs.setDoc(fs.doc(db,'events',currentEventId),{participation:currentEventParticipation,lastEditedAt:Date.now()},{merge:true});
-  const idx=events.findIndex(e=>e.id===currentEventId);
-  if (idx>=0) events[idx].participation={...currentEventParticipation};
-}
+async function markAllE(st){activeMembers().forEach(m=>{curEPart[m.id]=st;});renderEDetail();await fs.setDoc(fs.doc(db,'events',curEId),{participation:curEPart,lastEditAt:Date.now()},{merge:true});const i=events.findIndex(e=>e.id===curEId);if(i>=0)events[i].participation={...curEPart};}
+async function clearAllE(){curEPart={};renderEDetail();await fs.setDoc(fs.doc(db,'events',curEId),{participation:{},lastEditAt:Date.now()},{merge:true});const i=events.findIndex(e=>e.id===curEId);if(i>=0)events[i].participation={};}
+async function delEvent(){if(!confirm('Delete this event?'))return;await fs.deleteDoc(fs.doc(db,'events',curEId));await loadEvents();goPage('events');toast('DELETED');}
 
-async function clearAll() {
-  currentEventParticipation={};
-  renderDetail(document.getElementById('detail-search').value);
-  await fs.setDoc(fs.doc(db,'events',currentEventId),{participation:{},lastEditedAt:Date.now()},{merge:true});
-  const idx=events.findIndex(e=>e.id===currentEventId);
-  if (idx>=0) events[idx].participation={};
-}
+function toggleCE(){document.getElementById('ne-custom').style.display=document.getElementById('ne-type').value==='custom'?'block':'none';}
 
-async function deleteCurrentEvent() {
-  if (!confirm('Delete this event?')) return;
-  await fs.deleteDoc(fs.doc(db,'events',currentEventId));
-  await loadEvents();
-  showPage('events');
-  showToast('DELETED');
-}
-
-function openAddEventModal() {
-  document.getElementById('new-event-date').value=new Date().toISOString().split('T')[0];
-  document.getElementById('new-event-custom').style.display='none';
-  document.getElementById('modal-add-event').classList.add('open');
-}
-
-function toggleCustomEvent() {
-  const v=document.getElementById('new-event-type').value;
-  document.getElementById('new-event-custom').style.display=v==='custom'?'block':'none';
-}
-
-async function addEvent() {
-  let name=document.getElementById('new-event-type').value;
-  if (name==='custom') { name=document.getElementById('new-event-custom').value.trim(); if(!name)return; }
-  const date=document.getElementById('new-event-date').value||new Date().toISOString().split('T')[0];
-  // Duplicate check
-  const dup=events.find(e=>e.name===name&&e.date===date);
-  if (dup) { showToast('DUPLICATE EVENT'); closeModal('modal-add-event'); return; }
+async function addEvent(){
+  let name=document.getElementById('ne-type').value;
+  if(name==='custom'){name=document.getElementById('ne-custom').value.trim();if(!name)return;}
+  const date=document.getElementById('ne-date').value||new Date().toISOString().split('T')[0];
+  if(events.find(e=>e.name===name&&e.date===date)){toast('DUPLICATE EVENT');closeModal('modal-add-event');return;}
   const id='ev_'+Date.now();
-  await fs.setDoc(fs.doc(db,'events',id),{name,date,participation:{},createdAt:Date.now(),createdBy:'council'});
-  await loadEvents();
-  closeModal('modal-add-event');
-  showToast('ADDED ✓');
-  renderEvents();
+  await fs.setDoc(fs.doc(db,'events',id),{name,date,participation:{},createdAt:Date.now()});
+  await loadEvents(); closeModal('modal-add-event'); toast('ADDED ✓'); renderEvents();
 }
 
 // ============================================================
 // BEAR
 // ============================================================
-function setBearFilter(f) {
-  bearFilter=f;
-  document.getElementById('bear-eu-btn').className='bear-tab-btn'+(f==='EU'?' active-eu':'');
-  document.getElementById('bear-us-btn').className='bear-tab-btn'+(f==='US'?' active-us':'');
-  document.getElementById('bear-all-btn').className='bear-tab-btn'+(f==='ALL'?' active-eu':'');
+function setBF(f){
+  bFilter=f;
+  ['EU','US','ALL'].forEach(x=>{const b=document.getElementById('bf-'+x.toLowerCase());if(b)b.className='btab f1'+(x==='ALL'?'':' f1');});
+  document.getElementById('bf-eu').className='btab f1'+(f==='EU'?' aeu':'');
+  document.getElementById('bf-us').className='btab f1'+(f==='US'?' aus':'');
+  document.getElementById('bf-all').className='btab f1'+(f==='ALL'?' aeu':'')+' ';
   renderBear();
 }
 
-function renderBear() {
-  const el=document.getElementById('bear-list');
-  const filtered=bearFilter==='ALL'?bearEvents:bearEvents.filter(b=>b.region===bearFilter);
-  if (!filtered.length) { el.innerHTML=`<div class="empty-state">No Bear events for ${bearFilter==='ALL'?'any region':bearFilter}. Tap + to add.</div>`; return; }
-  const activeM=members.filter(m=>m.status!=='inactive');
+function renderBear(){
+  const filtered=bFilter==='ALL'?bearEvents:bearEvents.filter(b=>b.region===bFilter);
+  const am=activeMembers();
+  if(!filtered.length){document.getElementById('bear-list').innerHTML=`<div class="empty">No Bear events. Tap + to add.</div>`;return;}
   let html='';
   filtered.forEach(b=>{
     const p=b.participation||{};
     const yes=Object.values(p).filter(v=>v==='yes').length;
-    const total=activeM.length||1;
-    const pct=Math.round(yes/total*100);
+    const pct=Math.round(yes/(am.length||1)*100);
     const cls=b.region==='EU'?'eu':'us';
-    html+=`<div class="event-item" onclick="openBear('${b.id}')">
+    html+=`<div class="eitem" onclick="openBear('${b.id}')">
       <div style="flex:1;min-width:0">
-        <div style="font-family:'Rajdhani',sans-serif;font-weight:600;font-size:15px">${translateEventName('Bear Event')} — ${b.region}</div>
-        <div style="color:var(--text3);font-size:11px;margin-top:2px">${fmtDate(b.date)}</div>
-        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
-        <div style="font-size:11px;color:var(--text3);margin-top:2px">${yes}/${total} • ${pct}%</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14px">${tev('Bear Event')} — ${b.region}</div>
+        <div style="color:var(--text3);font-size:10px;margin-top:1px">${fd(b.date)}</div>
+        <div class="pb"><div class="pf" style="width:${pct}%"></div></div>
+        <div style="font-size:10px;color:var(--text3);margin-top:2px">${yes}/${am.length} • ${pct}%</div>
       </div>
-      <span class="event-tag ${cls}">${b.region}</span>
+      <span class="etag ${cls}">${b.region}</span>
     </div>`;
   });
-  el.innerHTML=html;
+  document.getElementById('bear-list').innerHTML=html;
 }
 
-function openBear(id) {
-  currentBearId=id;
-  const b=bearEvents.find(x=>x.id===id);
-  if (!b) return;
-  currentBearParticipation={...(b.participation||{})};
-  document.getElementById('bear-detail-name').textContent=`${translateEventName('Bear Event')} — ${b.region}`;
-  document.getElementById('bear-detail-date').textContent=fmtDate(b.date);
-  document.getElementById('bear-search').value='';
+function openBear(id){
+  curBId=id; const b=bearEvents.find(x=>x.id===id); if(!b)return;
+  curBPart={...(b.participation||{})};
+  document.getElementById('bd-name').textContent=`${tev('Bear Event')} — ${b.region}`;
+  document.getElementById('bd-date').textContent=fd(b.date);
+  document.getElementById('bd-search').value='';
+  curPage='bdetail';
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('page-bear-detail').classList.add('active');
-  renderBearDetail();
+  document.getElementById('page-bdetail').classList.add('active');
+  renderBDetail();
 }
 
-function renderBearDetail(filter='') {
-  const b=bearEvents.find(x=>x.id===currentBearId);
-  const activeM=members.filter(m=>m.status!=='inactive');
-  const filtered=activeM.filter(m=>m.name.toLowerCase().includes(filter.toLowerCase()));
-  const yes=Object.values(currentBearParticipation).filter(v=>v==='yes').length;
-  const no=Object.values(currentBearParticipation).filter(v=>v==='no').length;
-  document.getElementById('bear-detail-yes').textContent=`✓ ${yes} ${s('participated')}`;
-  document.getElementById('bear-detail-no').textContent=`✗ ${no} ${s('absent')}`;
-  const pct=activeM.length?Math.round(yes/activeM.length*100):0;
-  document.getElementById('bear-detail-prog').style.width=pct+'%';
+function renderBDetail(){
+  const q=document.getElementById('bd-search').value.toLowerCase();
+  const am=activeMembers().filter(m=>m.name.toLowerCase().includes(q));
+  const yes=Object.values(curBPart).filter(v=>v==='yes').length;
+  const no=Object.values(curBPart).filter(v=>v==='no').length;
+  const am2=activeMembers();
+  document.getElementById('bd-yes').textContent=`✓ ${yes} participated`;
+  document.getElementById('bd-no').textContent=`✗ ${no} absent`;
+  const pct=am2.length?Math.round(yes/am2.length*100):0;
+  document.getElementById('bd-prog').style.width=pct+'%';
   let html='';
-  filtered.forEach(m=>{
-    const st=currentBearParticipation[m.id]||'pending';
-    const tzb=m.tz?`<span class="tz-badge tz-${m.tz.toLowerCase()}">${m.tz}</span>`:'';
-    html+=`<div class="member-row">
+  am.forEach(m=>{
+    const st=curBPart[m.id]||'pending';
+    const tzb=m.tz?`<span class="tz-b tz-${m.tz.toLowerCase()}">${m.tz}</span>`:'';
+    html+=`<div class="mrow">
       <div style="flex:1;min-width:0;display:flex;align-items:center;gap:3px">
-        <span style="font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14px">${m.name}</span>${tzb}
+        <span style="font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px">${m.name}</span>${tzb}
       </div>
-      <div class="toggle-group">
-        <button class="toggle-btn ${st==='yes'?'yes':''}" onclick="setBearP('${m.id}','yes')">✓</button>
-        <button class="toggle-btn ${st==='no'?'no':''}" onclick="setBearP('${m.id}','no')">✗</button>
+      <div class="tgrp">
+        <button class="tbtn ${st==='yes'?'yes':''}" onclick="setBP('${m.id}','yes')">✓</button>
+        <button class="tbtn ${st==='no'?'no':''}" onclick="setBP('${m.id}','no')">✗</button>
       </div>
     </div>`;
   });
-  document.getElementById('bear-detail-list').innerHTML=html;
+  document.getElementById('bd-list').innerHTML=html;
 }
 
-function filterBearDetail() { renderBearDetail(document.getElementById('bear-search').value); }
-
-async function setBearP(mid,status) {
-  if (currentBearParticipation[mid]===status) delete currentBearParticipation[mid];
-  else currentBearParticipation[mid]=status;
-  renderBearDetail(document.getElementById('bear-search').value);
-  await fs.setDoc(fs.doc(db,'bear',currentBearId),{participation:currentBearParticipation,lastEditedAt:Date.now()},{merge:true});
-  const idx=bearEvents.findIndex(e=>e.id===currentBearId);
-  if (idx>=0) bearEvents[idx].participation={...currentBearParticipation};
+async function setBP(mid,st){
+  if(curBPart[mid]===st) delete curBPart[mid]; else curBPart[mid]=st;
+  renderBDetail();
+  await fs.setDoc(fs.doc(db,'bear',curBId),{participation:curBPart,lastEditAt:Date.now()},{merge:true});
+  const i=bearEvents.findIndex(e=>e.id===curBId); if(i>=0)bearEvents[i].participation={...curBPart};
 }
 
-async function markBearAll(status) {
-  members.filter(m=>m.status!=='inactive').forEach(m=>{currentBearParticipation[m.id]=status;});
-  renderBearDetail();
-  await fs.setDoc(fs.doc(db,'bear',currentBearId),{participation:currentBearParticipation,lastEditedAt:Date.now()},{merge:true});
-}
+async function markAllB(st){activeMembers().forEach(m=>{curBPart[m.id]=st;});renderBDetail();await fs.setDoc(fs.doc(db,'bear',curBId),{participation:curBPart,lastEditAt:Date.now()},{merge:true});}
+async function clearAllB(){curBPart={};renderBDetail();await fs.setDoc(fs.doc(db,'bear',curBId),{participation:{},lastEditAt:Date.now()},{merge:true});}
+async function delBear(){if(!confirm('Delete?'))return;await fs.deleteDoc(fs.doc(db,'bear',curBId));await loadBears();goPage('bear');toast('DELETED');}
 
-async function clearBearAll() {
-  currentBearParticipation={};
-  renderBearDetail();
-  await fs.setDoc(fs.doc(db,'bear',currentBearId),{participation:{},lastEditedAt:Date.now()},{merge:true});
-}
+function selBR(r){document.getElementById('nb-region').value=r;document.getElementById('bm-eu').className='btab f1'+(r==='EU'?' aeu':'');document.getElementById('bm-us').className='btab f1'+(r==='US'?' aus':'');}
 
-async function deleteCurrentBear() {
-  if (!confirm('Delete this Bear event?')) return;
-  await fs.deleteDoc(fs.doc(db,'bear',currentBearId));
-  await loadBearEvents();
-  showPage('bear');
-  showToast('DELETED');
-}
-
-function openAddBearModal() {
-  document.getElementById('new-bear-date').value=new Date().toISOString().split('T')[0];
-  selectBearRegion('EU');
-  document.getElementById('modal-add-bear').classList.add('open');
-}
-
-function selectBearRegion(r) {
-  document.getElementById('new-bear-region').value=r;
-  document.getElementById('bear-modal-eu').className='bear-tab-btn flex-1'+(r==='EU'?' active-eu':'');
-  document.getElementById('bear-modal-us').className='bear-tab-btn flex-1'+(r==='US'?' active-us':'');
-}
-
-async function addBearEvent() {
-  const region=document.getElementById('new-bear-region').value;
-  const date=document.getElementById('new-bear-date').value||new Date().toISOString().split('T')[0];
-  const dup=bearEvents.find(b=>b.region===region&&b.date===date);
-  if (dup) { showToast('DUPLICATE'); closeModal('modal-add-bear'); return; }
+async function addBear(){
+  const region=document.getElementById('nb-region').value;
+  const date=document.getElementById('nb-date').value||new Date().toISOString().split('T')[0];
+  if(bearEvents.find(b=>b.region===region&&b.date===date)){toast('DUPLICATE');closeModal('modal-add-bear');return;}
   const id='bear_'+Date.now();
   await fs.setDoc(fs.doc(db,'bear',id),{region,date,participation:{},createdAt:Date.now()});
-  await loadBearEvents();
-  closeModal('modal-add-bear');
-  showToast('ADDED ✓');
-  renderBear();
+  await loadBears(); closeModal('modal-add-bear'); toast('ADDED ✓'); renderBear();
 }
 
 // ============================================================
 // POWER
 // ============================================================
-function renderPower(filter='') {
-  const el=document.getElementById('power-list');
-  const twoWeeksAgo=Date.now()-14*24*60*60*1000;
-  // Sort by current power descending
+function renderPower(filter){
+  const q=(filter!==undefined?filter:document.getElementById('pw-search').value).toLowerCase();
+  const tw=Date.now()-14*24*60*60*1000;
   const sorted=[...members].sort((a,b)=>{
-    const av=parseFloat((a.currentPower||'0').replace('M',''))||0;
-    const bv=parseFloat((b.currentPower||'0').replace('M',''))||0;
+    const av=parseFloat((a.currentPower||'0').replace(/[^0-9.]/g,''))||0;
+    const bv=parseFloat((b.currentPower||'0').replace(/[^0-9.]/g,''))||0;
     return bv-av;
-  });
-  const filtered=sorted.filter(m=>m.name.toLowerCase().includes(filter.toLowerCase()));
+  }).filter(m=>m.name.toLowerCase().includes(q));
   let html='';
-  filtered.forEach((m,i)=>{
-    const rc=rankClass(m.rank);
-    const prev=powerHistory[m.id]&&powerHistory[m.id].length>1?powerHistory[m.id][powerHistory[m.id].length-2]:null;
-    const cur=parseFloat((m.currentPower||'0').replace(/[^0-9.]/g,''))||0;
-    const prv=prev?parseFloat((prev.value||'0').replace(/[^0-9.]/g,''))||0:0;
+  sorted.forEach(m=>{
+    const rc=rk(m.rank);
+    const mSnaps=powerSnaps.filter(s=>s.entries&&s.entries[m.id]);
     let trend='';
-    if (prev) trend=cur>prv?'<span style="color:var(--green)">↑</span>':cur<prv?'<span style="color:var(--red)">↓</span>':'<span style="color:var(--text3)">—</span>';
-    const stale=m.powerUpdatedAt&&m.powerUpdatedAt<twoWeeksAgo?`<span class="power-stale">${s('stale')}</span>`:'';
-    const tzb=m.tz?`<span class="tz-badge tz-${m.tz.toLowerCase()}">${m.tz}</span>`:'';
-    html+=`<div class="power-row">
-      <span class="power-rank ${rc}">${m.rank}</span>
-      <span class="power-name">${m.name}${tzb}</span>
-      <span class="power-trend">${trend}</span>
-      <span class="power-val">${m.currentPower||'—'}${stale}</span>
-      <input class="power-input-sm" type="text" placeholder="New" data-mid="${m.id}" value="">
+    if(mSnaps.length>=2){
+      const cur=parseFloat((mSnaps[mSnaps.length-1].entries[m.id]||'0').replace(/[^0-9.]/g,''))||0;
+      const prv=parseFloat((mSnaps[mSnaps.length-2].entries[m.id]||'0').replace(/[^0-9.]/g,''))||0;
+      trend=cur>prv?'<span style="color:var(--green)">↑</span>':cur<prv?'<span style="color:var(--red)">↓</span>':'<span style="color:var(--text3)">—</span>';
+    }
+    const stale=m.powerUpdatedAt&&m.powerUpdatedAt<tw?'<span style="font-size:9px;color:var(--orange);margin-left:3px">⚠️</span>':'';
+    const tzb=m.tz?`<span class="tz-b tz-${m.tz.toLowerCase()}">${m.tz}</span>`:'';
+    html+=`<div class="prow">
+      <span class="prk ${rc}">${m.rank}</span>
+      <span class="pname">${m.name}${tzb}</span>
+      <span class="ptrend">${trend}</span>
+      <span class="pval">${m.currentPower||'—'}${stale}</span>
+      <input class="pinp" type="text" placeholder="New" data-mid="${m.id}">
     </div>`;
   });
-  el.innerHTML=html||`<div class="empty-state">No members</div>`;
+  document.getElementById('power-list').innerHTML=html||`<div class="empty">No members</div>`;
 }
 
-function filterPower() { renderPower(document.getElementById('power-search').value); }
-
-async function savePowerSnapshot() {
-  const weekLabel=document.getElementById('power-week').value.trim()||'Week '+new Date().toISOString().split('T')[0];
-  const inputs=document.querySelectorAll('.power-input-sm[data-mid]');
+async function savePower(){
+  const wk=document.getElementById('pw-week').value.trim()||'Week '+new Date().toISOString().split('T')[0];
+  const inputs=document.querySelectorAll('.pinp[data-mid]');
   const entries={};
-  const updates=[];
-  inputs.forEach(inp=>{
-    const val=inp.value.trim();
-    const mid=inp.getAttribute('data-mid');
-    if (val) {
-      entries[mid]=val;
-      updates.push(fs.setDoc(fs.doc(db,'members',mid),{currentPower:val,powerUpdatedAt:Date.now()},{merge:true}));
-    }
-  });
-  if (!Object.keys(entries).length) { showToast('NO DATA ENTERED'); return; }
-  await Promise.all(updates);
-  await fs.setDoc(fs.doc(db,'power','snap_'+Date.now()),{weekLabel,entries,savedAt:Date.now()});
-  await loadMembers();
-  await loadPowerHistory();
-  renderPower();
-  showToast('SAVED ✓');
+  inputs.forEach(i=>{if(i.value.trim()) entries[i.getAttribute('data-mid')]=i.value.trim();});
+  if(!Object.keys(entries).length){toast('NO DATA');return;}
+  const ups=Object.entries(entries).map(([id,val])=>fs.setDoc(fs.doc(db,'members',id),{currentPower:val,powerUpdatedAt:Date.now()},{merge:true}));
+  await Promise.all(ups);
+  await fs.setDoc(fs.doc(db,'power','snap_'+Date.now()),{weekLabel:wk,entries,savedAt:Date.now()});
+  await loadMembers(); await loadPowerSnaps();
+  renderPower(); toast('SAVED ✓');
 }
 
-function populatePowerSelect() {
-  const sel=document.getElementById('power-report-member');
-  if (!sel) return;
-  sel.innerHTML=`<option value="all">${s('opt_all_members')}</option>`;
-  members.forEach(m=>{ sel.innerHTML+=`<option value="${m.id}">${m.name}</option>`; });
+function populatePowerSelect(){
+  const sel=document.getElementById('rp-power-member');
+  if(!sel)return;
+  sel.innerHTML='<option value="all">All Members</option>';
+  members.forEach(m=>{sel.innerHTML+=`<option value="${m.id}">${m.name}</option>`;});
 }
 
 // ============================================================
 // REPORTS
 // ============================================================
-async function generateEventReport() {
-  const period=document.getElementById('report-period').value;
+function activeMembers(){
+  const today=new Date().toISOString().split('T')[0];
+  return members.filter(m=>m.status!=='inactive'&&!(m.onVacation&&m.returnDate&&m.returnDate>today));
+}
+
+function genEventReport(){
+  const period=document.getElementById('rp-period').value;
   const now=new Date();
   let since=null;
-  if (period==='week') since=new Date(now-7*24*60*60*1000).toISOString().split('T')[0];
-  else if (period==='month') since=new Date(now.getFullYear(),now.getMonth(),1).toISOString().split('T')[0];
-  const filtered=since?events.filter(e=>e.date>=since):events;
-  const activeM=members.filter(m=>m.status!=='inactive');
-  if (!filtered.length) { showReport('event-report-out','No events in this period.'); return; }
+  if(period==='week') since=new Date(now-7*24*60*60*1000).toISOString().split('T')[0];
+  else if(period==='month') since=new Date(now.getFullYear(),now.getMonth(),1).toISOString().split('T')[0];
+  else if(period==='lastmonth'){
+    const lm=new Date(now.getFullYear(),now.getMonth()-1,1);
+    const lme=new Date(now.getFullYear(),now.getMonth(),0);
+    since=lm.toISOString().split('T')[0];
+    const until=lme.toISOString().split('T')[0];
+    genEventReportRange(since,until,period); return;
+  }
+  genEventReportRange(since,null,period);
+}
+
+function genEventReportRange(since,until,period){
+  let filtered=since?events.filter(e=>e.date>=since):events;
+  if(until) filtered=filtered.filter(e=>e.date<=until);
+  const am=activeMembers();
+  if(!filtered.length){showRpt('rp-event-out','No events in this period.');return;}
+
   const counts={};
-  activeM.forEach(m=>{counts[m.id]={name:m.name,rank:m.rank,yes:0,missed:[],consecutive:0,lastStatus:null};});
-  filtered.forEach(ev=>{
+  am.forEach(m=>{counts[m.id]={name:m.name,rank:m.rank,yes:0,missed:[],consec:0};});
+
+  // Sort events by date ascending for consecutive logic
+  const sortedEvs=[...filtered].sort((a,b)=>a.date.localeCompare(b.date));
+  sortedEvs.forEach(ev=>{
     const p=ev.participation||{};
-    const evName=translateEventName(ev.name);
-    activeM.forEach(m=>{
-      if (!counts[m.id]) return;
+    const dn=tev(ev.name);
+    am.forEach(m=>{
+      if(!counts[m.id])return;
       const st=p[m.id];
-      if (st==='yes') { counts[m.id].yes++; counts[m.id].consecutive=0; counts[m.id].lastStatus='yes'; }
-      else if (st==='no') { counts[m.id].missed.push(evName+' ('+fmtDate(ev.date)+')'); counts[m.id].consecutive++; }
+      if(st==='yes'){counts[m.id].yes++;counts[m.id].consec=0;}
+      else if(st==='no'){counts[m.id].missed.push(dn+' ('+fd(ev.date)+')');counts[m.id].consec++;}
     });
   });
+
   const total=filtered.length;
-  const sorted=[...activeM].sort((a,b)=>counts[b.id].yes-counts[a.id].yes);
-  const consecutive3=activeM.filter(m=>counts[m.id].consecutive>=3);
-  const neverShowed=activeM.filter(m=>counts[m.id].yes===0);
-  const top3=sorted.slice(0,3).filter(m=>counts[m.id].yes>0);
-  let rpt=`📊 ${s('event_report').toUpperCase()}\n`;
-  rpt+=`Period: ${period==='week'?s('opt_week'):period==='month'?s('opt_month'):s('opt_all')}\n`;
-  rpt+=`Events: ${total} | Active members: ${activeM.length}\n\n`;
-  if (consecutive3.length) {
-    rpt+=`🚨 CONSECUTIVE ABSENCES (3+):\n`;
-    consecutive3.forEach(m=>{ rpt+=`  ⚠️ ${m.name} — ${counts[m.id].consecutive} in a row\n`; });
-    rpt+='\n';
-  }
-  rpt+=`❌ NEVER PARTICIPATED (${neverShowed.length}):\n`;
-  if (neverShowed.length) neverShowed.forEach(m=>{ rpt+=`  • ${m.name}\n`; });
-  else rpt+=`  None\n`;
-  rpt+='\n';
-  rpt+=`📋 MISSED EVENTS BY MEMBER:\n`;
-  activeM.filter(m=>counts[m.id].missed.length>0).sort((a,b)=>counts[b.id].missed.length-counts[a.id].missed.length).forEach(m=>{
-    const c=counts[m.id];
-    rpt+=`  ${m.name} (${c.missed.length} missed):\n`;
-    c.missed.forEach(ev=>{ rpt+=`    — ${ev}\n`; });
+  const sorted=[...am].sort((a,b)=>counts[b.id].yes-counts[a.id].yes);
+  const consec3=am.filter(m=>counts[m.id].consec>=3);
+  const twoWkAgo=new Date(Date.now()-14*24*60*60*1000).toISOString().split('T')[0];
+  const twoWkMiss=am.filter(m=>{
+    const recent=sortedEvs.filter(e=>e.date>=twoWkAgo);
+    if(!recent.length)return false;
+    return recent.every(e=>{const p=e.participation||{};return p[m.id]==='no'||!p[m.id];});
   });
-  rpt+='\n';
-  rpt+=`🏆 TOP 3 THIS PERIOD:\n`;
-  top3.forEach((m,i)=>{ const medals=['🥇','🥈','🥉']; const c=counts[m.id]; const pct=Math.round(c.yes/total*100); rpt+=`  ${medals[i]} ${m.name}: ${c.yes}/${total} (${pct}%)\n`; });
-  rpt+='\n';
-  rpt+=`📈 R4 vs R3 PARTICIPATION:\n`;
-  const r4s=activeM.filter(m=>m.rank==='R4'); const r3s=activeM.filter(m=>m.rank==='R3');
+  const neverShowed=am.filter(m=>counts[m.id].yes===0);
+  const top3=sorted.slice(0,3).filter(m=>counts[m.id].yes>0);
+  const r4s=am.filter(m=>m.rank==='R4');
+  const r3s=am.filter(m=>m.rank==='R3');
   const r4avg=r4s.length?Math.round(r4s.reduce((a,m)=>a+counts[m.id].yes,0)/(r4s.length*total)*100):0;
   const r3avg=r3s.length?Math.round(r3s.reduce((a,m)=>a+counts[m.id].yes,0)/(r3s.length*total)*100):0;
-  rpt+=`  R4 avg: ${r4avg}% | R3 avg: ${r3avg}%\n`;
-  showReport('event-report-out',rpt);
-  lastReportText=rpt;
-  document.getElementById('copy-report-btn').style.display='block';
+
+  let rpt=`📊 DTK EVENT REPORT\n`;
+  rpt+=`Period: ${period==='week'?'This Week':period==='month'?'This Month':period==='lastmonth'?'Last Month':'All Time'}\n`;
+  rpt+=`Events: ${total} | Active members: ${am.length}\n\n`;
+
+  if(consec3.length){
+    rpt+=`🚨 CONSECUTIVE ABSENCES (3+ in a row):\n`;
+    consec3.forEach(m=>{rpt+=`  ⚠️ ${m.name} — ${counts[m.id].consec} consecutive\n`;});
+    rpt+='\n';
+  }
+
+  if(twoWkMiss.length){
+    rpt+=`📅 MISSING 2+ WEEKS:\n`;
+    twoWkMiss.forEach(m=>{rpt+=`  🔴 ${m.name}\n`;});
+    rpt+='\n';
+  }
+
+  rpt+=`❌ NEVER PARTICIPATED (${neverShowed.length}):\n`;
+  neverShowed.length?neverShowed.forEach(m=>{rpt+=`  • ${m.name}\n`;}):rpt+=`  None\n`;
+  rpt+='\n';
+
+  const withMissed=am.filter(m=>counts[m.id].missed.length>0).sort((a,b)=>counts[b.id].missed.length-counts[a.id].missed.length);
+  if(withMissed.length){
+    rpt+=`📋 MISSED EVENTS BY MEMBER:\n`;
+    withMissed.forEach(m=>{
+      rpt+=`  ${m.name} — ${counts[m.id].missed.length} missed:\n`;
+      counts[m.id].missed.forEach(e=>{rpt+=`    — ${e}\n`;});
+    });
+    rpt+='\n';
+  }
+
+  rpt+=`🏆 TOP 3:\n`;
+  top3.forEach((m,i)=>{const med=['🥇','🥈','🥉'];const c=counts[m.id];const pct=Math.round(c.yes/total*100);rpt+=`  ${med[i]} ${m.name}: ${c.yes}/${total} (${pct}%)\n`;});
+  rpt+='\n';
+
+  rpt+=`📈 R4 vs R3:\n  R4 avg: ${r4avg}% | R3 avg: ${r3avg}%\n\n`;
+
+  rpt+=`📊 FULL ABSENCE LIST (sorted by most missed):\n`;
+  withMissed.forEach(m=>{const c=counts[m.id];const pct=total?Math.round((total-c.yes)/total*100):0;rpt+=`  ${m.name}: ${c.missed.length} missed (${pct}% absent)\n`;});
+
+  showRpt('rp-event-out',rpt);
+  lastEventRpt=rpt;
+  document.getElementById('rp-copy-btn').style.display='block';
+
+  // Update running tally
+  top3.forEach(m=>{
+    if(!runningTally[m.id]) runningTally[m.id]={name:m.name,total:0};
+    runningTally[m.id].total+=counts[m.id].yes;
+  });
+
   // Top box
-  let topHtml=`<div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;color:var(--gold2);margin-bottom:8px">🏆 ${s('top')}</div>`;
-  if (top3.length) top3.forEach((m,i)=>{ const medals=['🥇','🥈','🥉']; const c=counts[m.id]; topHtml+=`<div class="member-row"><div>${medals[i]} <span style="font-family:'Rajdhani',sans-serif;font-weight:600">${m.name}</span></div><div style="color:var(--teal);font-family:'Rajdhani',sans-serif;font-weight:700">${c.yes} events</div></div>`; });
-  else topHtml+=`<div class="empty-state">${s('gen_first')}</div>`;
+  const tallyArr=Object.values(runningTally).sort((a,b)=>b.total-a.total).slice(0,5);
+  let topHtml=`<div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;color:var(--gold2);margin-bottom:8px">🏆 RUNNING TOP PARTICIPATORS</div>`;
+  if(tallyArr.length){
+    const max=tallyArr[0].total||1;
+    tallyArr.forEach((t,i)=>{
+      const med=['🥇','🥈','🥉','4️⃣','5️⃣'];
+      const pct=Math.round(t.total/max*100);
+      topHtml+=`<div style="margin-bottom:7px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px">${med[i]||'•'} ${t.name}</span>
+          <span style="color:var(--teal);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px">${t.total}</span>
+        </div>
+        <div class="trend-bar-wrap">
+          <div class="trend-bar-bg"><div class="trend-bar-fill" style="width:${pct}%;background:linear-gradient(90deg,var(--gold),var(--gold2))"></div></div>
+        </div>
+      </div>`;
+    });
+  }
   document.getElementById('top-box').innerHTML=topHtml;
+
+  // Month over month
+  buildMoM();
 }
 
-async function generatePowerReport() {
-  const mid=document.getElementById('power-report-member').value;
-  const twoWeeksAgo=Date.now()-14*24*60*60*1000;
-  const snap=await fs.getDocs(fs.collection(db,'power'));
-  const snaps=[];
-  snap.forEach(d=>snaps.push({id:d.id,...d.data()}));
-  snaps.sort((a,b)=>a.savedAt-b.savedAt);
-  if (!snaps.length) { showReport('power-report-out','No power snapshots saved yet.'); return; }
+function buildMoM(){
+  const now=new Date();
+  const months=[];
+  for(let i=3;i>=0;i--){
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    const start=d.toISOString().split('T')[0];
+    const end=new Date(d.getFullYear(),d.getMonth()+1,0).toISOString().split('T')[0];
+    const mEvs=events.filter(e=>e.date>=start&&e.date<=end);
+    const am=activeMembers();
+    if(!mEvs.length){months.push({label:d.toLocaleString('default',{month:'short'}),rate:0,count:0});continue;}
+    let totalYes=0,totalPoss=0;
+    mEvs.forEach(ev=>{const p=ev.participation||{};am.forEach(m=>{totalPoss++;if(p[m.id]==='yes')totalYes++;});});
+    const rate=totalPoss?Math.round(totalYes/totalPoss*100):0;
+    months.push({label:d.toLocaleString('default',{month:'short'}),rate,count:mEvs.length});
+  }
+  const max=Math.max(...months.map(m=>m.rate),1);
+  let html=`<div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;color:var(--gold2);margin-bottom:8px">📅 MONTH OVER MONTH PARTICIPATION</div>`;
+  months.forEach(m=>{
+    const trend=m.rate>=60?'var(--green)':m.rate>=40?'var(--gold)':'var(--red)';
+    html+=`<div style="margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+        <span style="font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px">${m.label}</span>
+        <span style="font-size:12px;color:${trend};font-weight:600">${m.rate}% <span style="color:var(--text3);font-size:10px">(${m.count} events)</span></span>
+      </div>
+      <div class="trend-bar-bg"><div class="trend-bar-fill" style="width:${Math.round(m.rate/max*100)}%;background:${trend}"></div></div>
+    </div>`;
+  });
+  document.getElementById('mom-section').innerHTML=html;
+}
+
+async function genPowerReport(){
+  const mid=document.getElementById('rp-power-member').value;
+  const tw=Date.now()-14*24*60*60*1000;
+  if(!powerSnaps.length){showRpt('rp-power-out','No power snapshots saved yet.');return;}
   const targetM=mid==='all'?[...members].sort((a,b)=>{
-    const av=parseFloat((a.currentPower||'0').replace('M',''))||0;
-    const bv=parseFloat((b.currentPower||'0').replace('M',''))||0;
+    const av=parseFloat((a.currentPower||'0').replace(/[^0-9.]/g,''))||0;
+    const bv=parseFloat((b.currentPower||'0').replace(/[^0-9.]/g,''))||0;
     return bv-av;
   }):members.filter(m=>m.id===mid);
-  let rpt=`⚡ POWER REPORT — Sorted Highest to Lowest\n`;
+
+  let rpt=`⚡ DTK POWER REPORT — Highest to Lowest\n`;
   rpt+=`Baseline: April 1, 2026\n\n`;
+
   targetM.forEach(m=>{
-    const history=snaps.filter(s=>s.entries&&s.entries[m.id]).map(s=>({week:s.weekLabel,value:s.entries[m.id],savedAt:s.savedAt}));
-    const stale=m.powerUpdatedAt&&m.powerUpdatedAt<twoWeeksAgo?` ${s('stale')}`:'';
-    rpt+=`${m.rank} ${m.name} — ${m.currentPower||'—'}${stale}\n`;
-    if (m.basePower&&m.basePower!==m.currentPower) rpt+=`  Baseline: ${m.basePower}\n`;
-    if (history.length>0) history.forEach(h=>{ rpt+=`  ${h.week}: ${h.value}\n`; });
-    rpt+='\n';
+    const mSnaps=powerSnaps.filter(s=>s.entries&&s.entries[m.id]);
+    const base=parseFloat((m.basePower||'0').replace(/[^0-9.]/g,''))||0;
+    const cur=parseFloat((m.currentPower||'0').replace(/[^0-9.]/g,''))||0;
+    const diff=cur-base;
+    const pct=base?Math.round(diff/base*100):0;
+    const arrow=diff>0?'↑':diff<0?'↓':'→';
+    const stale=m.powerUpdatedAt&&m.powerUpdatedAt<tw?' ⚠️ STALE':'';
+    const diffStr=diff!==0?` (${diff>0?'+':''}${diff.toFixed(1)}M / ${diff>0?'+':''}${pct}%)${stale}`:`${stale}`;
+    rpt+=`${m.rank} ${m.name}: ${m.basePower||'—'} ${arrow} ${m.currentPower||'—'}${diffStr}\n`;
   });
-  showReport('power-report-out',rpt);
-  lastReportText=rpt;
-  document.getElementById('copy-report-btn').style.display='block';
+
+  showRpt('rp-power-out',rpt);
+  lastPowerRpt=rpt;
+  document.getElementById('rp-copy-btn2').style.display='block';
 }
 
-function showReport(id,text) {
-  const el=document.getElementById(id);
-  el.style.display='block';
-  el.textContent=text;
-}
-
-function copyReport() {
-  navigator.clipboard.writeText(lastReportText).then(()=>showToast('COPIED ✓')).catch(()=>showToast('SELECT & COPY MANUALLY'));
+function showRpt(id,txt){const el=document.getElementById(id);el.style.display='block';el.textContent=txt;}
+function copyReport(type){
+  const txt=type==='event'?lastEventRpt:lastPowerRpt;
+  navigator.clipboard.writeText(txt).then(()=>toast('COPIED ✓')).catch(()=>toast('COPY MANUALLY'));
 }
 
 // ============================================================
 // MEMBERS
 // ============================================================
-function setMemberFilter(f) {
-  memberFilter=f;
-  ['ALL','EU','US','INACTIVE'].forEach(x=>{
-    const btn=document.getElementById('mf-'+x.toLowerCase());
-    if (btn) { btn.style.color=''; btn.style.borderColor=''; }
+function setMF(f){
+  mFilter=f;
+  ['ALL','EU','US','VAC','INACTIVE'].forEach(x=>{
+    const b=document.getElementById('mf-'+x.toLowerCase());
+    if(b){b.style.color='';b.style.borderColor='';}
   });
-  const active=document.getElementById('mf-'+f.toLowerCase());
-  if (active) { active.style.color='var(--gold2)'; active.style.borderColor='var(--gold)'; }
+  const a=document.getElementById('mf-'+f.toLowerCase());
+  if(a){a.style.color='var(--gold2)';a.style.borderColor='var(--gold)';}
   renderMembers();
 }
 
-function renderMembers(filter='') {
-  const q=filter||document.getElementById('member-search').value||'';
-  let filtered=members.filter(m=>m.name.toLowerCase().includes(q.toLowerCase()));
-  if (memberFilter==='EU') filtered=filtered.filter(m=>m.tz==='EU');
-  else if (memberFilter==='US') filtered=filtered.filter(m=>m.tz==='US');
-  else if (memberFilter==='INACTIVE') filtered=filtered.filter(m=>m.status==='inactive');
-  document.getElementById('member-count').textContent=`${filtered.length} members`;
-  if (!filtered.length) { document.getElementById('members-list').innerHTML=`<div class="empty-state">No members found</div>`; return; }
+function renderMembers(){
+  const q=document.getElementById('ms-search').value.toLowerCase();
+  const today=new Date().toISOString().split('T')[0];
+  let filtered=members.filter(m=>m.name.toLowerCase().includes(q));
+  if(mFilter==='EU') filtered=filtered.filter(m=>m.tz==='EU');
+  else if(mFilter==='US') filtered=filtered.filter(m=>m.tz==='US');
+  else if(mFilter==='VAC') filtered=filtered.filter(m=>m.onVacation);
+  else if(mFilter==='INACTIVE') filtered=filtered.filter(m=>m.status==='inactive');
+  document.getElementById('ms-count').textContent=`${filtered.length} members`;
+  if(!filtered.length){document.getElementById('members-list').innerHTML=`<div class="empty">No members found</div>`;return;}
   let html='';
   filtered.forEach(m=>{
-    const rc=rankClass(m.rank);
-    const tzb=m.tz?`<span class="tz-badge tz-${m.tz.toLowerCase()}">${m.tz}</span>`:'';
-    const inact=m.status==='inactive'?`<span class="inactive-badge">INACTIVE</span>`:'';
-    const notes=m.notes?`<div style="font-size:11px;color:var(--text3);margin-top:2px">${m.notes}</div>`:'';
-    html+=`<div class="member-row">
+    const rc=rk(m.rank);
+    const tzb=m.tz?`<span class="tz-b tz-${m.tz.toLowerCase()}">${m.tz}</span>`:'';
+    const ib=m.status==='inactive'?`<span class="ib">INACTIVE</span>`:'';
+    const vb=m.onVacation?`<span class="vb">🏖️ VAC${m.returnDate?' → '+m.returnDate:''}</span>`:'';
+    const notes=m.notes?`<div style="font-size:10px;color:var(--text3);margin-top:1px">${m.notes}</div>`:'';
+    html+=`<div class="mrow">
       <div style="flex:1;min-width:0">
         <div style="display:flex;align-items:center;flex-wrap:wrap;gap:3px">
-          <span class="power-rank ${rc}">${m.rank}</span>
-          <span style="font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14px">${m.name}</span>
-          ${tzb}${inact}
+          <span class="prk ${rc}">${m.rank}</span>
+          <span style="font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px">${m.name}</span>
+          ${tzb}${ib}${vb}
         </div>
-        <div style="font-size:12px;color:var(--teal);margin-top:1px">${m.currentPower||'—'}</div>
+        <div style="font-size:11px;color:var(--teal);margin-top:1px">${m.currentPower||'—'}</div>
         ${notes}
       </div>
-      <button class="icon-btn" onclick="openEditMember('${m.id}')" style="font-size:14px">✏️</button>
+      <button class="ibtn" onclick="openEdit('${m.id}')" style="font-size:13px">✏️</button>
     </div>`;
   });
   document.getElementById('members-list').innerHTML=html;
 }
 
-function filterMembers() { renderMembers(); }
-
-function openEditMember(id) {
-  const m=members.find(x=>x.id===id);
-  if (!m) return;
-  document.getElementById('edit-member-id').value=id;
-  document.getElementById('edit-member-name').value=m.name;
-  document.getElementById('edit-member-rank').value=m.rank;
-  document.getElementById('edit-member-notes').value=m.notes||'';
-  document.getElementById('edit-member-tz').value=m.tz||'';
-  document.getElementById('edit-member-status').value=m.status||'active';
-  selectEditTZ(m.tz||'');
-  selectEditStatus(m.status||'active');
-  document.getElementById('modal-edit-member').classList.add('open');
+function openEdit(id){
+  const m=members.find(x=>x.id===id); if(!m)return;
+  document.getElementById('em-id').value=id;
+  document.getElementById('em-name').value=m.name;
+  document.getElementById('em-rank').value=m.rank;
+  document.getElementById('em-notes').value=m.notes||'';
+  document.getElementById('em-tz').value=m.tz||'';
+  document.getElementById('em-status').value=m.status||'active';
+  document.getElementById('em-vac').value=m.onVacation?'true':'false';
+  document.getElementById('em-return').value=m.returnDate||'';
+  selETZ(m.tz||''); selES(m.status||'active'); selEVac(m.onVacation||false);
+  openModal('modal-edit-member');
 }
 
-function selectEditTZ(tz) {
-  document.getElementById('edit-member-tz').value=tz;
-  ['EU','US'].forEach(x=>{ document.getElementById('em-'+x.toLowerCase()).className='bear-tab-btn flex-1'+(tz===x?(' active-'+(x==='EU'?'eu':'us')):''); });
+function selETZ(tz){
+  document.getElementById('em-tz').value=tz;
+  document.getElementById('em-eu').className='btab f1'+(tz==='EU'?' aeu':'');
+  document.getElementById('em-us').className='btab f1'+(tz==='US'?' aus':'');
   document.getElementById('em-none').style.color=tz?'':'var(--gold2)';
 }
 
-function selectEditStatus(st) {
-  document.getElementById('edit-member-status').value=st;
-  document.getElementById('em-active').style.background=st==='active'?'rgba(34,197,94,0.1)':'';
-  document.getElementById('em-active').style.color=st==='active'?'var(--green)':'';
-  document.getElementById('em-active').style.borderColor=st==='active'?'var(--green)':'';
-  document.getElementById('em-inactive').style.background=st==='inactive'?'rgba(239,68,68,0.1)':'';
-  document.getElementById('em-inactive').style.color=st==='inactive'?'var(--red)':'';
-  document.getElementById('em-inactive').style.borderColor=st==='inactive'?'var(--red)':'';
+function selES(st){
+  document.getElementById('em-status').value=st;
+  document.getElementById('em-active').className='btab f1'+(st==='active'?' agreen':'');
+  document.getElementById('em-inactive').className='btab f1'+(st==='inactive'?' ared':'');
 }
 
-async function saveMemberEdit() {
-  const id=document.getElementById('edit-member-id').value;
-  const name=document.getElementById('edit-member-name').value.trim();
-  if (!name) return;
-  // Duplicate check
+function selEVac(on){
+  document.getElementById('em-vac').value=on?'true':'false';
+  document.getElementById('em-vac-off').className='btab f1'+(on?'':' agreen');
+  document.getElementById('em-vac-on').className='btab f1'+(on?' aus':'');
+  document.getElementById('em-vac-dates').style.display=on?'block':'none';
+}
+
+async function saveEdit(){
+  const id=document.getElementById('em-id').value;
+  const name=document.getElementById('em-name').value.trim();
+  if(!name)return;
   const dup=members.find(m=>m.name.toLowerCase()===name.toLowerCase()&&m.id!==id);
-  if (dup) { showToast('NAME ALREADY EXISTS'); return; }
-  const rank=document.getElementById('edit-member-rank').value;
-  const tz=document.getElementById('edit-member-tz').value;
-  const notes=document.getElementById('edit-member-notes').value.trim();
-  const status=document.getElementById('edit-member-status').value;
-  await fs.setDoc(fs.doc(db,'members',id),{name,rank,tz,notes,status,lastEditedAt:Date.now()},{merge:true});
+  if(dup){toast('NAME EXISTS');return;}
+  const rank=document.getElementById('em-rank').value;
+  const tz=document.getElementById('em-tz').value;
+  const notes=document.getElementById('em-notes').value.trim();
+  const status=document.getElementById('em-status').value;
+  const onVacation=document.getElementById('em-vac').value==='true';
+  const returnDate=document.getElementById('em-return').value;
+  await fs.setDoc(fs.doc(db,'members',id),{name,rank,tz,notes,status,onVacation,returnDate,lastEditAt:Date.now()},{merge:true});
   closeModal('modal-edit-member');
-  await loadMembers();
-  renderMembers();
-  showToast('SAVED ✓');
+  await loadMembers(); renderMembers(); toast('SAVED ✓');
 }
 
-async function deleteMemberFromEdit() {
-  const id=document.getElementById('edit-member-id').value;
-  const name=document.getElementById('edit-member-name').value;
-  if (!confirm(`Remove ${name}?`)) return;
+async function delMemberEdit(){
+  const id=document.getElementById('em-id').value;
+  const name=document.getElementById('em-name').value;
+  if(!confirm(`Remove ${name}?`))return;
   await fs.deleteDoc(fs.doc(db,'members',id));
   closeModal('modal-edit-member');
-  await loadMembers();
-  renderMembers();
-  showToast('REMOVED');
+  await loadMembers(); renderMembers(); toast('REMOVED');
 }
 
-function openAddMemberModal() {
-  document.getElementById('new-member-name').value='';
-  selectNewTZ('EU');
-  document.getElementById('modal-add-member').classList.add('open');
-}
-
-function selectNewTZ(tz) {
-  document.getElementById('new-member-tz').value=tz;
-  document.getElementById('nm-eu').className='bear-tab-btn flex-1'+(tz==='EU'?' active-eu':'');
-  document.getElementById('nm-us').className='bear-tab-btn flex-1'+(tz==='US'?' active-us':'');
+function selNTZ(tz){
+  document.getElementById('nm-tz').value=tz;
+  document.getElementById('nm-eu').className='btab aeu f1'+(tz==='EU'?'':' ');
+  document.getElementById('nm-us').className='btab f1'+(tz==='US'?' aus':'');
+  document.getElementById('nm-eu').className='btab f1'+(tz==='EU'?' aeu':'');
   document.getElementById('nm-none').style.color=tz?'':'var(--gold2)';
 }
 
-async function addMember() {
-  const name=document.getElementById('new-member-name').value.trim();
-  if (!name) return;
-  const dup=members.find(m=>m.name.toLowerCase()===name.toLowerCase());
-  if (dup) { showToast('ALREADY EXISTS'); return; }
-  const rank=document.getElementById('new-member-rank').value;
-  const tz=document.getElementById('new-member-tz').value;
+async function addMember(){
+  const name=document.getElementById('nm-name').value.trim();
+  if(!name)return;
+  if(members.find(m=>m.name.toLowerCase()===name.toLowerCase())){toast('ALREADY EXISTS');return;}
+  const rank=document.getElementById('nm-rank').value;
+  const tz=document.getElementById('nm-tz').value;
   const id='mbr_'+name.replace(/[^a-zA-Z0-9]/g,'_').toLowerCase()+'_'+Date.now();
-  await fs.setDoc(fs.doc(db,'members',id),{name,rank,tz,notes:'',status:'active',currentPower:'',basePower:'',powerUpdatedAt:Date.now(),addedAt:Date.now()});
+  await fs.setDoc(fs.doc(db,'members',id),{name,rank,tz,notes:'',status:'active',onVacation:false,returnDate:'',currentPower:'',basePower:'',powerUpdatedAt:Date.now(),addedAt:Date.now()});
   closeModal('modal-add-member');
-  await loadMembers();
-  renderMembers();
-  showToast('ADDED ✓');
+  await loadMembers(); renderMembers(); toast('ADDED ✓');
 }
 
 // ============================================================
 // UTILS
 // ============================================================
-function rankClass(r) { return r==='R5'?'r5c':r==='R4'?'r4c':r==='R3'?'r3c':r==='R2'?'r2c':'r1c'; }
+function rk(r){return r==='R5'?'r5c':r==='R4'?'r4c':r==='R3'?'r3c':r==='R2'?'r2c':'r1c';}
+function fd(str){if(!str)return '';const d=new Date(str+'T12:00:00');return d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric',year:'numeric'});}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
 
-function fmtDate(str) {
-  if (!str) return '';
-  const d=new Date(str+'T12:00:00');
-  return d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric',year:'numeric'});
-}
-
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-function showToast(msg) {
-  const t=document.getElementById('toast');
-  t.textContent=msg;
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2000);
-}
-
-document.querySelectorAll('.modal-overlay').forEach(o=>{
-  o.addEventListener('click',function(e){ if(e.target===this) this.classList.remove('open'); });
-});
-
-document.getElementById('new-event-date').value=new Date().toISOString().split('T')[0];
-document.getElementById('new-bear-date').value=new Date().toISOString().split('T')[0];
+document.querySelectorAll('.mo').forEach(o=>{o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});});
+document.getElementById('ne-date').value=new Date().toISOString().split('T')[0];
+document.getElementById('nb-date').value=new Date().toISOString().split('T')[0];
 </script>
 
 </body>
